@@ -195,8 +195,8 @@ function readGbx(data) {
                 else if(classID == 0x0309300) { // Replay
 
                 }
+                else console.error("[gbx.js] Error parsing: Not a map or replay file.");
             }
-            else console.error("[gbx.js] Error parsing: Not a map file.");
         }
     }
 
