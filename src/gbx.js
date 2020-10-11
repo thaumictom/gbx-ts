@@ -58,59 +58,61 @@ function readGbx(data) {
 
             if(version >= 6) {
                 userDataSize = readInt32();
-                numHeaderChunks = readInt32();
-                
-                for(a = 0; a < numHeaderChunks; a++) {
-                    var chunkId = readInt32() & 0xFFF;                    
-                    var chunkSize = readInt32();
-                    var isHeavy = (chunkSize & (1 << 31)) != 0;
+                if(userDataSize > 0) {
+                    numHeaderChunks = readInt32();
 
-                    headerChunks[chunkId] = {
-                        size:       chunkSize & ~0x80000000,
-                        isHeavy:    isHeavy
-                    };
-                }
+                    for(a = 0; a < numHeaderChunks; a++) {
+                        var chunkId = readInt32() & 0xFFF;                    
+                        var chunkSize = readInt32();
+                        var isHeavy = (chunkSize & (1 << 31)) != 0;
 
-                for (var key in headerChunks) {
-                    headerChunks[key].data = readBytes(headerChunks[key].size);
-                    delete headerChunks[key].size;
-                }
-            
-                if(classID == 0x03043000) {
-                    changeBuffer(headerChunks[0x002].data);
-
-                    var chunk002Version = readByte();
-                    if(chunk002Version < 3) {
-                        metadata.mapInfo = readMeta();
-                        metadata.mapName = readString();
+                        headerChunks[chunkId] = {
+                            size:       chunkSize & ~0x80000000,
+                            isHeavy:    isHeavy
+                        };
                     }
-                    readInt32();
-                    if(chunk002Version >= 1) {
-                        metadata.bronzeTime = readInt32();
-                        metadata.silverTime = readInt32();
-                        metadata.goldTime = readInt32();
-                        metadata.authorTime = readInt32();
-                        if(chunk002Version == 2)
-                            readByte();
-                        if(chunk002Version >= 4) {
-                            metadata.cost = readInt32();
-                            if(chunk002Version >= 5) {
-                                metadata.isMultilap = readBool();
-                                if(chunk002Version == 6)
-                                    readBool();
-                                if(chunk002Version >= 7) {
-                                    metadata.trackType = readInt32();
-                                    if(chunk002Version >= 9) {
-                                        readInt32();
-                                        if(chunk002Version >= 10) {
-                                            metadata.authorScore = readInt32();
-                                            if(chunk002Version >= 11) {
-                                                metadata.editorMode = readInt32(); // bit 0: advanced/simple editor, bit 1: has ghost blocks
-                                                if(chunk002Version >= 12) {
-                                                    readBool();
-                                                    if(chunk002Version >= 13) {
-                                                        metadata.nbCheckpoints = readInt32();
-                                                        metadata.nbLaps = readInt32();
+
+                    for (var key in headerChunks) {
+                        headerChunks[key].data = readBytes(headerChunks[key].size);
+                        delete headerChunks[key].size;
+                    }
+
+                    if(classID == 0x03043000) {
+                        changeBuffer(headerChunks[0x002].data);
+
+                        var chunk002Version = readByte();
+                        if(chunk002Version < 3) {
+                            metadata.mapInfo = readMeta();
+                            metadata.mapName = readString();
+                        }
+                        readInt32();
+                        if(chunk002Version >= 1) {
+                            metadata.bronzeTime = readInt32();
+                            metadata.silverTime = readInt32();
+                            metadata.goldTime = readInt32();
+                            metadata.authorTime = readInt32();
+                            if(chunk002Version == 2)
+                                readByte();
+                            if(chunk002Version >= 4) {
+                                metadata.cost = readInt32();
+                                if(chunk002Version >= 5) {
+                                    metadata.isMultilap = readBool();
+                                    if(chunk002Version == 6)
+                                        readBool();
+                                    if(chunk002Version >= 7) {
+                                        metadata.trackType = readInt32();
+                                        if(chunk002Version >= 9) {
+                                            readInt32();
+                                            if(chunk002Version >= 10) {
+                                                metadata.authorScore = readInt32();
+                                                if(chunk002Version >= 11) {
+                                                    metadata.editorMode = readInt32(); // bit 0: advanced/simple editor, bit 1: has ghost blocks
+                                                    if(chunk002Version >= 12) {
+                                                        readBool();
+                                                        if(chunk002Version >= 13) {
+                                                            metadata.nbCheckpoints = readInt32();
+                                                            metadata.nbLaps = readInt32();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -119,38 +121,38 @@ function readGbx(data) {
                                 }
                             }
                         }
-                    }
-                    
-                    changeBuffer(headerChunks[0x003].data); // Change to 0x03043003 (Common)
-                    
-                    var chunk003Version = readByte();
-                    metadata.mapInfo = readMeta();
-                    metadata.mapName = readString();
-                    var kind = readByte();
-                    if (kind == 6) // Unvalidated map
-                        console.error("[gbx.js] Unvalidated map.");
-                    if (chunk003Version >= 1) {
-                        metadata.locked = readBool(); // used by Virtual Skipper to lock the map parameters
-                        metadata.password = readString(); // weak xor encryption, no longer used in newer track files; see 03043029
-                        if (chunk003Version >= 2) {
-                            metadata.decoration = readMeta();
-                            if (chunk003Version >= 3) {
-                                metadata.mapOrigin = readVec2();
-                                if (chunk003Version >= 4) {
-                                    metadata.mapTarget = readVec2();
-                                    if (chunk003Version >= 5) {
-                                        readInt64(); readInt64();
-                                        if (chunk003Version >= 6) {
-                                            metadata.mapType = readString();
-                                            metadata.mapStyle = readString();
-                                            if (chunk003Version <= 8)
-                                                readBool();
-                                            if (chunk003Version >= 8) {
-                                                metadata.lightmapCacheUID = toBase64(readBytes(8));
-                                                if (chunk003Version >= 9) {
-                                                    metadata.lightmapVersion = readByte();
-                                                    if (chunk003Version >= 11)
-                                                        metadata.titleUID = readLookbackString();
+
+                        changeBuffer(headerChunks[0x003].data); // Change to 0x03043003 (Common)
+
+                        var chunk003Version = readByte();
+                        metadata.mapInfo = readMeta();
+                        metadata.mapName = readString();
+                        var kind = readByte();
+                        if (kind == 6) // Unvalidated map
+                            console.error("[gbx.js] Unvalidated map.");
+                        if (chunk003Version >= 1) {
+                            metadata.locked = readBool(); // used by Virtual Skipper to lock the map parameters
+                            metadata.password = readString(); // weak xor encryption, no longer used in newer track files; see 03043029
+                            if (chunk003Version >= 2) {
+                                metadata.decoration = readMeta();
+                                if (chunk003Version >= 3) {
+                                    metadata.mapOrigin = readVec2();
+                                    if (chunk003Version >= 4) {
+                                        metadata.mapTarget = readVec2();
+                                        if (chunk003Version >= 5) {
+                                            readInt64(); readInt64();
+                                            if (chunk003Version >= 6) {
+                                                metadata.mapType = readString();
+                                                metadata.mapStyle = readString();
+                                                if (chunk003Version <= 8)
+                                                    readBool();
+                                                if (chunk003Version >= 8) {
+                                                    metadata.lightmapCacheUID = toBase64(readBytes(8));
+                                                    if (chunk003Version >= 9) {
+                                                        metadata.lightmapVersion = readByte();
+                                                        if (chunk003Version >= 11)
+                                                            metadata.titleUID = readLookbackString();
+                                                    }
                                                 }
                                             }
                                         }
@@ -158,76 +160,76 @@ function readGbx(data) {
                                 }
                             }
                         }
-                    }
 
-                    changeBuffer(headerChunks[0x005].data);
+                        changeBuffer(headerChunks[0x005].data);
 
-                    metadata.xml = readString();
+                        metadata.xml = readString();
 
-                    changeBuffer(headerChunks[0x007].data);
+                        changeBuffer(headerChunks[0x007].data);
 
-                    var chunk007Version = readInt32();
-                    if(chunk007Version != 0) {
-                        metadata.thumbnailSize = readInt32();
-                        readString("<Thumbnail.jpg>".length);
-                        if(metadata.thumbnailSize == 0) {
-                            metadata.thumbnail = null;
-                            console.warn("[gbx.js] No thumbnail.");
+                        var chunk007Version = readInt32();
+                        if(chunk007Version != 0) {
+                            metadata.thumbnailSize = readInt32();
+                            readString("<Thumbnail.jpg>".length);
+                            if(metadata.thumbnailSize == 0) {
+                                metadata.thumbnail = null;
+                                console.warn("[gbx.js] No thumbnail.");
+                            }
+                            else {
+                                metadata.thumbnail = readBytes(metadata.thumbnailSizethumbSize);
+                            }
+                            readString("</Thumbnail.jpg>".length);
+                            readString("<Comments>".length);
+                            metadata.comments = readString();
+                            readString("</Comments>".length);
                         }
-                        else {
-                            metadata.thumbnail = readBytes(metadata.thumbnailSizethumbSize);
-                        }
-                        readString("</Thumbnail.jpg>".length);
-                        readString("<Comments>".length);
-                        metadata.comments = readString();
-                        readString("</Comments>".length);
+
+                        changeBuffer(headerChunks[0x008].data);
+
+                        var chunk008Version = readInt32();
+                        metadata.authorVersion = readInt32();
+                        metadata.authorLogin = readString();
+                        metadata.authorNickname = readString();
+                        metadata.authorZone = readString();
+                        metadata.authorExtraInfo = readString();
                     }
+                    else if(classID == 0x03093000) { // Replay
+                        changeBuffer(headerChunks[0x000].data);
 
-                    changeBuffer(headerChunks[0x008].data);
-
-                    var chunk008Version = readInt32();
-                    metadata.authorVersion = readInt32();
-                    metadata.authorLogin = readString();
-                    metadata.authorNickname = readString();
-                    metadata.authorZone = readString();
-                    metadata.authorExtraInfo = readString();
-                }
-                else if(classID == 0x03093000) { // Replay
-                    changeBuffer(headerChunks[0x000].data);
-
-                    chunk000Version = readInt32();
-                    if(chunk000Version >= 2)
-                    {
-                        metadata.mapInfo = readMeta();
-                        metadata.time = readInt32();
-                        metadata.driverNickname = readString();
-
-                        if (chunk000Version >= 6)
+                        chunk000Version = readInt32();
+                        if(chunk000Version >= 2)
                         {
-                            metadata.driverLogin = readString();
+                            metadata.mapInfo = readMeta();
+                            metadata.time = readInt32();
+                            metadata.driverNickname = readString();
 
-                            if (chunk000Version >= 8)
+                            if (chunk000Version >= 6)
                             {
-                                readByte();
-                                metadata.titleUID = readLookbackString();
+                                metadata.driverLogin = readString();
+
+                                if (chunk000Version >= 8)
+                                {
+                                    readByte();
+                                    metadata.titleUID = readLookbackString();
+                                }
                             }
                         }
+
+                        changeBuffer(headerChunks[0x001].data);
+
+                        metadata.xml = readString();
+
+                        changeBuffer(headerChunks[0x002].data);
+
+                        var chunk002Version = readInt32();
+                        metadata.authorVersion = readInt32();
+                        metadata.authorLogin = readString();
+                        metadata.authorNickname = readString();
+                        metadata.authorZone = readString();
+                        metadata.authorExtraInfo = readString();
                     }
-
-                    changeBuffer(headerChunks[0x001].data);
-
-                    metadata.xml = readString();
-
-                    changeBuffer(headerChunks[0x002].data);
-
-                    var chunk002Version = readInt32();
-                    metadata.authorVersion = readInt32();
-                    metadata.authorLogin = readString();
-                    metadata.authorNickname = readString();
-                    metadata.authorZone = readString();
-                    metadata.authorExtraInfo = readString();
+                    else console.error("[gbx.js] Error parsing: Not a map or replay file.");
                 }
-                else console.error("[gbx.js] Error parsing: Not a map or replay file.");
             }
         }
     }
