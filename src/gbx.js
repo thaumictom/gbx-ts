@@ -192,8 +192,40 @@ function readGbx(data) {
                     metadata.authorZone = readString();
                     metadata.authorExtraInfo = readString();
                 }
-                else if(classID == 0x0309300) { // Replay
+                else if(classID == 0x03093000) { // Replay
+                    changeBuffer(headerChunks[0x000].data);
 
+                    chunk000Version = readInt32();
+                    if(chunk000Version >= 2)
+                    {
+                        metadata.mapInfo = readMeta();
+                        metadata.time = readInt32();
+                        metadata.driverNickname = readString();
+
+                        if (chunk000Version >= 6)
+                        {
+                            metadata.driverLogin = readString();
+
+                            if (chunk000Version >= 8)
+                            {
+                                readByte();
+                                metadata.titleUID = readLookbackString();
+                            }
+                        }
+                    }
+
+                    changeBuffer(headerChunks[0x001].data);
+
+                    metadata.xml = readString();
+
+                    changeBuffer(headerChunks[0x002].data);
+
+                    var chunk002Version = readInt32();
+                    metadata.authorVersion = readInt32();
+                    metadata.authorLogin = readString();
+                    metadata.authorNickname = readString();
+                    metadata.authorZone = readString();
+                    metadata.authorExtraInfo = readString();
                 }
                 else console.error("[gbx.js] Error parsing: Not a map or replay file.");
             }
