@@ -14,4 +14,4 @@ jobs:
       - name: Auto Minify
         uses: nizarmah/auto-minify@v2.0
         with:
-          directory: ./src
+          directory: ../../src
