@@ -20,7 +20,7 @@
     "url": "https://github.com/ThaumicTom/gbx.js.git"
   },
   "license": "MIT",
-  "homepage": "https://github.com/ThaumicTom/gbx.js#readme"
+  "homepage": "https://github.com/ThaumicTom/gbx.js#readme",
   "publishConfig": { 
     "registry": "https://npm.pkg.github.com/" 
   }
