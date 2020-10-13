@@ -1,1 +1,27 @@
-"publishConfig": { "registry": "https://npm.pkg.github.com/" }
+{
+  "name": "gbx",
+  "description": "a simple ManiaPlanet-based header parser",
+  "version": "0.1.0",
+  "main": "src/gbx.js",
+  "unpkg": "src/gbx.min.js",
+  "keywords": [
+    "vanilla",
+    "vanilla-js",
+    "parser",
+    "gbx",
+    "trackmania"
+  ],
+  "author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
+  "bugs": {
+    "web": "https://github.com/ThaumicTom/gbx.js/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ThaumicTom/gbx.js.git"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ThaumicTom/gbx.js#readme"
+  "publishConfig": { 
+    "registry": "https://npm.pkg.github.com/" 
+  }
+}
