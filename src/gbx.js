@@ -1,5 +1,5 @@
 /**
- * GBXjs - Version 2020-10-13
+ * GBXjs - Version 2020-10-1/
  * for ManiaPlanet-based maps only
  * 
  * by BigBang1112 & ThaumicTom
@@ -65,8 +65,6 @@
         26: "Stadium®",
         10003: "Common"
     }
-
-    var moduleprefix = "[gbx.js] "
 
     GBX.prototype.read = function () {
         var t0 = performance.now()
@@ -159,7 +157,7 @@
                             metadata.mapNameD = deformat(metadata.mapName)
                             var kind = readByte();
                             if (kind == 6) // Unvalidated map
-                                err = moduleprefix + "Map unvalidated."
+                                err = 3
                             if (chunk003Version >= 1) {
                                 metadata.locked = readBool(); // used by Virtual Skipper to lock the map parameters
                                 metadata.password = readString(); // weak xor encryption, no longer used in newer track files; see 03043029
@@ -262,37 +260,59 @@
                             metadata.authorNickname = readString();
                             metadata.authorZone = readString();
                             metadata.authorExtraInfo = readString();
-                        } else err = moduleprefix + "Not a map or replay file."
+                        } else err = 2
                     }
                 }
             }
-        } else err = moduleprefix + "Not a gbx file."
+        } else err = 1
 
         var t1 = performance.now()
 
-        if (this.onParse !== undefined) {
-            if (this.onParse.length > 0) {
-                this.onParse(metadata, err, t1 - t0)
-            }
+        if (this.onParse !== undefined && this.onParse.length > 0) {
+            this.onParse(metadata, err, t1 - t0)
         }
     }
 
     // Process options; Starting point
 
     function GBX(data) {
-        this.buffer = data["data"];
-        if (data["thumbnail"]) {
-            this.thumb = data["thumbnail"];
-        }
-        this.onParse = data["onParse"]
-        if (this.buffer !== undefined) {
-            this.read(this.buffer)
+        f = this.read
+
+        if (data["data"].constructor !== Uint8Array) {
+            (async function () {
+                data["data"] = new Uint8Array(await readFile(data["data"]))
+                optionProcess(data, f)
+            })()
         } else {
-            err = moduleprefix + "No data provided."
+            optionProcess(data, f)
         }
     }
 
     // Functions
+
+    function optionProcess(data, f) {
+        if (data["thumbnail"]) {
+            this.thumb = data["thumbnail"];
+        }
+
+        this.onParse = data["onParse"]
+        this.buffer = data["data"]
+
+        if (this.buffer !== undefined) {
+            f(this.buffer)
+        } else {
+            err = 0
+        }
+    }
+
+    function readFile(file) {
+        return new Promise((res, rej) => {
+            let fr = new FileReader();
+            fr.addEventListener("loadend", e => res(e.target.result));
+            fr.addEventListener("error", rej);
+            fr.readAsArrayBuffer(file);
+        });
+    }
 
     function changeBuffer(newBuffer) {
         buffer = newBuffer;
@@ -369,11 +389,11 @@
                 case 3:
                     return "";
                 default:
-                    err = moduleprefix + "Unknown lookback error."
+                    err = 10
             }
         } else if (index >> 30 == 0) {
             if (collectionIDs[index] == undefined) {
-                err = moduleprefix + "Unknown index: " + index
+                err = 4
                 return index;
             } else
                 return collectionIDs[index];

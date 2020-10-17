@@ -1,9 +1,12 @@
 # gbx.js
-
 [![GitHub](https://img.shields.io/github/license/ThaumicTom/gbx.js?style=for-the-badge)](https://github.com/ThaumicTom/gbx.js/blob/main/LICENSE)
 [![GitHub file size in bytes](https://img.shields.io/github/size/ThaumicTom/gbx.js/src/gbx.min.js?style=for-the-badge)](#)
 
-a slim - 1.7kB gzipped - ManiaPlanet-based map header parser based on vanilla and plain JavaScript
+a slim, fast and easy to set up Gamebox (GBX) parser written in vanilla JavaScript
+- gbx.js parses the headers asynchronously, while it stays read-only
+- supported versions range from Maniaplanet to Trackmania®
+- currently only `*.Map.Gbx` and `*.Replay.Gbx` files are supported
+- just 1.8kB minified and gzipped 
 
 ## Getting started
 
@@ -18,18 +21,21 @@ Or instead include it in your HTML:
 
 ### Basic usage
 
-Use `readGbx(file);` to read your mapfile. The type of the `file` has to be a Uint8Array.
+Create a new GBX instance, provide it with data either of a file type object or an Uint8Array and use the parsed data points after parsing.
 ```javascript
-let buffer = new Uint8Array(/* Your *.Gbx file byte data */);
 let GBX = new GBX({
     data: buffer,
-    onParse: function(e) {
-        console.log(e);
+    onParse: function(metadata) {
+        console.log(metadata)
     }
-});
+})
 ```
 
-### Examples and advanced options
+## Further reading
 
-- [Examples](https://github.com/ThaumicTom/gbx.js/wiki/Examples)
-- [API](https://github.com/ThaumicTom/gbx.js/wiki/API)
+- [gbx.js Wiki](https://github.com/ThaumicTom/gbx.js/wiki)
+    - [API](https://github.com/ThaumicTom/gbx.js/wiki/API)
+    - [GBX Reference](https://github.com/ThaumicTom/gbx.js/wiki/GBX-Reference)
+    - [Error handling](https://github.com/ThaumicTom/gbx.js/wiki/Error-handling)
+    - [Examples](https://github.com/ThaumicTom/gbx.js/wiki/Examples)
+- [gbx-net](https://github.com/BigBang1112/gbx-net), a more complete and more in-depth read & write GBX parser library written in C#
