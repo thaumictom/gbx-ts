@@ -1,6 +1,5 @@
 /**
- * GBXjs - Version 2020-10-1/
- * for ManiaPlanet-based maps only
+ * GBXjs - Version 2020-11-22/
  * 
  * by BigBang1112 & ThaumicTom
  * released under MIT license
@@ -45,15 +44,14 @@
         byte,
         bytes,
         buffer,
-        err;
+        err,
+        pointer,
+        lookbackVersion,
+        metadata;
 
     var headerChunks = [];
     var lookbackStrings = [];
-    var metadata = [];
 
-    var lookbackVersion = null;
-
-    var pointer = 0;
     var utf8decoder = new TextDecoder();
 
     var collectionIDs = {
@@ -68,6 +66,11 @@
 
     GBX.prototype.read = function () {
         var t0 = performance.now()
+
+        metadata = [];
+
+        pointer = 0;
+        lookbackVersion = null;
 
         buffer = this.buffer
 
@@ -134,6 +137,8 @@
                                                     metadata.authorScore = readInt32();
                                                     if (chunk002Version >= 11) {
                                                         metadata.editorMode = readInt32(); // bit 0: advanced/simple editor, bit 1: has ghost blocks
+                                                        metadata.isSimple = (metadata.editorMode & 1) != 0
+                                                        metadata.hasGhostBlocks = (metadata.editorMode & 2) != 0
                                                         if (chunk002Version >= 12) {
                                                             readBool();
                                                             if (chunk002Version >= 13) {
@@ -190,44 +195,34 @@
                                 }
                             }
 
+                            // Game version
+
+                            var title = metadata.titleUID
+                            if (title == "Trackmania") {
+                                metadata.game = "Trackmania®"
+                            } else if (title == "TMCE@nadeolabs" || title == "TMTurbo@nadeolabs") {
+                                metadata.game = "Trackmania Turbo"
+                            } else if (chunk003Version <= 5) {
+                                metadata.game = "Trackmania 1"
+                            } else {
+                                metadata.game = "ManiaPlanet"
+                            }
+
                             changeBuffer(headerChunks[0x005].data);
 
                             metadata.xml = readString();
 
-                            if (this.thumb) {
+                            if (chunk003Version > 5) {
+                                changeBuffer(headerChunks[0x008].data);
 
-                                changeBuffer(headerChunks[0x007].data);
-
-                                var chunk007Version = readInt32();
-                                if (chunk007Version != 0) {
-                                    metadata.thumbnailSize = readInt32();
-                                    readString("<Thumbnail.jpg>".length);
-                                    if (metadata.thumbnailSize == 0) {
-                                        metadata.thumbnail = null;
-                                    } else {
-                                        metadata.thumbnail = readBytes(metadata.thumbnailSize);
-                                    }
-                                    readString("</Thumbnail.jpg>".length);
-                                    readString("<Comments>".length);
-                                    metadata.comments = readString();
-                                    readString("</Comments>".length);
-                                }
-
-                                if (this.thumb == "base64") {
-                                    metadata.thumbnail = toBase64(metadata.thumbnail)
-                                }
-
+                                /*var chunk008Version =*/
+                                readInt32();
+                                metadata.authorVersion = readInt32();
+                                metadata.authorLogin = readString();
+                                metadata.authorNickname = readString();
+                                metadata.authorZone = readString();
+                                metadata.authorExtraInfo = readString();
                             }
-
-                            changeBuffer(headerChunks[0x008].data);
-
-                            /*var chunk008Version =*/
-                            readInt32();
-                            metadata.authorVersion = readInt32();
-                            metadata.authorLogin = readString();
-                            metadata.authorNickname = readString();
-                            metadata.authorZone = readString();
-                            metadata.authorExtraInfo = readString();
                         } else if (classID == 0x03093000) { // Replay
 
                             changeBuffer(headerChunks[0x000].data);
@@ -266,11 +261,41 @@
             }
         } else err = 1
 
-        var t1 = performance.now()
-
         if (this.onParse !== undefined && this.onParse.length > 0) {
             this.onParse(metadata, err, t1 - t0)
         }
+
+        // Thumbnail
+
+        if (this.thumb) {
+
+            changeBuffer(headerChunks[0x007].data);
+
+            var chunk007Version = readInt32();
+            if (chunk007Version != 0) {
+                metadata.thumbnailSize = readInt32(); a
+                readString("<Thumbnail.jpg>".length);
+                if (metadata.thumbnailSize == 0) {
+                    metadata.thumbnail = null;
+                } else {
+                    metadata.thumbnail = readBytes(metadata.thumbnailSize);
+                }
+                readString("</Thumbnail.jpg>".length);
+                readString("<Comments>".length);
+                metadata.comments = readString();
+                readString("</Comments>".length);
+            }
+
+            if (this.thumb == "base64") {
+                metadata.thumbnail = toBase64(metadata.thumbnail)
+            }
+        }
+
+        if (this.onThumb !== undefined && this.onThumb.length > 0) {
+            this.onThumb(metadata.thumbnail, metadata.thumbnailSize)
+        }
+
+        var t1 = performance.now()
     }
 
     // Process options; Starting point
@@ -296,6 +321,7 @@
         }
 
         this.onParse = data["onParse"]
+        this.onThumb = data["onThumb"]
         this.buffer = data["data"]
 
         if (this.buffer !== undefined) {
