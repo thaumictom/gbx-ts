@@ -1,6 +1,7 @@
 # gbx.js
 [![GitHub](https://img.shields.io/github/license/ThaumicTom/gbx.js?style=for-the-badge)](https://github.com/ThaumicTom/gbx.js/blob/main/LICENSE)
 [![GitHub file size in bytes](https://img.shields.io/github/size/ThaumicTom/gbx.js/src/gbx.min.js?style=for-the-badge)](#)
+[![jsDelivr hits](https://img.shields.io/jsdelivr/npm/hm/gbx?color=ff5627&style=for-the-badge)](https://www.jsdelivr.com/package/npm/gbx)
 
 a slim, fast and easy to set up Gamebox (GBX) parser written in vanilla JavaScript
 - gbx.js parses the headers asynchronously, while it stays read-only
@@ -23,7 +24,7 @@ Or instead include it in your HTML:
 
 Create a new GBX instance, provide it with data either of a file type object or an Uint8Array and use the parsed data points after parsing.
 ```javascript
-let GBX = new GBX({
+let myGBX = new GBX({
     data: buffer,
     onParse: function(metadata) {
         console.log(metadata)
