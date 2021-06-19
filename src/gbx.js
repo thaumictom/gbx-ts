@@ -1,35 +1,40 @@
 /**
- * GBXjs - Version 2020-11-22/
- * 
+ * GBXjs - Version 2021-06-20
+ *
  * by BigBang1112 & ThaumicTom
  * released under MIT license
  */
 (function (f) {
-    "use strict";
+    'use strict';
     var name = 'GBX';
-    if (typeof exports === "object" && typeof module !== "undefined") {
-        module.exports = f.apply(null, [].map(function (r) {
-            return require(r);
-        }));
-    } else if (typeof define === "function" && define.amd) {
+    if (typeof exports === 'object' && typeof module !== 'undefined') {
+        module.exports = f.apply(
+            null,
+            [].map(function (r) {
+                return require(r);
+            })
+        );
+    } else if (typeof define === 'function' && define.amd) {
         define([], f);
     } else {
         var g;
-        if (typeof window !== "undefined") {
+        if (typeof window !== 'undefined') {
             g = window;
-        } else if (typeof global !== "undefined") {
+        } else if (typeof global !== 'undefined') {
             g = global;
-        } else if (typeof self !== "undefined") {
+        } else if (typeof self !== 'undefined') {
             g = self;
         } else {
             g = this;
         }
-        g[name] = f.apply(null, [].map(function (r) {
-            return g[r];
-        }));
+        g[name] = f.apply(
+            null,
+            [].map(function (r) {
+                return g[r];
+            })
+        );
     }
 })(function () {
-
     // Main
 
     var gbx,
@@ -55,28 +60,28 @@
     var utf8decoder = new TextDecoder();
 
     var collectionIDs = {
-        6: "Stadium",
-        11: "Valley",
-        12: "Canyon",
-        13: "Lagoon",
-        25: "Stadium256",
-        26: "Stadium®",
-        10003: "Common"
-    }
+        6: 'Stadium',
+        11: 'Valley',
+        12: 'Canyon',
+        13: 'Lagoon',
+        25: 'Stadium256',
+        26: 'Stadium®',
+        10003: 'Common',
+    };
 
     GBX.prototype.read = function () {
-        var t0 = performance.now()
+        var t0 = performance.now();
 
         metadata = [];
 
         pointer = 0;
         lookbackVersion = null;
 
-        buffer = this.buffer
+        buffer = this.buffer;
 
         gbx = readString(3);
 
-        if (gbx == "GBX") {
+        if (gbx == 'GBX') {
             version = readInt16();
 
             if (version >= 3) {
@@ -92,18 +97,20 @@
                         numHeaderChunks = readInt32();
 
                         for (a = 0; a < numHeaderChunks; a++) {
-                            var chunkId = readInt32() & 0xFFF;
+                            var chunkId = readInt32() & 0xfff;
                             var chunkSize = readInt32();
                             var isHeavy = (chunkSize & (1 << 31)) != 0;
 
                             headerChunks[chunkId] = {
                                 size: chunkSize & ~0x80000000,
-                                isHeavy: isHeavy
+                                isHeavy: isHeavy,
                             };
                         }
 
                         for (var key in headerChunks) {
-                            headerChunks[key].data = readBytes(headerChunks[key].size);
+                            headerChunks[key].data = readBytes(
+                                headerChunks[key].size
+                            );
                             delete headerChunks[key].size;
                         }
 
@@ -121,29 +128,43 @@
                                 metadata.silverTime = readInt32();
                                 metadata.goldTime = readInt32();
                                 metadata.authorTime = readInt32();
-                                if (chunk002Version == 2)
-                                    readByte();
+                                if (chunk002Version == 2) readByte();
                                 if (chunk002Version >= 4) {
                                     metadata.cost = readInt32();
                                     if (chunk002Version >= 5) {
                                         metadata.isMultilap = readBool();
-                                        if (chunk002Version == 6)
-                                            readBool();
+                                        if (chunk002Version == 6) readBool();
                                         if (chunk002Version >= 7) {
                                             metadata.trackType = readInt32();
                                             if (chunk002Version >= 9) {
                                                 readInt32();
                                                 if (chunk002Version >= 10) {
-                                                    metadata.authorScore = readInt32();
+                                                    metadata.authorScore =
+                                                        readInt32();
                                                     if (chunk002Version >= 11) {
-                                                        metadata.editorMode = readInt32(); // bit 0: advanced/simple editor, bit 1: has ghost blocks
-                                                        metadata.isSimple = (metadata.editorMode & 1) != 0
-                                                        metadata.hasGhostBlocks = (metadata.editorMode & 2) != 0
-                                                        if (chunk002Version >= 12) {
+                                                        metadata.editorMode =
+                                                            readInt32(); // bit 0: advanced/simple editor, bit 1: has ghost blocks
+                                                        metadata.isSimple =
+                                                            (metadata.editorMode &
+                                                                1) !=
+                                                            0;
+                                                        metadata.hasGhostBlocks =
+                                                            (metadata.editorMode &
+                                                                2) !=
+                                                            0;
+                                                        if (
+                                                            chunk002Version >=
+                                                            12
+                                                        ) {
                                                             readBool();
-                                                            if (chunk002Version >= 13) {
-                                                                metadata.nbCheckpoints = readInt32();
-                                                                metadata.nbLaps = readInt32();
+                                                            if (
+                                                                chunk002Version >=
+                                                                13
+                                                            ) {
+                                                                metadata.nbCheckpoints =
+                                                                    readInt32();
+                                                                metadata.nbLaps =
+                                                                    readInt32();
                                                             }
                                                         }
                                                     }
@@ -159,10 +180,11 @@
                             var chunk003Version = readByte();
                             metadata.mapInfo = readMeta();
                             metadata.mapName = readString();
-                            metadata.mapNameD = deformat(metadata.mapName)
+                            metadata.mapNameD = deformat(metadata.mapName);
                             var kind = readByte();
-                            if (kind == 6) // Unvalidated map
-                                err = 3
+                            if (kind == 6)
+                                // Unvalidated map
+                                err = 3;
                             if (chunk003Version >= 1) {
                                 metadata.locked = readBool(); // used by Virtual Skipper to lock the map parameters
                                 metadata.password = readString(); // weak xor encryption, no longer used in newer track files; see 03043029
@@ -176,16 +198,28 @@
                                                 readInt64();
                                                 readInt64();
                                                 if (chunk003Version >= 6) {
-                                                    metadata.mapType = readString();
-                                                    metadata.mapStyle = readString();
+                                                    metadata.mapType =
+                                                        readString();
+                                                    metadata.mapStyle =
+                                                        readString();
                                                     if (chunk003Version <= 8)
                                                         readBool();
                                                     if (chunk003Version >= 8) {
-                                                        metadata.lightmapCacheUID = toBase64(readBytes(8));
-                                                        if (chunk003Version >= 9) {
-                                                            metadata.lightmapVersion = readByte();
-                                                            if (chunk003Version >= 11)
-                                                                metadata.titleUID = readLookbackString();
+                                                        metadata.lightmapCacheUID =
+                                                            toBase64(
+                                                                readBytes(8)
+                                                            );
+                                                        if (
+                                                            chunk003Version >= 9
+                                                        ) {
+                                                            metadata.lightmapVersion =
+                                                                readByte();
+                                                            if (
+                                                                chunk003Version >=
+                                                                11
+                                                            )
+                                                                metadata.titleUID =
+                                                                    readLookbackString();
                                                         }
                                                     }
                                                 }
@@ -195,18 +229,9 @@
                                 }
                             }
 
-                            // Game version
-
-                            var title = metadata.titleUID
-                            if (title == "Trackmania") {
-                                metadata.game = "Trackmania®"
-                            } else if (title == "TMCE@nadeolabs" || title == "TMTurbo@nadeolabs") {
-                                metadata.game = "Trackmania Turbo"
-                            } else if (chunk003Version <= 5) {
-                                metadata.game = "Trackmania 1"
-                            } else {
-                                metadata.game = "ManiaPlanet"
-                            }
+                            metadata.game = getGameByTitleUID(
+                                metadata.titleUID
+                            );
 
                             changeBuffer(headerChunks[0x005].data);
 
@@ -223,7 +248,8 @@
                                 metadata.authorZone = readString();
                                 metadata.authorExtraInfo = readString();
                             }
-                        } else if (classID == 0x03093000) { // Replay
+                        } else if (classID == 0x03093000) {
+                            // Replay
 
                             changeBuffer(headerChunks[0x000].data);
 
@@ -238,10 +264,15 @@
 
                                     if (chunk000Version >= 8) {
                                         readByte();
-                                        metadata.titleUID = readLookbackString();
+                                        metadata.titleUID =
+                                            readLookbackString();
                                     }
                                 }
                             }
+
+                            metadata.game = getGameByTitleUID(
+                                metadata.titleUID
+                            );
 
                             changeBuffer(headerChunks[0x001].data);
 
@@ -255,87 +286,87 @@
                             metadata.authorNickname = readString();
                             metadata.authorZone = readString();
                             metadata.authorExtraInfo = readString();
-                        } else err = 2
+                        } else err = 2;
                     }
                 }
             }
-        } else err = 1
+        } else err = 1;
 
         if (this.onParse !== undefined && this.onParse.length > 0) {
-            this.onParse(metadata, err, t1 - t0)
+            this.onParse(metadata, err, t1 - t0);
         }
 
         // Thumbnail
 
         if (this.thumb) {
-
             changeBuffer(headerChunks[0x007].data);
 
             var chunk007Version = readInt32();
             if (chunk007Version != 0) {
-                metadata.thumbnailSize = readInt32(); a
-                readString("<Thumbnail.jpg>".length);
+                metadata.thumbnailSize = readInt32();
+                a;
+                readString('<Thumbnail.jpg>'.length);
                 if (metadata.thumbnailSize == 0) {
                     metadata.thumbnail = null;
                 } else {
                     metadata.thumbnail = readBytes(metadata.thumbnailSize);
                 }
-                readString("</Thumbnail.jpg>".length);
-                readString("<Comments>".length);
+                readString('</Thumbnail.jpg>'.length);
+                readString('<Comments>'.length);
                 metadata.comments = readString();
-                readString("</Comments>".length);
+                readString('</Comments>'.length);
             }
 
-            if (this.thumb == "base64") {
-                metadata.thumbnail = toBase64(metadata.thumbnail)
+            if (this.thumb == 'base64') {
+                metadata.thumbnail = toBase64(metadata.thumbnail);
             }
         }
 
         if (this.onThumb !== undefined && this.onThumb.length > 0) {
-            this.onThumb(metadata.thumbnail, metadata.thumbnailSize)
+            this.onThumb(metadata.thumbnail, metadata.thumbnailSize);
         }
 
-        var t1 = performance.now()
-    }
+        var t1 = performance.now();
+    };
 
     // Process options; Starting point
 
     function GBX(data) {
-        f = this.read
+        f = this.read;
 
-        if (data["data"].constructor !== Uint8Array) {
+        if (data['data'].constructor !== Uint8Array) {
             (async function () {
-                data["data"] = new Uint8Array(await readFile(data["data"]))
-                optionProcess(data, f)
-            })()
+                data['data'] = new Uint8Array(await readFile(data['data']));
+                optionProcess(data, f);
+            })();
         } else {
-            optionProcess(data, f)
+            optionProcess(data, f);
         }
     }
 
     // Functions
 
     function optionProcess(data, f) {
-        if (data["thumbnail"]) {
-            this.thumb = data["thumbnail"];
+        if (data['thumbnail']) {
+            this.thumb = data['thumbnail'];
         }
 
-        this.onParse = data["onParse"]
-        this.onThumb = data["onThumb"]
-        this.buffer = data["data"]
+        this.onParse = data['onParse'];
+        this.onThumb = data['onThumb'];
+        this.buffer = data['data'];
 
         if (this.buffer !== undefined) {
-            f(this.buffer)
+            f(this.buffer);
         } else {
-            err = 0
+            err = 0;
         }
     }
 
     function readFile(file) {
         return new Promise((res, rej) => {
             let fr = new FileReader();
-            fr.addEventListener("loadend", e => res(e.target.result));
-            fr.addEventListener("error", rej);
+            fr.addEventListener('loadend', (e) => res(e.target.result));
+            fr.addEventListener('error', rej);
             fr.readAsArrayBuffer(file);
         });
     }
@@ -368,8 +399,7 @@
 
     function readBytes(count) {
         bytes = new Uint8Array(count);
-        for (i = 0; i < count; i++)
-            bytes[i] = readByte();
+        for (i = 0; i < count; i++) bytes[i] = readByte();
         return bytes;
     }
 
@@ -385,8 +415,16 @@
 
     function readInt64() {
         bytes = readBytes(8);
-        return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24) |
-            (bytes[4] << 32) | (bytes[5] << 40) | (bytes[6] << 48) | (bytes[7] << 56);
+        return (
+            bytes[0] |
+            (bytes[1] << 8) |
+            (bytes[2] << 16) |
+            (bytes[3] << 24) |
+            (bytes[4] << 32) |
+            (bytes[5] << 40) |
+            (bytes[6] << 48) |
+            (bytes[7] << 56)
+        );
     }
 
     function readString(count) {
@@ -399,41 +437,38 @@
     }
 
     function readLookbackString() {
-        if (lookbackVersion == null)
-            lookbackVersion = readInt32();
+        if (lookbackVersion == null) lookbackVersion = readInt32();
 
         var index = new Uint32Array([readInt32()])[0];
 
-        if ((index & 0x3FFF) == 0 && (index >> 30 == 1 || index >> 30 == -2)) {
+        if ((index & 0x3fff) == 0 && (index >> 30 == 1 || index >> 30 == -2)) {
             var str = readString();
             lookbackStrings.push(str);
             return str;
-        } else if ((index & 0x3FFF) == 0x3FFF) {
+        } else if ((index & 0x3fff) == 0x3fff) {
             switch (index >> 30) {
                 case 2:
-                    return "Unassigned";
+                    return 'Unassigned';
                 case 3:
-                    return "";
+                    return '';
                 default:
-                    err = 10
+                    err = 10;
             }
         } else if (index >> 30 == 0) {
             if (collectionIDs[index] == undefined) {
-                err = 4
+                err = 4;
                 return index;
-            } else
-                return collectionIDs[index];
-        } else if (lookbackStrings.Count > (index & 0x3FFF) - 1)
-            return lookbackStrings[(index & 0x3FFF) - 1];
-        else
-            return "";
+            } else return collectionIDs[index];
+        } else if (lookbackStrings.Count > (index & 0x3fff) - 1)
+            return lookbackStrings[(index & 0x3fff) - 1];
+        else return '';
     }
 
     function readMeta() {
         return {
             id: readLookbackString(),
             collection: readLookbackString(),
-            author: readLookbackString()
+            author: readLookbackString(),
         };
     }
 
@@ -448,26 +483,36 @@
     function readVec2() {
         return {
             x: readFloat(),
-            y: readFloat()
+            y: readFloat(),
         };
     }
 
-    /*function readVec3() {
-        return {
-            x: readFloat(),
-            y: readFloat(),
-            z: readFloat()
-        };
-    }*/
-
     function toBase64(data) {
-        return btoa(new Uint8Array(data).reduce(function (data, byte) {
-            return data + String.fromCharCode(byte);
-        }, ''));
+        return btoa(
+            new Uint8Array(data).reduce(function (data, byte) {
+                return data + String.fromCharCode(byte);
+            }, '')
+        );
     }
 
     function deformat(str) {
-        return str.replace(/\$\$/g, '$\\').replace(/\$([a-f0-9]){3}|\$([a-f0-9]){1,2}(?=[^a-f0-9])|\$([lh]\[.*?\]|[g-il-ostwz])/gi, '').replace(/\$\\/, '$')
+        return str
+            .replace(/\$\$/g, '$\\')
+            .replace(
+                /\$([a-f0-9]){3}|\$([a-f0-9]){1,2}(?=[^a-f0-9])|\$([lh]\[.*?\]|[g-il-ostwz])/gi,
+                ''
+            )
+            .replace(/\$\\/, '$');
+    }
+
+    function getGameByTitleUID(title) {
+        if (title == 'Trackmania') {
+            return 'Trackmania®';
+        } else if (title == 'TMCE@nadeolabs' || title == 'TMTurbo@nadeolabs') {
+            return 'Trackmania Turbo';
+        } else {
+            return 'ManiaPlanet';
+        }
     }
 
     return GBX;
