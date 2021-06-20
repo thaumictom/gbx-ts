@@ -293,6 +293,7 @@
         } else err = 1;
 
         if (this.onParse !== undefined && this.onParse.length > 0) {
+            var t1 = performance.now();
             this.onParse(metadata, err, t1 - t0);
         }
 
@@ -325,8 +326,6 @@
         if (this.onThumb !== undefined && this.onThumb.length > 0) {
             this.onThumb(metadata.thumbnail, metadata.thumbnailSize);
         }
-
-        var t1 = performance.now();
     };
 
     // Process options; Starting point
