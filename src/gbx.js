@@ -255,7 +255,8 @@
                             }
                         } else if (
                             classID == 0x03093000 ||
-                            classID == 0x2407e000
+                            classID == 0x2407e000 ||
+                            classID == 0x2403f000
                         ) {
                             // Replay
                             metadata.type = 'Replay';
@@ -304,7 +305,7 @@
 
         if (typeof this.onParse != 'undefined' && this.onParse.length > 0) {
             var t1 = performance.now();
-            this.onParse(metadata, err, headerChunks, t1 - t0);
+            this.onParse(metadata, err, headerChunks, classID, t1 - t0);
         }
 
         // Thumbnail
@@ -467,11 +468,11 @@
                 case 3:
                     return '';
                 default:
-                    err = 10;
+                    err = 5;
             }
         } else if (index >> 30 == 0) {
             if (collectionIDs[index] == undefined) {
-                err = 5;
+                err = 10;
                 return index;
             } else return collectionIDs[index];
         } else if (lookbackStrings.Count > (index & 0x3fff) - 1)
