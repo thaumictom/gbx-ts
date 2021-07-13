@@ -1,5 +1,5 @@
 /**
- * GBXjs - Version 2021-06-20
+ * GBXjs - Version 2021-07-14
  *
  * by BigBang1112 & ThaumicTom
  * released under MIT license
@@ -117,6 +117,9 @@
                         }
 
                         if (classID == 0x03043000 || classID == 0x24003000) {
+                            // Map
+                            metadata.type = 'Map';
+
                             changeBuffer(headerChunks[0x002].data);
 
                             var chunk002Version = readByte();
@@ -255,6 +258,7 @@
                             classID == 0x2407e000
                         ) {
                             // Replay
+                            metadata.type = 'Replay';
 
                             changeBuffer(headerChunks[0x000].data);
 
