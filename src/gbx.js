@@ -73,8 +73,10 @@
         var t0 = performance.now();
 
         metadata = [];
+        headerChunks = [];
 
         pointer = 0;
+        err = 0;
         lookbackVersion = null;
 
         buffer = this.buffer;
@@ -114,7 +116,7 @@
                             delete headerChunks[key].size;
                         }
 
-                        if (classID == 0x03043000) {
+                        if (classID == 0x03043000 || classID == 0x24003000) {
                             changeBuffer(headerChunks[0x002].data);
 
                             var chunk002Version = readByte();
@@ -184,7 +186,7 @@
                             var kind = readByte();
                             if (kind == 6)
                                 // Unvalidated map
-                                err = 3;
+                                err = 4;
                             if (chunk003Version >= 1) {
                                 metadata.locked = readBool(); // used by Virtual Skipper to lock the map parameters
                                 metadata.password = readString(); // weak xor encryption, no longer used in newer track files; see 03043029
@@ -248,7 +250,10 @@
                                 metadata.authorZone = readString();
                                 metadata.authorExtraInfo = readString();
                             }
-                        } else if (classID == 0x03093000) {
+                        } else if (
+                            classID == 0x03093000 ||
+                            classID == 0x2407e000
+                        ) {
                             // Replay
 
                             changeBuffer(headerChunks[0x000].data);
@@ -278,23 +283,24 @@
 
                             metadata.xml = readString();
 
-                            changeBuffer(headerChunks[0x002].data);
-
-                            var chunk002Version = readInt32();
-                            metadata.authorVersion = readInt32();
-                            metadata.authorLogin = readString();
-                            metadata.authorNickname = readString();
-                            metadata.authorZone = readString();
-                            metadata.authorExtraInfo = readString();
-                        } else err = 2;
+                            try {
+                                changeBuffer(headerChunks[0x002].data);
+                                var chunk002Version = readInt32();
+                                metadata.authorVersion = readInt32();
+                                metadata.authorLogin = readString();
+                                metadata.authorNickname = readString();
+                                metadata.authorZone = readString();
+                                metadata.authorExtraInfo = readString();
+                            } catch (e) {}
+                        } else err = 3;
                     }
                 }
             }
-        } else err = 1;
+        } else err = 2;
 
-        if (this.onParse !== undefined && this.onParse.length > 0) {
+        if (typeof this.onParse != 'undefined' && this.onParse.length > 0) {
             var t1 = performance.now();
-            this.onParse(metadata, err, t1 - t0);
+            this.onParse(metadata, err, headerChunks, t1 - t0);
         }
 
         // Thumbnail
@@ -323,8 +329,14 @@
             }
         }
 
-        if (this.onThumb !== undefined && this.onThumb.length > 0) {
-            this.onThumb(metadata.thumbnail, metadata.thumbnailSize);
+        if (typeof this.onThumb != 'undefined' && this.onThumb.length > 0) {
+            var t1 = performance.now();
+            this.onThumb(
+                metadata.thumbnail,
+                metadata.thumbnailSize,
+                headerChunks,
+                t1 - t0
+            );
         }
     };
 
@@ -354,10 +366,10 @@
         this.onThumb = data['onThumb'];
         this.buffer = data['data'];
 
-        if (this.buffer !== undefined) {
+        if (typeof this.buffer != 'undefined') {
             f(this.buffer);
         } else {
-            err = 0;
+            err = 1;
         }
     }
 
@@ -455,7 +467,7 @@
             }
         } else if (index >> 30 == 0) {
             if (collectionIDs[index] == undefined) {
-                err = 4;
+                err = 5;
                 return index;
             } else return collectionIDs[index];
         } else if (lookbackStrings.Count > (index & 0x3fff) - 1)
@@ -505,7 +517,9 @@
     }
 
     function getGameByTitleUID(title) {
-        if (title == 'Trackmania') {
+        if (typeof title == 'undefined') {
+            return 'Trackmania 1';
+        } else if (title == 'Trackmania' || title.match(/^OrbitalDev@/g)) {
             return 'Trackmania®';
         } else if (title == 'TMCE@nadeolabs' || title == 'TMTurbo@nadeolabs') {
             return 'Trackmania Turbo';
