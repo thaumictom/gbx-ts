@@ -350,7 +350,7 @@
     function GBX(data) {
         f = this.read;
 
-        if (data['data'].constructor !== Uint8Array) {
+        if (data['data'].constructor !== Uint8Array && !data['force']) {
             (async function () {
                 data['data'] = new Uint8Array(await readFile(data['data']));
                 optionProcess(data, f);
@@ -512,13 +512,7 @@
     }
 
     function deformat(str) {
-        return str
-            .replace(/\$\$/g, '$\\')
-            .replace(
-                /\$([a-f0-9]){3}|\$([a-f0-9]){1,2}(?=[^a-f0-9])|\$([lh]\[.*?\]|[g-il-ostwz])/gi,
-                ''
-            )
-            .replace(/\$\\/, '$');
+        return str.replace(/(\$)\$|\$([a-f0-9]{2,3}|[lh]\[.*?\]|.)/gi, '$1');
     }
 
     function getGameByTitleUID(title) {

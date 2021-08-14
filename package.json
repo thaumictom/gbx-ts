@@ -1,7 +1,7 @@
 {
     "name": "gbx",
     "description": "a simple ManiaPlanet-based header parser",
-    "version": "0.4.2",
+    "version": "0.5.0",
     "main": "src/gbx.js",
     "unpkg": "src/gbx.min.js",
     "keywords": [
