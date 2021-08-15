@@ -4,6 +4,10 @@
  * by BigBang1112 & ThaumicTom
  * released under MIT license
  */
+
+var fs = require('fs');
+const { performance } = require('perf_hooks');
+
 (function (f) {
     'use strict';
     var name = 'GBX';
@@ -296,7 +300,7 @@
                                 metadata.authorNickname = readString();
                                 metadata.authorZone = readString();
                                 metadata.authorExtraInfo = readString();
-                            } catch (e) {}
+                            } catch (e) { }
                         } else err = 3;
                     }
                 }
@@ -310,7 +314,7 @@
 
         // Thumbnail
 
-        if (this.thumb) {
+        if (this.thumb && metadata.type == 'Map') {
             changeBuffer(headerChunks[0x007].data);
 
             var chunk007Version = readInt32();
@@ -379,6 +383,12 @@
     }
 
     function readFile(file) {
+        if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
+            return fs.readFileSync(file, (err, data) => {
+                if (err) return reject(err);
+                return resolve(data);
+            });
+        }
         return new Promise((res, rej) => {
             let fr = new FileReader();
             fr.addEventListener('loadend', (e) => res(e.target.result));
@@ -504,6 +514,9 @@
     }
 
     function toBase64(data) {
+        if ((typeof process !== 'undefined') && (process.release.name === 'node')) {
+            return Buffer.from(data).toString('base64');
+        }
         return btoa(
             new Uint8Array(data).reduce(function (data, byte) {
                 return data + String.fromCharCode(byte);
