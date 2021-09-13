@@ -1,40 +1,18 @@
 /**
- * GBXjs - Version 2021-07-14
+ * GBXjs - Version 2021-13-09
  *
  * by BigBang1112 & ThaumicTom
  * released under MIT license
  */
-(function (f) {
-    'use strict';
-    var name = 'GBX';
-    if (typeof exports === 'object' && typeof module !== 'undefined') {
-        module.exports = f.apply(
-            null,
-            [].map(function (r) {
-                return require(r);
-            })
-        );
-    } else if (typeof define === 'function' && define.amd) {
-        define([], f);
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(factory);
+    } else if (typeof exports === 'object') {
+        module.exports = factory();
     } else {
-        var g;
-        if (typeof window !== 'undefined') {
-            g = window;
-        } else if (typeof global !== 'undefined') {
-            g = global;
-        } else if (typeof self !== 'undefined') {
-            g = self;
-        } else {
-            g = this;
-        }
-        g[name] = f.apply(
-            null,
-            [].map(function (r) {
-                return g[r];
-            })
-        );
+        root.GBX = factory();
     }
-})(function () {
+})(this, function () {
     // Main
 
     var gbx,
@@ -70,8 +48,6 @@
     };
 
     GBX.prototype.read = function () {
-        var t0 = performance.now();
-
         metadata = [];
         headerChunks = [];
 
@@ -211,9 +187,7 @@
                                                         readBool();
                                                     if (chunk003Version >= 8) {
                                                         metadata.lightmapCacheUID =
-                                                            toBase64(
-                                                                readBytes(8)
-                                                            );
+                                                            readBytes(8);
                                                         if (
                                                             chunk003Version >= 9
                                                         ) {
@@ -304,8 +278,7 @@
         } else err = 2;
 
         if (typeof this.onParse != 'undefined' && this.onParse.length > 0) {
-            var t1 = performance.now();
-            this.onParse(metadata, err, headerChunks, classID, t1 - t0);
+            this.onParse(metadata, err, headerChunks, classID);
         }
 
         // Thumbnail
@@ -335,12 +308,10 @@
         }
 
         if (typeof this.onThumb != 'undefined' && this.onThumb.length > 0) {
-            var t1 = performance.now();
             this.onThumb(
                 metadata.thumbnail,
                 metadata.thumbnailSize,
-                headerChunks,
-                t1 - t0
+                headerChunks
             );
         }
     };
