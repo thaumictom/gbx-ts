@@ -1,0 +1,9 @@
+# TS
+node_modules/
+dist/
+
+# Env
+*.env*
+
+# VSCode
+.vscode

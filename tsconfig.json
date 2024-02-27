@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"module": "ES2022",
+		"target": "ES2022",
+		// "lib": ["ES2022", "DOM"],
+		"declaration": true,
+		"outDir": "./dist",
+		"moduleResolution": "node"
+	},
+	"include": ["src/**/*"]
+}
