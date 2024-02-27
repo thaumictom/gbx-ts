@@ -1,4 +1,4 @@
-import { GBX } from '../src/index';
+import GBX from '../src/index';
 
 import { test } from 'uvu';
 import * as assert from 'uvu/assert';
