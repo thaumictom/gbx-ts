@@ -1,5 +1,3 @@
-import { log } from 'console';
-
 export class Logger {
 	static reset = '\x1b[0m'; // Reset color
 

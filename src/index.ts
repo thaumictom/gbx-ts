@@ -1,6 +1,4 @@
-import { Logger } from './helpers/Logger.js';
-import { getBufferFromPath } from './handlers.js';
-import { LZO } from './Handlers/LZO.js';
+import { FileHandlers, Logger, LZO } from './Handlers/Handlers';
 
 interface GBXOptions {
 	path: string;
@@ -39,7 +37,7 @@ class GBX {
 
 	constructor(public options: GBXOptions) {
 		if (options.path) {
-			this.buffer = getBufferFromPath(options.path);
+			this.buffer = FileHandlers.getBufferFromPath(options.path);
 		}
 	}
 
