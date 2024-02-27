@@ -1,6 +1,6 @@
 import { Logger } from './helpers/Logger.js';
 import { getBufferFromPath } from './handlers.js';
-import * as lzo from 'lzo';
+import { LZO } from './Handlers/LZO.js';
 
 interface GBXOptions {
 	path: string;
@@ -41,6 +41,10 @@ class GBX {
 		if (options.path) {
 			this.buffer = getBufferFromPath(options.path);
 		}
+	}
+
+	public async parseHeaders(): Promise<object> {
+		return {};
 	}
 
 	public async parse(): Promise<object> {
@@ -110,7 +114,9 @@ class GBX {
 
 		const compressedData = this.readBytes(compressedSize);
 
-		const decompressedData = lzo.decompress(compressedData);
+		console.log(compressedData.length);
+
+		const decompressedData = LZO.decompress(compressedData);
 
 		this.changeBuffer(decompressedData);
 
