@@ -352,39 +352,6 @@ export class GBX {
 
 		return '';
 	}
-
-	private readLookbackString2() {
-		if (this.lookbackVersion == null) {
-			this.lookbackVersion = this.readNumbers(4);
-		}
-
-		if (this.lookbackVersion < 3) {
-			throw new Error('Unsupported lookback version');
-		}
-
-		const index = this.readNumbers(4) >>> 0; // Convert to unsigned
-
-		if (index == 0xffffffff) {
-			return '';
-		}
-
-		if (((index & 0xc0000000) != 0 && (index & 0x3fffffff) == 0) || index == 0) {
-			const foundString = this.readString();
-			this.lookbackStrings.push(foundString);
-
-			return foundString;
-		}
-
-		if ((index & 0x3fffffff) == index) {
-			return 'CollectionID found.';
-		}
-
-		if ((index & 0x3fffffff) > this.lookbackStrings.length) {
-			return this.lookbackStrings[(index & 0x3fffffff) - 1];
-		}
-
-		return '';
-	}
 }
 
 class UnimplementedChunkError extends Error {
