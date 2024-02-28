@@ -3,6 +3,8 @@
 [![GitHub file size in bytes](https://img.shields.io/github/size/ThaumicTom/gbx.js/src/gbx.min.js?style=for-the-badge)](#)
 [![jsDelivr hits](https://img.shields.io/jsdelivr/npm/hm/gbx?color=ff5627&style=for-the-badge)](https://www.jsdelivr.com/package/npm/gbx)
 
+#### Current development for v1: [https://github.com/thaumictom/gbx.js/pull/5]()
+
 a slim, fast and easy to set up Gamebox (GBX) parser written in vanilla JavaScript
 - gbx.js parses the headers asynchronously, while it stays read-only
 - supported versions range from Maniaplanet to Trackmania®
