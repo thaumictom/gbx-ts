@@ -1,27 +1,41 @@
 {
-    "name": "gbx",
-    "description": "a simple ManiaPlanet-based header parser",
-    "version": "0.6.0",
-    "main": "src/gbx.js",
-    "unpkg": "src/gbx.min.js",
-    "keywords": [
-        "vanilla",
-        "vanilla-js",
-        "parser",
-        "gbx",
-        "trackmania"
-    ],
-    "author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
-    "bugs": {
-        "web": "https://github.com/ThaumicTom/gbx.js/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/ThaumicTom/gbx.js.git"
-    },
-    "license": "MIT",
-    "homepage": "https://github.com/ThaumicTom/gbx.js#readme",
-    "publishConfig": {
-        "registry": "https://registry.npmjs.org/"
-    }
+	"name": "gbx",
+	"description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
+	"author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
+	"version": "1.0.0-alpha.1",
+	"license": "MIT",
+	"type": "module",
+	"devDependencies": {
+		"@types/node": "^20.11.20",
+		"microbundle": "^0.15.1",
+		"tsm": "^2.3.0",
+		"typescript": "^5.3.3",
+		"uvu": "^0.5.6"
+	},
+	"optionalDependencies": {
+		"lzo": "^0.4.11"
+	},
+	"scripts": {
+		"build": "microbundle",
+		"dev": "microbundle watch",
+		"test": "uvu -r tsm tests"
+	},
+	"homepage": "https://github.com/ThaumicTom/gbx.js#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ThaumicTom/gbx.js.git"
+	},
+	"bugs": {
+		"web": "https://github.com/ThaumicTom/gbx.js/issues"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"keywords": [
+		"vanilla",
+		"vanilla-js",
+		"parser",
+		"gbx",
+		"trackmania"
+	]
 }
