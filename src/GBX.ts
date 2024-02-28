@@ -83,7 +83,7 @@ export class GBX {
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
 
 		const type = this.determineType(classID);
-		Logger.debug(`Reading parent class ${type}: 0x${this.decimalToHexadecimal(classID)}`);
+		Logger.debug(`Reading class ${type}: 0x${this.decimalToHexadecimal(classID)}`);
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 
@@ -92,8 +92,6 @@ export class GBX {
 		const compressedSize = this.readNumbers(4);
 
 		const compressedData = this.readBytes(compressedSize);
-
-		console.log(compressedData.length);
 
 		const decompressedData = LZO.decompress(compressedData);
 
@@ -104,75 +102,58 @@ export class GBX {
 		return Promise.resolve(this.result);
 	}
 
+	private classId: number;
+	private chunkId: number;
+
 	private readNode() {
 		while (true) {
-			const chunkId = this.readUnsignedNumbers(4);
+			const fullChunkId = this.readUInt32();
 
-			// No more chunks left
-			if (chunkId == 0xfacade01) {
-				Logger.outline(`FINISHED READING NODE`);
-				return;
-			}
+			// Reached end of node
+			if (fullChunkId == 0xfacade01) return;
 
-			const peekSkip = this.readUnsignedNumbers(4, true);
+			// Check if chunk is skippable
+			if (this.peekUInt32() == 0x534b4950) {
+				const skip = this.readUInt32();
+				const chunkDataSize = this.readUInt32();
 
-			if (peekSkip == 0x534b4950) {
-				Logger.debug(`Skipping Chunk: 0x${this.decimalToHexadecimal(chunkId)}`);
-
-				const skip = this.readUnsignedNumbers(4);
-
-				const chunkDataSize = this.readUnsignedNumbers(4);
-				const chunkData = this.readBytes(chunkDataSize);
-
-				Logger.debug(`Skipped ${chunkDataSize} bytes`);
+				try {
+					this.readChunk(fullChunkId);
+				} catch (error) {
+					if (error instanceof UnimplementedChunkError) {
+						Logger.debug(`Skipped chunk 0x${this.decimalToHexadecimal(fullChunkId)}`);
+						const chunkData = this.readBytes(chunkDataSize);
+					} else throw error;
+				}
 
 				continue;
 			}
 
-			this.readChunk(chunkId);
+			// Read unskippable chunk
+			this.readChunk(fullChunkId);
 		}
 	}
 
-	private parentChunkId: number;
-	private childChunkId: number;
+	private readChunk(fullChunkId: number) {
+		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
 
-	private readChunk(chunkId: number) {
-		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(chunkId)}`);
+		this.classId = fullChunkId & 0xfffff000;
+		this.chunkId = fullChunkId & 0xfff;
 
-		this.parentChunkId = chunkId & 0xfffff000;
-		this.childChunkId = chunkId & 0xfff;
+		const chunkHandlers = {
+			0x0301b000: CGameCtnCollectorList,
+			0x03043000: CGameCtnChallenge,
+			0x03059000: CGameCtnBlockSkin,
+			0x0305b000: CGameCtnChallengeParameters,
+			0x03078000: CGameCtnMediaTrack,
+			0x03079000: CGameCtnMediaClip,
+			0x2e009000: CGameWaypointSpecialProperty,
+		};
 
-		switch (this.parentChunkId) {
-			case 0x03043000:
-				CGameCtnChallenge[this.childChunkId](this);
-				break;
-
-			case 0x0301b000:
-				CGameCtnCollectorList[this.childChunkId](this);
-				break;
-
-			case 0x0305b000:
-				CGameCtnChallengeParameters[this.childChunkId](this);
-				break;
-
-			case 0x03059000:
-				CGameCtnBlockSkin[this.childChunkId](this);
-				break;
-
-			case 0x2e009000:
-				CGameWaypointSpecialProperty[this.childChunkId](this);
-				break;
-
-			case 0x03079000:
-				CGameCtnMediaClip[this.childChunkId](this);
-				break;
-
-			case 0x03078000:
-				CGameCtnMediaTrack[this.childChunkId](this);
-				break;
-
-			default:
-				throw new Error('Unimplemented chunk');
+		try {
+			chunkHandlers[this.classId][this.chunkId](this);
+		} catch {
+			throw new UnimplementedChunkError(fullChunkId);
 		}
 	}
 
@@ -207,11 +188,9 @@ export class GBX {
 		while (true) {
 			const possibleChunkId = this.readUnsignedNumbers(4, true);
 
-			if ((possibleChunkId & 0xfffff000) == (this.parentChunkId & 0xfffff000)) {
-				Logger.debug(
-					`Found possible next chunk (Skipped ${index} bytes): 0x${this.decimalToHexadecimal(
-						possibleChunkId
-					)}`
+			if ((possibleChunkId & 0xfffff000) == this.classId) {
+				Logger.warn(
+					`Force skipped ${index} bytes to 0x${this.decimalToHexadecimal(possibleChunkId)}`
 				);
 
 				break;
@@ -406,4 +385,12 @@ export class GBX {
 
 		return '';
 	}
+}
+
+class UnimplementedChunkError extends Error {
+	constructor(fullChunkId: number) {
+		super(`No handler found for unskippable chunk 0x${fullChunkId}`);
+	}
+
+	name = 'UnimplementedChunkError';
 }
