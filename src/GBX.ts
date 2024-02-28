@@ -156,8 +156,43 @@ export class GBX {
 			throw new UnimplementedChunkError(fullChunkId);
 		}
 	}
+	
+	/**
+	 * Reads a single byte at the current pointer position without advancing the pointer.
+	 * @returns A number between 0 to 255.
+	 */
+	private peekByte(offset = 0): number {
+		return this.buffer[this.pointer + offset];
+	}
 
-	// GBXReader
+	/**
+	 * Reads a single byte at the current pointer position.
+	 * @returns A number between 0 to 255.
+	 */
+	private readByte(): number {
+		const byte = this.peekByte();
+		this.pointer++;
+		return byte;
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position without advancing the pointer
+	 * @param count Amount of bytes to read.
+	 * @returns An array of numbers between 0 to 255.
+	 */
+	private peekBytes(count: number): number[] {
+		return Array.from({ length: count }, (_, index) => this.peekByte(index)); 
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position.
+	 * @param count Amount of bytes to read.
+	 * @returns An array of numbers between 0 to 255.
+	 */
+	private readBytes(count: number): number[] {
+		return Array.from({ length: count }, () => this.readByte());
+	}
+
 	private readIdent() {
 		return {
 			id: this.readLookbackString(),
@@ -189,15 +224,15 @@ export class GBX {
 			const possibleChunkId = this.readUnsignedNumbers(4, true);
 
 			if ((possibleChunkId & 0xfffff000) == this.classId) {
-				Logger.warn(
+				Logger.debug(
 					`Force skipped ${index} bytes to 0x${this.decimalToHexadecimal(possibleChunkId)}`
 				);
 
 				break;
 			}
 
-			if (possibleChunkId == 0xfacade01 && this.readBytes(1, true) == undefined) {
-				Logger.debug(`Reached end of file early (Skipped ${index} bytes)`);
+			if (possibleChunkId == 0xfacade01 && this.peekByte() == undefined) {
+				Logger.warn(`Reached end of file early (Skipped ${index} bytes)`);
 
 				break;
 			}
@@ -269,27 +304,7 @@ export class GBX {
 		this.buffer = newBuffer;
 		this.pointer = 0;
 	}
-
-	private getByte(): number {
-		return this.buffer[this.pointer];
-	}
-
-	private readByte(): number {
-		const byte = this.getByte();
-		this.pointer++;
-		return byte;
-	}
-
-	private readBytes(count: number, peek = false): number[] {
-		const byteArray = [...Array(count)].map(() => {
-			return this.readByte();
-		});
-
-		if (peek) this.pointer = this.pointer - count;
-
-		return byteArray;
-	}
-
+	
 	private readNumbers(maxValue: number, _count = 0): number {
 		if (_count == maxValue) return;
 		return (this.readByte() << (_count * 8)) | this.readNumbers(maxValue, _count + 1);
