@@ -278,8 +278,6 @@ export class GBX {
 	}
 
 	private readNodeReference() {
-		console.log(this.peekBytes(16));
-
 		const index = (this.readNumbers(4) << 1) >> 1;
 
 		if (index >= 0) {
