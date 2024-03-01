@@ -18,7 +18,7 @@ export class GBX {
 
 	constructor(public options: GBXOptions) {
 		if (options.path) {
-			this.buffer = FileHandlers.getBufferFromPath(options.path);
+			this.buffer = FileHandlers.getBufferFromPathSync(options.path);
 		}
 	}
 
@@ -26,9 +26,7 @@ export class GBX {
 		return {};
 	}
 
-	public async parse(): Promise<object> {
-		this.buffer = await this.buffer;
-
+	public async parse() {
 		// Return if file does not contain the file magic.
 		if (!this.hasMagic()) return Promise.reject(new Error('Not a GBX file'));
 
@@ -152,11 +150,11 @@ export class GBX {
 
 		try {
 			chunkHandlers[this.classId][this.chunkId](this);
-		} catch {
+		} catch (error) {
 			throw new UnimplementedChunkError(fullChunkId);
 		}
 	}
-	
+
 	/**
 	 * Reads a single byte at the current pointer position without advancing the pointer.
 	 * @returns A number between 0 to 255.
@@ -176,12 +174,12 @@ export class GBX {
 	}
 
 	/**
-	 * Reads multiple bytes at the current pointer position without advancing the pointer
+	 * Reads multiple bytes at the current pointer position without advancing the pointer.
 	 * @param count Amount of bytes to read.
 	 * @returns An array of numbers between 0 to 255.
 	 */
 	private peekBytes(count: number): number[] {
-		return Array.from({ length: count }, (_, index) => this.peekByte(index)); 
+		return Array.from({ length: count }, (_, index) => this.peekByte(index));
 	}
 
 	/**
@@ -193,6 +191,24 @@ export class GBX {
 		return Array.from({ length: count }, () => this.readByte());
 	}
 
+	/**
+	 * Reads multiple bytes at the current pointer position
+	 * without advancing the pointer and returns them as an unsigned number.
+	 * @returns A positive number.
+	 */
+	private peekNumbers(count: number): number {
+		return this.peekBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position
+	 * and returns them as an unsigned number.
+	 * @returns A positive number.
+	 */
+	private readNumbers(count: number): number {
+		return this.readBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+	}
+
 	private readIdent() {
 		return {
 			id: this.readLookbackString(),
@@ -202,26 +218,26 @@ export class GBX {
 	}
 
 	private readUInt16() {
-		return this.readUnsignedNumbers(2);
+		return this.readNumbers(2);
 	}
 
 	private readUInt32() {
-		return this.readUnsignedNumbers(4);
+		return this.readNumbers(4);
 	}
 
 	private peekUInt32() {
-		return this.readUnsignedNumbers(4, true);
+		return this.peekNumbers(4);
 	}
 
 	private readBoolean() {
-		return this.readBool();
+		return !!this.readNumbers(4);
 	}
 
 	private forceChunkSkip() {
 		let index = 0;
 
 		while (true) {
-			const possibleChunkId = this.readUnsignedNumbers(4, true);
+			const possibleChunkId = this.peekUInt32();
 
 			if ((possibleChunkId & 0xfffff000) == this.classId) {
 				Logger.debug(
@@ -262,7 +278,9 @@ export class GBX {
 	}
 
 	private readNodeReference() {
-		const index = this.readNumbers(4);
+		console.log(this.peekBytes(16));
+
+		const index = (this.readNumbers(4) << 1) >> 1;
 
 		if (index >= 0) {
 			const classId = this.readNumbers(4);
@@ -304,19 +322,6 @@ export class GBX {
 		this.buffer = newBuffer;
 		this.pointer = 0;
 	}
-	
-	private readNumbers(maxValue: number, _count = 0): number {
-		if (_count == maxValue) return;
-		return (this.readByte() << (_count * 8)) | this.readNumbers(maxValue, _count + 1);
-	}
-
-	private readUnsignedNumbers(maxValue: number, peek = false): number {
-		const numberArray = this.readNumbers(maxValue) >>> 0;
-
-		if (peek) this.pointer = this.pointer - maxValue;
-
-		return numberArray;
-	}
 
 	private readChar(): string {
 		return this.readString(1);
@@ -325,10 +330,6 @@ export class GBX {
 	private readString(count = 0): string {
 		if (count == 0) count = this.readNumbers(4);
 		return String.fromCharCode(...this.readBytes(count));
-	}
-
-	private readBool() {
-		return !!this.readUnsignedNumbers(4);
 	}
 
 	public lookbackVersion: number;

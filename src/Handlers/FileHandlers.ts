@@ -1,7 +1,12 @@
-import { promises as fs } from 'fs';
+import { promises } from 'fs';
+import { readFileSync } from 'fs';
 
 export class FileHandlers {
 	static async getBufferFromPath(path: string): Promise<Buffer> {
-		return await fs.readFile(path);
+		return await promises.readFile(path);
+	}
+
+	static getBufferFromPathSync(path: string): Buffer {
+		return readFileSync(path);
 	}
 }
