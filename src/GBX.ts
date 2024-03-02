@@ -98,7 +98,10 @@ export class GBX {
 	private classId: number;
 	private chunkId: number;
 
-	private readNode() {
+	/**
+	 * Reads a node.
+	 */
+	private readNode(): void {
 		while (true) {
 			const fullChunkId = this.readUInt32();
 
@@ -110,9 +113,9 @@ export class GBX {
 				const skip = this.readUInt32();
 				const chunkDataSize = this.readUInt32();
 
-				const result = this.readChunk(fullChunkId);
+				const isChunkSupported = this.readChunk(fullChunkId);
 
-				if (result === null) {
+				if (!isChunkSupported) {
 					// Chunk is not supported
 					Logger.debug(`Skipped Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
 					const data = this.readBytes(chunkDataSize);
@@ -126,7 +129,12 @@ export class GBX {
 		}
 	}
 
-	private readChunk(fullChunkId: number): null | void {
+	/**
+	 * Check if the chunk is supported and process it.
+	 * @param fullChunkId The full chunk ID.
+	 * @returns A boolean indicating if the chunk is supported.
+	 */
+	private readChunk(fullChunkId: number): boolean {
 		this.classId = fullChunkId & 0xfffff000;
 		this.chunkId = fullChunkId & 0xfff;
 
@@ -141,13 +149,37 @@ export class GBX {
 		};
 
 		// Check if chunk is supported
-		if (chunkHandlers[this.classId][this.chunkId] == undefined) return null;
+		if (chunkHandlers[this.classId][this.chunkId] == undefined) return false;
 
 		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
 
 		chunkHandlers[this.classId][this.chunkId](this);
+
+		return true;
 	}
 
+	/**
+	 * Converts a decimal number to a hexadecimal string.
+	 * @param decimal A number.
+	 * @returns A hexadecimal string.
+	 */
+	private decimalToHexadecimal(decimal: number) {
+		return Math.abs(decimal).toString(16);
+	}
+
+	/**
+	 * Switches the buffer to a new one, resetting the pointer.
+	 * @param newBuffer A new buffer.
+	 */
+	private changeBuffer(newBuffer: Buffer) {
+		this.stream = newBuffer;
+		this.position = 0;
+	}
+
+	/**
+	 * Skips to the next chunk within the same class ID.
+	 * @todo Add support for skipping nested chunks.
+	 */
 	private forceChunkSkip() {
 		let index = 0;
 
@@ -174,15 +206,6 @@ export class GBX {
 
 			index++;
 		}
-	}
-
-	private decimalToHexadecimal(decimal: number) {
-		return Math.abs(decimal).toString(16);
-	}
-
-	private changeBuffer(newBuffer: Buffer) {
-		this.stream = newBuffer;
-		this.position = 0;
 	}
 
 	// Primitives
