@@ -42,6 +42,27 @@ export class CGameCtnChallengeParameters {
 		};
 	}
 
+	static 0x00a(r: GBXReader) {
+		const tip = r.readString();
+
+		const bronzeTime = r.readUInt32();
+		const silverTime = r.readUInt32();
+		const goldTime = r.readUInt32();
+		const authorTime = r.readUInt32();
+		const timeLimit = r.readUInt32();
+		const authorScore = r.readUInt32();
+
+		return {
+			tip,
+			bronzeTime,
+			silverTime,
+			goldTime,
+			authorTime,
+			timeLimit,
+			authorScore,
+		};
+	}
+
 	static 0x00d(r: GBXReader) {
 		const raceValidationGhost = r.readNodeReference();
 

@@ -114,9 +114,13 @@ export class GBX {
 				const skip = this.readUInt32();
 				const chunkDataSize = this.readUInt32();
 
-				const data = this.readBytes(chunkDataSize);
+				const result = this.readChunk(fullChunkId);
 
-				Logger.debug(`Skipped Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
+				if (result === null) {
+					// Chunk is not supported
+					Logger.debug(`Skipped Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
+					const data = this.readBytes(chunkDataSize);
+				}
 
 				continue;
 			}
@@ -126,9 +130,7 @@ export class GBX {
 		}
 	}
 
-	private readChunk(fullChunkId: number) {
-		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
-
+	private readChunk(fullChunkId: number): null | void {
 		this.classId = fullChunkId & 0xfffff000;
 		this.chunkId = fullChunkId & 0xfff;
 
@@ -142,11 +144,12 @@ export class GBX {
 			0x2e009000: CGameWaypointSpecialProperty,
 		};
 
-		try {
-			chunkHandlers[this.classId][this.chunkId](this);
-		} catch (error) {
-			throw Logger.error(error);
-		}
+		// Check if chunk is supported
+		if (chunkHandlers[this.classId][this.chunkId] == undefined) return null;
+
+		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
+
+		chunkHandlers[this.classId][this.chunkId](this);
 	}
 
 	private forceChunkSkip() {
