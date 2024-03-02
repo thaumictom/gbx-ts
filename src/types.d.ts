@@ -45,3 +45,9 @@ interface GBXMeta {
 	collection: string;
 	author: string;
 }
+
+interface GBXHeaderChunks {
+	size?: number;
+	data?: Buffer | number[];
+	isCompressed: boolean;
+}

@@ -11,10 +11,10 @@ import {
 } from './Classes/Chunks';
 
 export class GBX {
-	public result: GBXResult = { metadata: {} };
 	public stream: Buffer;
 	public position: number = 0;
-	private headerChunks = [];
+
+	private headerChunks: GBXHeaderChunks[] = [];
 
 	constructor(public options: GBXOptions) {
 		if (options.path) {
@@ -22,7 +22,7 @@ export class GBX {
 		}
 	}
 
-	public async parseHeaders(): Promise<object> {
+	public async parseHeaders(): Promise<any> {
 		// Return if file does not contain the file magic.
 		if (this.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -63,14 +63,12 @@ export class GBX {
 
 		// Read header chunk data
 		for (const el in this.headerChunks) {
-			this.headerChunks[el].data = this.readBytes(this.headerChunks[el].size);
+			this.headerChunks[el].data = this.readBytes(this.headerChunks[el].size as number);
 			delete this.headerChunks[el].size;
 		}
 
-		// Amount of nodes
+		// Read amount of nodes and external nodes
 		const numNodes = this.readNumbers(4);
-
-		// Amount of external nodes
 		const numExternalNodes = this.readNumbers(4);
 
 		if (numExternalNodes > 0)
@@ -82,21 +80,19 @@ export class GBX {
 	}
 
 	public async parse(): Promise<object> {
+		// Read headers
 		const headers = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.readNumbers(4);
 		const compressedSize = this.readNumbers(4);
-
 		const compressedData = this.readBytes(compressedSize);
 
-		const decompressedData = LZO.decompress(compressedData);
+		this.changeBuffer(LZO.decompress(compressedData));
 
-		this.changeBuffer(decompressedData);
+		this.readNode();
 
-		const node = this.readNode();
-
-		return Promise.resolve(this.result);
+		return Promise.resolve({});
 	}
 
 	private classId: number;
@@ -335,7 +331,7 @@ export class GBX {
 	/**
 	 * Reads a node reference.
 	 */
-	private readNodeReference(): void {
+	private readNodeReference(): null | void {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
