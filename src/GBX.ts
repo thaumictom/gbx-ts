@@ -12,23 +12,19 @@ import {
 
 export class GBX {
 	public result: GBXResult = { metadata: {} };
-	private buffer: Promise<Buffer> | Buffer;
-	private pointer = 0;
+	public stream: Buffer;
+	public position: number = 0;
 	private headerChunks = [];
 
 	constructor(public options: GBXOptions) {
 		if (options.path) {
-			this.buffer = FileHandlers.getBufferFromPathSync(options.path);
+			this.stream = FileHandlers.getBufferFromPathSync(options.path);
 		}
 	}
 
 	public async parseHeaders(): Promise<object> {
-		return {};
-	}
-
-	public async parse() {
 		// Return if file does not contain the file magic.
-		if (!this.hasMagic()) return Promise.reject(new Error('Not a GBX file'));
+		if (this.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
 		const version = this.readNumbers(2);
 
@@ -80,10 +76,13 @@ export class GBX {
 		if (numExternalNodes > 0)
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
 
-		const type = this.determineType(classID);
-		Logger.debug(`Reading class ${type}: 0x${this.decimalToHexadecimal(classID)}`);
+		Logger.debug(`Reading class 0x${this.decimalToHexadecimal(classID)}`);
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
+	}
+
+	public async parse(): Promise<object> {
+		const headers = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.readNumbers(4);
@@ -115,14 +114,9 @@ export class GBX {
 				const skip = this.readUInt32();
 				const chunkDataSize = this.readUInt32();
 
-				try {
-					this.readChunk(fullChunkId);
-				} catch (error) {
-					if (error instanceof UnimplementedChunkError) {
-						Logger.debug(`Skipped chunk 0x${this.decimalToHexadecimal(fullChunkId)}`);
-						const chunkData = this.readBytes(chunkDataSize);
-					} else throw error;
-				}
+				const data = this.readBytes(chunkDataSize);
+
+				Logger.debug(`Skipped Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
 
 				continue;
 			}
@@ -151,86 +145,8 @@ export class GBX {
 		try {
 			chunkHandlers[this.classId][this.chunkId](this);
 		} catch (error) {
-			throw new UnimplementedChunkError(fullChunkId);
+			throw Logger.error(error);
 		}
-	}
-
-	/**
-	 * Reads a single byte at the current pointer position without advancing the pointer.
-	 * @returns A number between 0 to 255.
-	 */
-	private peekByte(offset = 0): number {
-		return this.buffer[this.pointer + offset];
-	}
-
-	/**
-	 * Reads a single byte at the current pointer position.
-	 * @returns A number between 0 to 255.
-	 */
-	private readByte(): number {
-		const byte = this.peekByte();
-		this.pointer++;
-		return byte;
-	}
-
-	/**
-	 * Reads multiple bytes at the current pointer position without advancing the pointer.
-	 * @param count Amount of bytes to read.
-	 * @returns An array of numbers between 0 to 255.
-	 */
-	private peekBytes(count: number): number[] {
-		return Array.from({ length: count }, (_, index) => this.peekByte(index));
-	}
-
-	/**
-	 * Reads multiple bytes at the current pointer position.
-	 * @param count Amount of bytes to read.
-	 * @returns An array of numbers between 0 to 255.
-	 */
-	private readBytes(count: number): number[] {
-		return Array.from({ length: count }, () => this.readByte());
-	}
-
-	/**
-	 * Reads multiple bytes at the current pointer position
-	 * without advancing the pointer and returns them as an unsigned number.
-	 * @returns A positive number.
-	 */
-	private peekNumbers(count: number): number {
-		return this.peekBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
-	}
-
-	/**
-	 * Reads multiple bytes at the current pointer position
-	 * and returns them as an unsigned number.
-	 * @returns A positive number.
-	 */
-	private readNumbers(count: number): number {
-		return this.readBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
-	}
-
-	private readIdent() {
-		return {
-			id: this.readLookbackString(),
-			collection: this.readLookbackString(),
-			author: this.readLookbackString(),
-		};
-	}
-
-	private readUInt16() {
-		return this.readNumbers(2);
-	}
-
-	private readUInt32() {
-		return this.readNumbers(4);
-	}
-
-	private peekUInt32() {
-		return this.peekNumbers(4);
-	}
-
-	private readBoolean() {
-		return !!this.readNumbers(4);
 	}
 
 	private forceChunkSkip() {
@@ -261,79 +177,184 @@ export class GBX {
 		}
 	}
 
-	private readFileReference() {
+	private decimalToHexadecimal(decimal: number) {
+		return Math.abs(decimal).toString(16);
+	}
+
+	private changeBuffer(newBuffer: Buffer) {
+		this.stream = newBuffer;
+		this.position = 0;
+	}
+
+	// Primitives
+
+	/**
+	 * Reads a single byte at the current pointer position without advancing the pointer.
+	 * @returns a number between 0 to 255.
+	 */
+	private peekByte(offset = 0): number {
+		return this.stream[this.position + offset];
+	}
+
+	/**
+	 * Reads a single byte at the current pointer position.
+	 * @returns a number between 0 to 255.
+	 */
+	private readByte(): number {
+		let byte = this.stream[this.position];
+		this.position++;
+		return byte;
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position without advancing the pointer.
+	 * @param count Amount of bytes to read.
+	 * @returns an array of numbers between 0 to 255.
+	 */
+	private peekBytes(count: number): number[] {
+		return Array.from({ length: count }, (_, index) => this.peekByte(index));
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position.
+	 * @param count Amount of bytes to read.
+	 * @returns an array of numbers between 0 to 255.
+	 */
+	private readBytes(count: number): number[] {
+		return Array.from({ length: count }, () => this.readByte());
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position
+	 * without advancing the pointer and returns them as an unsigned number.
+	 * @returns a positive number.
+	 */
+	private peekNumbers(count: number): number {
+		return this.peekBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+	}
+
+	/**
+	 * Reads multiple bytes at the current pointer position
+	 * and returns them as an unsigned number.
+	 * @returns a positive number.
+	 */
+	private readNumbers(count: number): number {
+		return this.readBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+	}
+
+	/**
+	 * Peeks an unsigned 16-bit integer.
+	 * @returns unsigned 16-bit integer.
+	 */
+	private peekUInt16(): number {
+		return this.peekNumbers(2);
+	}
+
+	/**
+	 * Reads an unsigned 16-bit integer.
+	 * @returns unsigned 16-bit integer.
+	 */
+	private readUInt16(): number {
+		return this.readNumbers(2);
+	}
+
+	/**
+	 * Peeks an unsigned 32-bit integer.
+	 * @returns unsigned 32-bit integer.
+	 */
+	private peekUInt32(): number {
+		return this.peekNumbers(4);
+	}
+
+	/**
+	 * Peeks an unsigned 32-bit integer.
+	 * @returns unsigned 32-bit integer.
+	 */
+	private readUInt32(): number {
+		return this.readNumbers(4);
+	}
+
+	/**
+	 * Reads a boolean, consisting of 4 bytes.
+	 * @returns true or false.
+	 */
+	private readBoolean(): boolean {
+		return !!this.readNumbers(4);
+	}
+
+	/**
+	 * Reads a string of a given length.
+	 * @param count length of the string.
+	 * @returns a string.
+	 */
+	private readString(count = 0): string {
+		// If no length is given, read the length first.
+		if (count == 0) count = this.readNumbers(4);
+		return String.fromCharCode(...this.readBytes(count));
+	}
+
+	/**
+	 * Reads a single character
+	 * @returns a 1-long string.
+	 */
+	private readChar(): string {
+		return this.readString(1);
+	}
+
+	/**
+	 * Reads three consecutive lookback strings.
+	 * @returns object of id, collection and author.
+	 */
+	private readMeta(): GBXMeta {
+		return {
+			id: this.readLookbackString(),
+			collection: this.readLookbackString(),
+			author: this.readLookbackString(),
+		};
+	}
+
+	/**
+	 * Reads a file reference.
+	 * @returns a string consisting of a file path.
+	 */
+	private readFileReference(): string {
 		const version = this.readByte();
 
-		if (version >= 3) {
-			const checksum = this.readBytes(32);
-		}
+		if (version >= 3) this.readBytes(32); // Checksum
 
-		const filePath = this.readString(); // Issue
+		const filePath = this.readString();
 
-		if ((filePath.length > 0 && version >= 1) || version >= 3) {
-			const locatorUrl = this.readString();
-		}
+		if ((filePath.length > 0 && version >= 1) || version >= 3) this.readString(); // LocatorURL
 
 		return filePath;
 	}
 
-	private readNodeReference() {
+	/**
+	 * Reads a node reference.
+	 */
+	private readNodeReference(): void {
+		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
 		if (index >= 0) {
 			const classId = this.readNumbers(4);
 
-			//Logger.log(`Found classId: 0x${this.decimalToHexadecimal(classId)}`);
-
-			const node = this.readNode();
-
-			return node;
+			return this.readNode();
 		}
 
 		if (index == -1) return null;
 
-		Logger.error(`Invalid node reference: ${index}`);
 		throw new Error('Invalid node reference');
 	}
 
-	private decimalToHexadecimal(decimal: number) {
-		return Math.abs(decimal).toString(16);
-	}
+	private lookbackVersion: number;
+	private lookbackStrings: string[] = [];
 
-	private determineType(nodeID: number) {
-		if (nodeID == 0x03043000 || nodeID == 0x24003000) {
-			return 'CGameCtnChallenge';
-		}
-
-		if (nodeID == 0x03093000 || nodeID == 0x2407e000 || nodeID == 0x2403f000) {
-			return 'CGameCtnReplayRecord';
-		}
-
-		return 'Unknown Type';
-	}
-
-	private hasMagic(): boolean {
-		return this.readString(3) == 'GBX';
-	}
-
-	private changeBuffer(newBuffer: Buffer) {
-		this.buffer = newBuffer;
-		this.pointer = 0;
-	}
-
-	private readChar(): string {
-		return this.readString(1);
-	}
-
-	private readString(count = 0): string {
-		if (count == 0) count = this.readNumbers(4);
-		return String.fromCharCode(...this.readBytes(count));
-	}
-
-	public lookbackVersion: number;
-	public lookbackStrings = [];
-
-	private readLookbackString() {
+	/**
+	 * Reads a lookback string.
+	 * @returns a string.
+	 */
+	private readLookbackString(): string {
 		if (this.lookbackVersion == null) this.lookbackVersion = this.readNumbers(4);
 
 		const index = new Uint32Array([this.readNumbers(4)])[0];
@@ -358,7 +379,7 @@ export class GBX {
 		}
 
 		if (index >> 30 == 0) {
-			return collectionIDs[index] === undefined ? index : collectionIDs[index];
+			return collectionIDs[index] === undefined ? 'Unknown collection' : collectionIDs[index];
 		}
 
 		if (this.lookbackStrings.length > (index & 0x3fff) - 1)
@@ -366,12 +387,4 @@ export class GBX {
 
 		return '';
 	}
-}
-
-class UnimplementedChunkError extends Error {
-	constructor(fullChunkId: number) {
-		super(`No handler found for unskippable chunk 0x${fullChunkId}`);
-	}
-
-	name = 'UnimplementedChunkError';
 }

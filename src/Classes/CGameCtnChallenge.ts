@@ -3,7 +3,7 @@
  */
 export class CGameCtnChallenge {
 	static 0x00d(r: GBXReader) {
-		const playerModel = r.readIdent();
+		const playerModel = r.readMeta();
 
 		return playerModel;
 	}
@@ -20,12 +20,12 @@ export class CGameCtnChallenge {
 		};
 	}
 
-	static 0x1f(r: GBXReader) {
+	static 0x01f(r: GBXReader) {
 		let blocks = [];
 
-		const mapMeta = r.readIdent();
+		const mapMeta = r.readMeta();
 		const mapName = r.readString();
-		const decorationMeta = r.readIdent();
+		const decorationMeta = r.readMeta();
 
 		const size = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
 

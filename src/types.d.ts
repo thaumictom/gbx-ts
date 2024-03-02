@@ -35,7 +35,13 @@ interface GBXReader {
 	readLookbackString(): string;
 	readNodeReference(): any;
 	readFileReference(): any;
-	readIdent(): [string, string, string];
+	readMeta(): GBXMeta;
 
 	forceChunkSkip(): void;
+}
+
+interface GBXMeta {
+	id: string;
+	collection: string;
+	author: string;
 }
