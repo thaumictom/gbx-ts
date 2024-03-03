@@ -21,6 +21,6 @@ export class CGameCtnCollectorList {
 			});
 		}
 
-		return blockSet;
+		return { blockSet };
 	}
 }

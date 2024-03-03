@@ -16,8 +16,8 @@ export class CGameCtnBlockSkin {
 
 	static 0x003(r: GBXReader) {
 		const version = r.readUInt32();
-		const secondaryPackDesc = r.readFileReference();
+		const foregroundPackDesc = r.readFileReference();
 
-		return secondaryPackDesc;
+		return { foregroundPackDesc };
 	}
 }

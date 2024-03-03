@@ -28,7 +28,6 @@ export class CGameCtnChallengeParameters {
 			silverTime,
 			goldTime,
 			authorTime,
-			u01,
 		};
 	}
 
@@ -66,6 +65,6 @@ export class CGameCtnChallengeParameters {
 	static 0x00d(r: GBXReader) {
 		const raceValidationGhost = r.readNodeReference();
 
-		return raceValidationGhost;
+		return { raceValidationGhost };
 	}
 }

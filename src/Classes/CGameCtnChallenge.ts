@@ -1,31 +1,46 @@
+enum MapKind {
+	EndMarker,
+	Campaign,
+	Puzzle,
+	Retro,
+	TimeAttack,
+	Rounds,
+	InProgress,
+	Campaign_7,
+	Multi,
+	Solo,
+	Site,
+	SoloNadeo,
+	MultiNadeo,
+}
 /**
  * Chunk 0x03043000
  */
 export class CGameCtnChallenge {
-	static 0x00d(r: GBXReader) {
+	static 0x00d(r: GBXReader): { playerModel: GBXMeta } {
 		const playerModel = r.readMeta();
 
-		return playerModel;
+		return { playerModel };
 	}
 
 	static 0x011(r: GBXReader) {
-		const collectorList = r.readNodeReference(); // CGameCtnCollectorList
+		const blockStock = r.readNodeReference(); // CGameCtnCollectorList
 		const challengeParameters = r.readNodeReference(); // CGameCtnChallengeParameters
-		const kind = r.readUInt32();
+		const mapKind = r.readUInt32() as MapKind;
 
 		return {
-			collectorList,
+			blockStock,
 			challengeParameters,
-			kind,
+			mapKind,
 		};
 	}
 
 	static 0x01f(r: GBXReader) {
 		let blocks = [];
 
-		const mapMeta = r.readMeta();
+		const mapInfo = r.readMeta();
 		const mapName = r.readString();
-		const decorationMeta = r.readMeta();
+		const decoration = r.readMeta();
 
 		const size = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
 
@@ -39,9 +54,11 @@ export class CGameCtnChallenge {
 			const rotation = r.readByte();
 
 			// Unimplemented: There is some special cases for the coordinates in version >= 6
-			const x = r.readByte();
-			const y = r.readByte();
-			const z = r.readByte();
+			const position = {
+				x: r.readByte(),
+				y: r.readByte(),
+				z: r.readByte(),
+			};
 
 			let flags: number;
 
@@ -52,9 +69,7 @@ export class CGameCtnChallenge {
 				blocks.push({
 					blockName,
 					rotation,
-					x,
-					y,
-					z,
+					position,
 				});
 
 				return false;
@@ -74,9 +89,7 @@ export class CGameCtnChallenge {
 			blocks.push({
 				blockName,
 				rotation,
-				x,
-				y,
-				z,
+				position,
 				author,
 				skin,
 				blockParameters,
@@ -98,9 +111,9 @@ export class CGameCtnChallenge {
 		}
 
 		return {
-			mapMeta,
+			mapInfo,
 			mapName,
-			decorationMeta,
+			decoration,
 			size,
 			needUnlock,
 			blocks,
@@ -110,13 +123,13 @@ export class CGameCtnChallenge {
 	static 0x022(r: GBXReader) {
 		const u01 = r.readUInt32();
 
-		return u01;
+		return null;
 	}
 
 	static 0x024(r: GBXReader) {
 		const customMusicPackDesc = r.readFileReference();
 
-		return customMusicPackDesc;
+		return { customMusicPackDesc };
 	}
 
 	static 0x025(r: GBXReader) {
@@ -132,7 +145,7 @@ export class CGameCtnChallenge {
 	static 0x026(r: GBXReader) {
 		const clipGlobal = r.readNodeReference(); // Empty
 
-		return clipGlobal;
+		return { clipGlobal };
 	}
 
 	static 0x028(r: GBXReader) {
@@ -160,10 +173,6 @@ export class CGameCtnChallenge {
 
 		return {
 			hasCustomCamThumbnail,
-			u01,
-			u02,
-			u03,
-			u04,
 			thumbnailPosition,
 			thumbnailFov,
 			thumbnailNearClipPlane,
@@ -175,7 +184,7 @@ export class CGameCtnChallenge {
 	static 0x02a(r: GBXReader) {
 		const u01 = r.readBoolean();
 
-		return u01;
+		return null;
 	}
 
 	static 0x049(r: GBXReader) {

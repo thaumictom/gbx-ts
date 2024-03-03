@@ -14,12 +14,11 @@ export class CGameCtnMediaTrack {
 			blocks.push(block);
 		}
 
-		const u1 = r.readUInt32();
+		const u01 = r.readUInt32();
 
 		return {
 			name,
 			blocks,
-			u1,
 		};
 	}
 }

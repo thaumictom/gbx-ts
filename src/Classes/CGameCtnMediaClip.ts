@@ -15,9 +15,9 @@ export class CGameCtnMediaClip {
 
 		const name = r.readString();
 		const stopWhenLeave = r.readBoolean();
-		const u1 = r.readUInt32();
+		const u01 = r.readUInt32();
 		const stopWhenRespawn = r.readBoolean();
-		const u2 = r.readUInt32();
+		const u02 = r.readUInt32();
 		const localPlayerClipEntIndex = r.readUInt32();
 
 		return {
@@ -25,9 +25,7 @@ export class CGameCtnMediaClip {
 			tracks,
 			name,
 			stopWhenLeave,
-			u1,
 			stopWhenRespawn,
-			u2,
 			localPlayerClipEntIndex,
 		};
 	}
