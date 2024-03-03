@@ -1,5 +1,3 @@
-import { DataStream } from '../Handlers/DataStream';
-
 enum MapKind {
 	EndMarker,
 	Campaign,
@@ -15,17 +13,18 @@ enum MapKind {
 	SoloNadeo,
 	MultiNadeo,
 }
+
 /**
  * Chunk 0x03043000
  */
-export class CGameCtnChallenge {
-	static 0x00d(r: DataStream): { playerModel: GBXMeta } {
+export default class CGameCtnChallenge {
+	static 0x00d(r: IDataStream) {
 		const playerModel = r.readMeta();
 
 		return { playerModel };
 	}
 
-	static 0x011(r: DataStream) {
+	static 0x011(r: IDataStream) {
 		const blockStock = r.readNodeReference(); // CGameCtnCollectorList
 		const challengeParameters = r.readNodeReference(); // CGameCtnChallengeParameters
 		const mapKind = r.readUInt32() as MapKind;
@@ -37,7 +36,7 @@ export class CGameCtnChallenge {
 		};
 	}
 
-	static 0x01f(r: DataStream) {
+	static 0x01f(r: IDataStream) {
 		let blocks = [];
 
 		const mapInfo = r.readMeta();
@@ -122,19 +121,19 @@ export class CGameCtnChallenge {
 		};
 	}
 
-	static 0x022(r: DataStream) {
+	static 0x022(r: IDataStream) {
 		const u01 = r.readUInt32();
 
 		return null;
 	}
 
-	static 0x024(r: DataStream) {
+	static 0x024(r: IDataStream) {
 		const customMusicPackDesc = r.readFileReference();
 
 		return { customMusicPackDesc };
 	}
 
-	static 0x025(r: DataStream) {
+	static 0x025(r: IDataStream) {
 		const mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
 		const mapCoordTarget = [r.readUInt32(), r.readUInt32()];
 
@@ -144,13 +143,13 @@ export class CGameCtnChallenge {
 		};
 	}
 
-	static 0x026(r: DataStream) {
+	static 0x026(r: IDataStream) {
 		const clipGlobal = r.readNodeReference(); // Empty
 
 		return { clipGlobal };
 	}
 
-	static 0x028(r: DataStream) {
+	static 0x028(r: IDataStream) {
 		const hasCustomCamThumbnail = r.readBoolean();
 
 		if (!hasCustomCamThumbnail) {
@@ -183,13 +182,13 @@ export class CGameCtnChallenge {
 		};
 	}
 
-	static 0x02a(r: DataStream) {
+	static 0x02a(r: IDataStream) {
 		const u01 = r.readBoolean();
 
 		return null;
 	}
 
-	static 0x049(r: DataStream, fullChunkId: number) {
+	static 0x049(r: IDataStream, fullChunkId: number) {
 		r.forceChunkSkip(fullChunkId);
 
 		return null;

@@ -3,7 +3,7 @@ import { GBX } from '../GBX';
 import { GBXReader } from '../GBXReader';
 import { Logger } from './Logger';
 
-export class DataStream {
+export class DataStream implements IDataStream {
 	private stream: Buffer;
 	private position: number = 0;
 
@@ -217,7 +217,7 @@ export class DataStream {
 	 * Skips to the next chunk within the same class ID.
 	 * @todo Add support for skipping nested chunks.
 	 */
-	public forceChunkSkip(classId: number) {
+	public forceChunkSkip(classId: number): void {
 		let index = 0;
 
 		while (true) {

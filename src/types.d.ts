@@ -21,23 +21,32 @@ interface CollectionList {
 	[key: number]: string;
 }
 
-interface GBXReader {
-	readByte(): number;
-	readBytes(length: number): Buffer;
+interface IDataStream {
+	peekByte(offset: number): number;
+	peekBytes(count: number): number[];
 
+	readByte(): number;
+	readBytes(count: number): number[];
+
+	peekNumbers(count: number): number;
+	readNumbers(count: number): number;
+
+	peekUInt16(): number;
 	readUInt16(): number;
-	readUInt32(): number;
-	readString(): string;
-	readBoolean(): boolean;
 
 	peekUInt32(): number;
+	readUInt32(): number;
 
-	readLookbackString(): string;
-	readNodeReference(): any;
-	readFileReference(): any;
+	readBoolean(): boolean;
+	readString(): string;
+	readChar(): string;
+
 	readMeta(): GBXMeta;
+	readFileReference(): string;
+	readNodeReference(): object | null;
+	readLookbackString(): string;
 
-	forceChunkSkip(): void;
+	forceChunkSkip(classId: number): void;
 }
 
 interface GBXMeta {

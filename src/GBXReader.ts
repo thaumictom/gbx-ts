@@ -1,5 +1,5 @@
 import { DataStream, Logger, Hex } from './Handlers/Handlers';
-import * as Chunk from './Classes/Chunks';
+import * as Chunk from './Classes';
 
 export class GBXReader {
 	private stream: DataStream;

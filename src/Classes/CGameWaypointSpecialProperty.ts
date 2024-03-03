@@ -1,8 +1,8 @@
 /**
  * Chunk 0x2e009000
  */
-export class CGameWaypointSpecialProperty {
-	static 0x000(r: DataStream) {
+export default class CGameWaypointSpecialProperty {
+	static 0x000(r: IDataStream) {
 		const version = r.readUInt32();
 
 		if (version == 1) {

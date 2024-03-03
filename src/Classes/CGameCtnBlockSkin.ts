@@ -1,8 +1,8 @@
 /**
  * Chunk 0x03059000
  */
-export class CGameCtnBlockSkin {
-	static 0x002(r: DataStream) {
+export default class CGameCtnBlockSkin {
+	static 0x002(r: IDataStream) {
 		const text = r.readString();
 		const packDesc = r.readFileReference();
 		const parentPackDesc = r.readFileReference();
@@ -14,7 +14,7 @@ export class CGameCtnBlockSkin {
 		};
 	}
 
-	static 0x003(r: DataStream) {
+	static 0x003(r: IDataStream) {
 		const version = r.readUInt32();
 		const foregroundPackDesc = r.readFileReference();
 

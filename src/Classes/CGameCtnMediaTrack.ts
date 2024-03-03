@@ -1,8 +1,8 @@
 /**
  * Chunk 0x03078000
  */
-export class CGameCtnMediaTrack {
-	static 0x001(r: DataStream) {
+export default class CGameCtnMediaTrack {
+	static 0x001(r: IDataStream) {
 		const name = r.readString();
 		const numBlocks = r.readUInt32();
 
