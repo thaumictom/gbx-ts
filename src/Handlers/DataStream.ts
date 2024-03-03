@@ -5,7 +5,7 @@ import Logger from './Logger';
 /**
  * Handle data streams.
  */
-export default class DataStream implements IDataStream {
+export default class DataStream {
 	private stream: Buffer;
 	private position: number = 0;
 

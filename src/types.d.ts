@@ -1,5 +1,3 @@
-import { DataStream } from './Handlers';
-
 interface IOptions {
 	path: string;
 }
