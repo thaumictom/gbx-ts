@@ -9,6 +9,7 @@ import {
 	CGameCtnMediaTrack,
 	CGameWaypointSpecialProperty,
 } from './Classes/Chunks';
+import { debug } from 'console';
 
 export class GBX {
 	public stream: Buffer;
@@ -22,6 +23,9 @@ export class GBX {
 		}
 	}
 
+	/**
+	 * Parses the headers of the GBX file.
+	 */
 	public async parseHeaders(): Promise<any> {
 		// Return if file does not contain the file magic.
 		if (this.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
@@ -79,7 +83,10 @@ export class GBX {
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 	}
 
-	public async parse(): Promise<object> {
+	/**
+	 * Parses the GBX file entirely.
+	 */
+	public async parse<Type>(): Promise<object> {
 		// Read headers
 		const headers = await this.parseHeaders();
 
@@ -90,9 +97,9 @@ export class GBX {
 
 		this.changeBuffer(LZO.decompress(compressedData));
 
-		this.readNode();
+		const node = this.readNode();
 
-		return Promise.resolve({});
+		return Promise.resolve({ node });
 	}
 
 	private classId: number;
@@ -101,12 +108,14 @@ export class GBX {
 	/**
 	 * Reads a node.
 	 */
-	private readNode(): void {
+	private readNode(): any {
+		let data = {};
+
 		while (true) {
 			const fullChunkId = this.readUInt32();
 
 			// Reached end of node
-			if (fullChunkId == 0xfacade01) return;
+			if (fullChunkId == 0xfacade01) break;
 
 			// Check if chunk is skippable
 			if (this.peekUInt32() == 0x534b4950) {
@@ -124,17 +133,27 @@ export class GBX {
 				continue;
 			}
 
-			// Read unskippable chunk
-			this.readChunk(fullChunkId);
+			const chunkData = this.readChunk(fullChunkId) as object;
+
+			// Check for duplicate keys
+			for (const key in chunkData) {
+				if (data.hasOwnProperty(key)) {
+					throw new Error(`Duplicate key: ${key}`);
+				}
+			}
+
+			if (chunkData !== null) data = { ...data, ...chunkData };
 		}
+
+		return data;
 	}
 
 	/**
 	 * Check if the chunk is supported and process it.
 	 * @param fullChunkId The full chunk ID.
-	 * @returns A boolean indicating if the chunk is supported.
+	 * @returns A boolean indicating if the chunk is supported, otherwise an object with data or null.
 	 */
-	private readChunk(fullChunkId: number): boolean {
+	private readChunk(fullChunkId: number): boolean | object | null {
 		this.classId = fullChunkId & 0xfffff000;
 		this.chunkId = fullChunkId & 0xfff;
 
@@ -153,9 +172,7 @@ export class GBX {
 
 		Logger.debug(`Processing Chunk: 0x${this.decimalToHexadecimal(fullChunkId)}`);
 
-		chunkHandlers[this.classId][this.chunkId](this);
-
-		return true;
+		return chunkHandlers[this.classId][this.chunkId](this);
 	}
 
 	/**
