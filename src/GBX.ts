@@ -2,10 +2,10 @@ import { DataStream, FileHandlers, Hex, Logger, LZO } from './Handlers/Handlers'
 import { GBXReader } from './GBXReader';
 
 export class GBX {
-	private headerChunks: GBXHeaderChunks[] = [];
+	private headerChunks: IHeaderChunks[] = [];
 	private stream: DataStream;
 
-	constructor(public options: GBXOptions) {
+	constructor(public options: IOptions) {
 		if (options.path) {
 			this.stream = new DataStream(FileHandlers.getBufferFromPathSync(options.path));
 		}

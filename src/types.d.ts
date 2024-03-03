@@ -1,24 +1,21 @@
-interface GBXOptions {
+interface IOptions {
 	path: string;
 }
 
-interface GBXMetadata {
-	[x: string]: any;
-	bronzeTime?: number;
-	silverTime?: number;
-	goldTime?: number;
-	authorTime?: number;
-	mapInfo?: any;
-	mapName?: string;
+interface IHeaderChunks {
+	size?: number;
+	data?: Buffer | number[];
+	isCompressed: boolean;
 }
 
-interface GBXResult {
-	type?: string;
-	metadata: GBXMetadata;
-}
-
-interface CollectionList {
+interface ICollectionList {
 	[key: number]: string;
+}
+
+interface IMeta {
+	id: string;
+	collection: string;
+	author: string;
 }
 
 interface IDataStream {
@@ -41,22 +38,10 @@ interface IDataStream {
 	readString(): string;
 	readChar(): string;
 
-	readMeta(): GBXMeta;
+	readMeta(): IMeta;
 	readFileReference(): string;
 	readNodeReference(): object | null;
 	readLookbackString(): string;
 
 	forceChunkSkip(classId: number): void;
-}
-
-interface GBXMeta {
-	id: string;
-	collection: string;
-	author: string;
-}
-
-interface GBXHeaderChunks {
-	size?: number;
-	data?: Buffer | number[];
-	isCompressed: boolean;
 }

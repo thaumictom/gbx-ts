@@ -131,7 +131,7 @@ export class DataStream implements IDataStream {
 	 * Reads three consecutive lookback strings.
 	 * @returns object of id, collection and author.
 	 */
-	public readMeta(): GBXMeta {
+	public readMeta(): IMeta {
 		return {
 			id: this.readLookbackString(),
 			collection: this.readLookbackString(),

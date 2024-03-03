@@ -1,4 +1,4 @@
-export const collectionIDs: CollectionList = {
+export const collectionIDs: ICollectionList = {
 	0: 'Desert',
 	1: 'Snow',
 	2: 'Rally',
