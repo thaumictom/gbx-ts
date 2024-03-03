@@ -2,7 +2,7 @@
  * Chunk 0x0301b000
  */
 export class CGameCtnCollectorList {
-	static 0x000(r: GBXReader) {
+	static 0x000(r: DataStream) {
 		let blockSet = [];
 
 		const archiveCount = r.readUInt32();

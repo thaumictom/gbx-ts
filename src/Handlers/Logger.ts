@@ -1,7 +1,7 @@
 export class Logger {
 	static reset = '\x1b[0m'; // Reset color
 
-	static highlight(text: string, colorCode: number = 35): string {
+	private static highlight(text: string, colorCode: number = 35): string {
 		const color = `\x1b[${colorCode}m`;
 		return `${color}${text}${this.reset}`;
 	}

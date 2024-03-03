@@ -2,7 +2,7 @@
  * Chunk 0x0305b000
  */
 export class CGameCtnChallengeParameters {
-	static 0x001(r: GBXReader) {
+	static 0x001(r: DataStream) {
 		const tip1 = r.readString();
 		const tip2 = r.readString();
 		const tip3 = r.readString();
@@ -16,7 +16,7 @@ export class CGameCtnChallengeParameters {
 		};
 	}
 
-	static 0x004(r: GBXReader) {
+	static 0x004(r: DataStream) {
 		const bronzeTime = r.readUInt32();
 		const silverTime = r.readUInt32();
 		const goldTime = r.readUInt32();
@@ -31,7 +31,7 @@ export class CGameCtnChallengeParameters {
 		};
 	}
 
-	static 0x008(r: GBXReader) {
+	static 0x008(r: DataStream) {
 		const timeLimit = r.readUInt32();
 		const authorScore = r.readUInt32();
 
@@ -41,7 +41,7 @@ export class CGameCtnChallengeParameters {
 		};
 	}
 
-	static 0x00a(r: GBXReader) {
+	static 0x00a(r: DataStream) {
 		const tip = r.readString();
 
 		const bronzeTime = r.readUInt32();
@@ -62,7 +62,7 @@ export class CGameCtnChallengeParameters {
 		};
 	}
 
-	static 0x00d(r: GBXReader) {
+	static 0x00d(r: DataStream) {
 		const raceValidationGhost = r.readNodeReference();
 
 		return { raceValidationGhost };

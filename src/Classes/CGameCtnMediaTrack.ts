@@ -2,7 +2,7 @@
  * Chunk 0x03078000
  */
 export class CGameCtnMediaTrack {
-	static 0x001(r: GBXReader) {
+	static 0x001(r: DataStream) {
 		const name = r.readString();
 		const numBlocks = r.readUInt32();
 
