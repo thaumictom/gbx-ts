@@ -1,8 +1,10 @@
+import { DataStream } from '../Handlers';
+
 /**
  * Chunk 0x2e009000
  */
 export default class CGameWaypointSpecialProperty {
-	static 0x000(r: IDataStream) {
+	static 0x000(r: DataStream) {
 		const version = r.readUInt32();
 
 		if (version == 1) {

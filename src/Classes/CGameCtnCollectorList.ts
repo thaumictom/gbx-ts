@@ -1,8 +1,10 @@
+import { DataStream } from '../Handlers';
+
 /**
  * Chunk 0x0301b000
  */
 export default class CGameCtnCollectorList {
-	static 0x000(r: IDataStream) {
+	static 0x000(r: DataStream) {
 		let blockSet = [];
 
 		const archiveCount = r.readUInt32();

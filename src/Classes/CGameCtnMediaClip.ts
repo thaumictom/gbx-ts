@@ -1,8 +1,10 @@
+import { DataStream } from '../Handlers';
+
 /**
  * Chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
-	static 0x00d(r: IDataStream) {
+	static 0x00d(r: DataStream) {
 		const version = r.readUInt32();
 		const numTracks = r.readUInt32();
 
