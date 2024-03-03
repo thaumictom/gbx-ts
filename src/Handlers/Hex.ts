@@ -1,4 +1,7 @@
-export class Hex {
+/**
+ * Handles hexadecimal numbers.
+ */
+export default class Hex {
 	/**
 	 * Converts a decimal number to a hexadecimal string.
 	 * @param decimal The decimal number to convert.

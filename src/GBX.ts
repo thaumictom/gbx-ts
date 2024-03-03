@@ -1,4 +1,4 @@
-import { DataStream, FileHandlers, Hex, Logger, LZO } from './Handlers/Handlers';
+import { DataStream, FileHandlers, Hex, Logger, LZO } from './Handlers';
 import { GBXReader } from './GBXReader';
 
 export class GBX {

@@ -1,3 +1,6 @@
+/**
+ * List of collection IDs
+ */
 export const collectionIDs: ICollectionList = {
 	0: 'Desert',
 	1: 'Snow',

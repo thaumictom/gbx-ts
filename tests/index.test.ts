@@ -1,5 +1,5 @@
 import GBX from '../src/index';
-import { Logger } from '../src/Handlers/Logger';
+import { Logger } from '../src/Handlers';
 
 import { performance } from 'perf_hooks';
 import util from 'util';

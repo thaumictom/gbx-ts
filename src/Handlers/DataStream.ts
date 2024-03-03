@@ -1,9 +1,11 @@
 import { collectionIDs } from '../Data/CollectionIDs';
-import { GBX } from '../GBX';
 import { GBXReader } from '../GBXReader';
-import { Logger } from './Logger';
+import Logger from './Logger';
 
-export class DataStream implements IDataStream {
+/**
+ * Handle data streams.
+ */
+export default class DataStream implements IDataStream {
 	private stream: Buffer;
 	private position: number = 0;
 
