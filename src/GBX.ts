@@ -83,7 +83,9 @@ export class GBX {
 		const compressedSize = this.stream.readNumbers(4);
 		const compressedData = this.stream.readBytes(compressedSize);
 
-		const node = new GBXReader(new DataStream(LZO.decompress(compressedData))).readNode();
+		const data = new DataStream(LZO.decompress(compressedData));
+
+		const node = new GBXReader(data).readNode();
 
 		return Promise.resolve({ node });
 	}
