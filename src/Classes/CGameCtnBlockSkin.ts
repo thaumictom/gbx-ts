@@ -4,7 +4,7 @@ import { DataStream } from '../Handlers';
  * Chunk 0x03059000
  */
 export default class CGameCtnBlockSkin {
-	0x002(r: DataStream) {
+	static 0x002(r: DataStream) {
 		const text = r.readString();
 		const packDesc = r.readFileReference();
 		const parentPackDesc = r.readFileReference();
