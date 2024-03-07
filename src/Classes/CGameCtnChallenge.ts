@@ -18,6 +18,218 @@ enum MapKind {
  * Chunk 0x03043000
  */
 export default class CGameCtnChallenge {
+	static 0x002: Chunk = (r) => {
+		let mapInfo: IMeta,
+			mapName: string,
+			bronzeTime: number,
+			silverTime: number,
+			goldTime: number,
+			authorTime: number,
+			cost: number,
+			isLapRace: boolean,
+			isMultilap: boolean,
+			playMode: number,
+			authorScore: number,
+			editorMode: number,
+			nbCheckpoints: number,
+			nbLaps: number;
+
+		const version = r.readByte();
+
+		if (version <= 2) {
+			mapInfo = r.readMeta();
+			mapName = r.readString();
+		}
+
+		const u01 = r.readBoolean();
+
+		if (version >= 1) {
+			bronzeTime = r.readUInt32();
+			silverTime = r.readUInt32();
+			goldTime = r.readUInt32();
+			authorTime = r.readUInt32();
+		}
+
+		if (version == 2) {
+			const u01 = r.readByte();
+		}
+
+		if (version >= 4) {
+			cost = r.readUInt32();
+		}
+
+		if (version >= 5) {
+			isLapRace = r.readBoolean();
+		}
+
+		if (version == 6) {
+			isMultilap = r.readBoolean();
+		}
+
+		if (version >= 7) {
+			playMode = r.readUInt32();
+		}
+
+		if (version >= 9) {
+			const u01 = r.readUInt32();
+		}
+
+		if (version >= 10) {
+			authorScore = r.readUInt32();
+		}
+
+		if (version >= 11) {
+			editorMode = r.readUInt32();
+		}
+
+		if (version >= 12) {
+			const u01 = r.readUInt32();
+		}
+
+		if (version >= 13) {
+			nbCheckpoints = r.readUInt32();
+			nbLaps = r.readUInt32();
+		}
+
+		return {
+			mapInfo,
+			mapName,
+			bronzeTime,
+			silverTime,
+			goldTime,
+			authorTime,
+			cost,
+			isLapRace,
+			isMultilap,
+			playMode,
+			authorScore,
+			editorMode,
+			nbCheckpoints,
+			nbLaps,
+		};
+	};
+
+	static 0x003: Chunk = (r) => {
+		const version = r.readByte();
+		const mapInfo = r.readMeta();
+		const mapName = r.readString();
+		const mapKind = r.readByte() as MapKind;
+
+		let password: string,
+			decoration: IMeta,
+			mapCoordOrigin: number[],
+			mapCoordTarget: number[],
+			packMask: number,
+			mapType: string,
+			mapStyle: string,
+			lightmapCacheUid: any,
+			lightmapVersion: any,
+			titleId: number;
+
+		if (version >= 1) {
+			const u01 = r.readUInt32();
+			password = r.readString();
+		}
+
+		if (version >= 2) {
+			decoration = r.readMeta();
+		}
+
+		if (version >= 3) {
+			mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
+		}
+
+		if (version >= 4) {
+			mapCoordTarget = [r.readUInt32(), r.readUInt32()];
+		}
+
+		if (version >= 5) {
+			packMask = r.readNumbers(16);
+		}
+
+		if (version >= 6) {
+			mapType = r.readString();
+			mapStyle = r.readString();
+		}
+
+		if (version >= 8) {
+			lightmapCacheUid = r.readBytes(8);
+		}
+
+		if (version >= 9) {
+			lightmapVersion = r.readByte();
+		}
+
+		if (version >= 11) {
+			titleId = r.readUInt32();
+		}
+
+		return {
+			mapInfo,
+			mapName,
+			mapKind,
+			password,
+			decoration,
+			mapCoordOrigin,
+			mapCoordTarget,
+			packMask,
+			mapType,
+			mapStyle,
+			lightmapCacheUid,
+			lightmapVersion,
+			titleId,
+		};
+	};
+
+	static 0x004: Chunk = (r) => {
+		const version = r.readUInt32();
+
+		return { version };
+	};
+
+	static 0x005: Chunk = (r) => {
+		const xml = r.readString();
+
+		return { xml };
+	};
+
+	static 0x007: Chunk = (r) => {
+		const version = r.readUInt32();
+
+		const thumbnailSize = r.readUInt32();
+
+		const thumbnailStart = r.readString('<Thumbnail.jpg>'.length);
+		const thumbnailData = r.readBytes(thumbnailSize);
+		const thumbnailEnd = r.readString('</Thumbnail.jpg>'.length);
+
+		const commentsStart = r.readString('<Comments>'.length);
+		const comments = r.readString();
+		const commentsEnd = r.readString('</Comments>'.length);
+
+		return {
+			thumbnailSize,
+			thumbnailData,
+			comments,
+		};
+	};
+
+	static 0x008: Chunk = (r) => {
+		const version = r.readUInt32();
+		const authorVersion = r.readUInt32();
+		const authorLogin = r.readString();
+		const authorNickname = r.readString();
+		const authorZone = r.readString();
+		const authorExtraInfo = r.readString();
+
+		return {
+			authorVersion,
+			authorLogin,
+			authorNickname,
+			authorZone,
+			authorExtraInfo,
+		};
+	};
+
 	static 0x00d: Chunk = (r) => {
 		const playerModel = r.readMeta();
 

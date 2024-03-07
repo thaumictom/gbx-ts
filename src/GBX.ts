@@ -31,52 +31,74 @@ export class GBX {
 		if (version >= 4) this.stream.readChar();
 
 		// Class ID
-		const classID = this.stream.readNumbers(4);
+		const classId = this.stream.readNumbers(4);
 
 		// User data size
 		if (version >= 6) this.stream.readNumbers(4);
 
 		// Amount of header chunks
-		const numHeaderChunks = this.stream.readNumbers(4);
+		const nbHeaderChunks = this.stream.readNumbers(4);
 
-		if (numHeaderChunks == 0) return Promise.reject(new Error('No header chunks'));
+		if (nbHeaderChunks == 0) return Promise.reject(new Error('No header chunks'));
 
 		// Read header chunks
-		for (let i = 0; i < numHeaderChunks; i++) {
+		for (let i = 0; i < nbHeaderChunks; i++) {
 			const chunkId = this.stream.readNumbers(4) & 0xfff;
-			const chunkSize = this.stream.readNumbers(4);
-			const isCompressed = (chunkSize & 0x80000000) != 0;
+			const chunkSize = this.stream.readNumbers(4) & ~0x80000000;
+			const isHeavy = (chunkSize & 0x80000000) != 0;
 
-			this.headerChunks[chunkId] = {
-				size: chunkSize & ~0x80000000,
-				isCompressed,
-			};
+			this.headerChunks.push({
+				chunkId,
+				chunkSize,
+				isHeavy,
+			});
 		}
+
+		let headerNode = {};
 
 		// Read header chunk data
 		for (const el in this.headerChunks) {
-			this.headerChunks[el].data = this.stream.readBytes(this.headerChunks[el].size as number);
-			delete this.headerChunks[el].size;
+			const fullChunkId = classId + this.headerChunks[el].chunkId;
+			const data = new DataStream(this.stream.readBytes(this.headerChunks[el].chunkSize as number));
+
+			const chunkData = new GBXReader(data).readChunk(fullChunkId) as object;
+
+			if (!chunkData) {
+				// Chunk is not supported
+				Logger.warn(`Skipped header chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+			}
+
+			// Check for duplicate keys
+			for (const key in chunkData) {
+				if (headerNode.hasOwnProperty(key)) {
+					if (headerNode[key] === undefined) continue;
+					throw new Error(`Duplicate key: ${key}`);
+				}
+			}
+
+			if (chunkData !== null) headerNode = { ...headerNode, ...chunkData };
 		}
 
 		// Read amount of nodes and external nodes
-		const numNodes = this.stream.readNumbers(4);
-		const numExternalNodes = this.stream.readNumbers(4);
+		const nbNodes = this.stream.readNumbers(4);
+		const nbExternalNodes = this.stream.readNumbers(4);
 
-		if (numExternalNodes > 0)
+		if (nbExternalNodes > 0)
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
 
-		Logger.debug(`Reading class 0x${Hex.fromDecimal(classID)}`);
+		Logger.debug(`Reading class 0x${Hex.fromDecimal(classId)}`);
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
+
+		return Promise.resolve({ headerNode });
 	}
 
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse<Type>(): Promise<object> {
+	public async parse(): Promise<object> {
 		// Read headers
-		const headers = await this.parseHeaders();
+		const { headerNode } = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.stream.readNumbers(4);
@@ -87,7 +109,7 @@ export class GBX {
 
 		const node = new GBXReader(data).readNode();
 
-		return Promise.resolve({ node });
+		return Promise.resolve({ headerNode, node });
 	}
 
 	/**

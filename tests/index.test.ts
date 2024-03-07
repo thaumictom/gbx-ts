@@ -2,7 +2,7 @@ import GBX from '../src/index';
 import { Logger } from '../src/Handlers';
 
 import { performance } from 'perf_hooks';
-import util from 'util';
+import { inspect } from 'util';
 
 import * as assert from 'uvu/assert';
 import { test } from 'uvu';
@@ -20,7 +20,7 @@ test('TM2020 Map', async () => {
 	const t1 = performance.now();
 
 	Logger.log(`Time taken: ${t1 - t0}ms`);
-	Logger.log(`Result:\n${util.inspect(file1, false, 1, true)}`);
+	Logger.log(`Result:\n${inspect(file1, { maxStringLength: 200, colors: true, depth: 2 })}`);
 });
 
 // test('TMUF Replay', () => {

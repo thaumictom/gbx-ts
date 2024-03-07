@@ -3,9 +3,9 @@ interface IOptions {
 }
 
 interface IHeaderChunks {
-	size?: number;
-	data?: Buffer | number[];
-	isCompressed: boolean;
+	chunkId: number;
+	chunkSize?: number;
+	isHeavy: boolean;
 }
 
 interface ICollectionList {

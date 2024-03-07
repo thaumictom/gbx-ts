@@ -60,7 +60,7 @@ export class GBXReader {
 	 * @param fullChunkId The full chunk ID.
 	 * @returns A boolean indicating if the chunk is supported, otherwise an object with data or null.
 	 */
-	private readChunk(fullChunkId: number): boolean | object | null {
+	public readChunk(fullChunkId: number): boolean | object | null {
 		this.classId = fullChunkId & 0xfffff000;
 		this.chunkId = fullChunkId & 0xfff;
 
