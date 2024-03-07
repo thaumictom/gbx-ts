@@ -15,7 +15,7 @@ export class GBXReader {
 	 * Reads a node.
 	 */
 	public readNode(): object {
-		let data = {};
+		let node = {};
 
 		while (true) {
 			const fullChunkId = this.stream.readUInt32();
@@ -32,7 +32,7 @@ export class GBXReader {
 
 				if (!isChunkSupported) {
 					// Chunk is not supported
-					Logger.debug(`Skipped Chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+					Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 					const data = this.stream.readBytes(chunkDataSize);
 				}
 
@@ -43,15 +43,16 @@ export class GBXReader {
 
 			// Check for duplicate keys
 			for (const key in chunkData) {
-				if (data.hasOwnProperty(key)) {
+				if (node.hasOwnProperty(key)) {
+					if (node[key] === undefined) continue;
 					throw new Error(`Duplicate key: ${key}`);
 				}
 			}
 
-			if (chunkData !== null) data = { ...data, ...chunkData };
+			if (chunkData !== null) node = { ...node, ...chunkData };
 		}
 
-		return data;
+		return node;
 	}
 
 	/**
@@ -74,10 +75,10 @@ export class GBXReader {
 		};
 
 		// Check if chunk is supported
-		if (chunkHandlers[this.classId][this.chunkId] == undefined) return false;
+		if (chunkHandlers[this.classId][this.chunkId] === undefined) return false;
 
 		Logger.debug(`Processing Chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 
-		return chunkHandlers[this.classId][this.chunkId](this.stream, this.classId);
+		return chunkHandlers[this.classId][this.chunkId](this.stream, fullChunkId);
 	}
 }

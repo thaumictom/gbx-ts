@@ -1,18 +1,19 @@
 import { collectionIDs } from '../Data/CollectionIDs';
 import { GBXReader } from '../GBXReader';
+import Hex from './Hex';
 import Logger from './Logger';
 
 /**
  * Handle data streams.
  */
 export default class DataStream {
-	private stream: Buffer;
+	private stream: Buffer | Array<number>;
 	private position: number = 0;
 
 	private lookbackVersion: number;
 	private lookbackStrings: string[] = [];
 
-	constructor(stream: Buffer) {
+	constructor(stream: Buffer | Array<number>) {
 		this.stream = stream;
 	}
 
@@ -21,7 +22,8 @@ export default class DataStream {
 	 * @returns a number between 0 to 255.
 	 */
 	public peekByte(offset = 0): number {
-		return this.stream[this.position + offset];
+		const byte = this.stream[this.position + offset];
+		return byte;
 	}
 
 	/**
@@ -29,11 +31,11 @@ export default class DataStream {
 	 * @returns a number between 0 to 255.
 	 */
 	public readByte(): number {
-		let byte = this.peekByte();
+		const byte = this.peekByte();
+		if (byte === undefined) throw new Error('Attempted to read an undefined byte.');
 		this.position++;
 		return byte;
 	}
-
 	/**
 	 * Reads multiple bytes at the current pointer position without advancing the pointer.
 	 * @param count Amount of bytes to read.
@@ -219,20 +221,18 @@ export default class DataStream {
 	 * Skips to the next chunk within the same class ID.
 	 * @todo Add support for skipping nested chunks.
 	 */
-	public forceChunkSkip(classId: number): void {
-		let index = 0;
-
+	public forceChunkSkip(fullChunkId: number): void {
 		while (true) {
-			const possibleChunkId = this.peekUInt32();
+			const possibleNextChunkId = this.peekUInt32();
 
-			if ((possibleChunkId & 0xfffff000) == classId) {
-				Logger.debug(`Force skipped ${index} bytes to 0x${possibleChunkId.toString(16)}`);
+			if ((possibleNextChunkId & 0xfffff000) == (fullChunkId & 0xfffff000)) {
+				Logger.warn(`Force skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 
 				break;
 			}
 
-			if (possibleChunkId == 0xfacade01 && this.peekByte() == undefined) {
-				Logger.warn(`Reached end of file early (Skipped ${index} bytes)`);
+			if (possibleNextChunkId == 0xfacade01 && this.peekByte() === undefined) {
+				Logger.warn(`Reached end of file early`);
 
 				break;
 			}
@@ -240,8 +240,6 @@ export default class DataStream {
 			// TODO Add support for skipping nested chunks
 
 			const skippedByte = this.readByte();
-
-			index++;
 		}
 	}
 }
