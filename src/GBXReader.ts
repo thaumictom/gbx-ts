@@ -39,7 +39,12 @@ export class GBXReader {
 				continue;
 			}
 
-			const chunkData = this.readChunk(fullChunkId) as object;
+			let chunkData = this.readChunk(fullChunkId);
+
+			if (chunkData === false)
+				throw new Error(`Failed processing unskippable chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+
+			chunkData = chunkData as object;
 
 			// Check for duplicate keys
 			for (const key in chunkData) {
