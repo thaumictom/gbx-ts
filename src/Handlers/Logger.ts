@@ -38,6 +38,7 @@ export default class Logger {
 	 * @param args The arguments to log.
 	 */
 	public static warn(...args: any[]): void {
+		if (process.env.IGNORE_WARN === 'true') return;
 		console.warn(this.highlight('[WARN]', 33), ...args);
 	}
 
