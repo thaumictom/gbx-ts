@@ -1,4 +1,4 @@
-import { DataStream, FileHandlers, Hex, Logger, LZO } from './Handlers';
+import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
 import { GBXReader } from './GBXReader';
 
 export class GBX {
@@ -83,7 +83,7 @@ export class GBX {
 		const compressedSize = this.stream.readNumbers(4);
 		const compressedData = this.stream.readBytes(compressedSize);
 
-		const data = new DataStream(LZO.decompress(compressedData));
+		const data = new DataStream(await LZOHandler.decompress(compressedData));
 
 		const node = new GBXReader(data).readNode();
 
