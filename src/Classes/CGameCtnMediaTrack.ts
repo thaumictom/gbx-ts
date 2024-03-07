@@ -1,16 +1,14 @@
-import { DataStream } from '../Handlers';
-
 /**
  * Chunk 0x03078000
  */
 export default class CGameCtnMediaTrack {
-	static 0x001(r: DataStream) {
+	static 0x001: Chunk = (r) => {
 		const name = r.readString();
-		const numBlocks = r.readUInt32();
+		const nbBlocks = r.readUInt32();
 
 		let blocks = [];
 
-		for (let i = 0; i < numBlocks; i++) {
+		for (let i = 0; i < nbBlocks; i++) {
 			const block = r.readNodeReference(); // CGameCtnMediaBlock
 
 			blocks.push(block);
@@ -22,5 +20,5 @@ export default class CGameCtnMediaTrack {
 			name,
 			blocks,
 		};
-	}
+	};
 }

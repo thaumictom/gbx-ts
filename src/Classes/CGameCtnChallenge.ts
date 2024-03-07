@@ -1,5 +1,3 @@
-import { DataStream } from '../Handlers';
-
 enum MapKind {
 	EndMarker,
 	Campaign,
@@ -20,13 +18,13 @@ enum MapKind {
  * Chunk 0x03043000
  */
 export default class CGameCtnChallenge {
-	static 0x00d(r: DataStream) {
+	static 0x00d: Chunk = (r) => {
 		const playerModel = r.readMeta();
 
 		return { playerModel };
-	}
+	};
 
-	static 0x011(r: DataStream) {
+	static 0x011: Chunk = (r) => {
 		const blockStock = r.readNodeReference(); // CGameCtnCollectorList
 		const challengeParameters = r.readNodeReference(); // CGameCtnChallengeParameters
 		const mapKind = r.readUInt32() as MapKind;
@@ -36,9 +34,9 @@ export default class CGameCtnChallenge {
 			challengeParameters,
 			mapKind,
 		};
-	}
+	};
 
-	static 0x01f(r: DataStream) {
+	static 0x01f: Chunk = (r) => {
 		let blocks = [];
 
 		const mapInfo = r.readMeta();
@@ -50,7 +48,7 @@ export default class CGameCtnChallenge {
 		const needUnlock = r.readBoolean();
 
 		const version = r.readUInt32();
-		const numBlocks = r.readUInt32();
+		const nbBlocks = r.readUInt32();
 
 		const readBlock = (): boolean => {
 			const blockName = r.readLookbackString();
@@ -78,7 +76,7 @@ export default class CGameCtnChallenge {
 				return false;
 			}
 
-			let author, skin, blockParameters;
+			let author: string, skin: object, blockParameters: object;
 
 			if ((flags & 0x8000) != 0) {
 				author = r.readLookbackString();
@@ -101,7 +99,7 @@ export default class CGameCtnChallenge {
 			return true;
 		};
 
-		for (let i = 0; i < numBlocks; i++) {
+		for (let i = 0; i < nbBlocks; i++) {
 			const isNormal = readBlock();
 
 			if (isNormal) continue;
@@ -121,21 +119,21 @@ export default class CGameCtnChallenge {
 			needUnlock,
 			blocks,
 		};
-	}
+	};
 
-	static 0x022(r: DataStream) {
+	static 0x022: Chunk = (r) => {
 		const u01 = r.readUInt32();
 
 		return null;
-	}
+	};
 
-	static 0x024(r: DataStream) {
+	static 0x024: Chunk = (r) => {
 		const customMusicPackDesc = r.readFileReference();
 
 		return { customMusicPackDesc };
-	}
+	};
 
-	static 0x025(r: DataStream) {
+	static 0x025: Chunk = (r) => {
 		const mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
 		const mapCoordTarget = [r.readUInt32(), r.readUInt32()];
 
@@ -143,15 +141,15 @@ export default class CGameCtnChallenge {
 			mapCoordOrigin,
 			mapCoordTarget,
 		};
-	}
+	};
 
-	static 0x026(r: DataStream) {
+	static 0x026: Chunk = (r) => {
 		const clipGlobal = r.readNodeReference(); // Empty
 
 		return { clipGlobal };
-	}
+	};
 
-	static 0x028(r: DataStream) {
+	static 0x028: Chunk = (r) => {
 		const hasCustomCamThumbnail = r.readBoolean();
 
 		if (!hasCustomCamThumbnail) {
@@ -182,17 +180,17 @@ export default class CGameCtnChallenge {
 			thumbnailFarClipPlane,
 			comments,
 		};
-	}
+	};
 
-	static 0x02a(r: DataStream) {
+	static 0x02a: Chunk = (r) => {
 		const u01 = r.readBoolean();
 
 		return null;
-	}
+	};
 
-	static 0x049(r: DataStream, fullChunkId: number) {
+	static 0x049: Chunk = (r, fullChunkId) => {
 		r.forceChunkSkip(fullChunkId);
 
 		return null;
-	}
+	};
 }

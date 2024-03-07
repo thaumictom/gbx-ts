@@ -1,10 +1,8 @@
-import { DataStream } from '../Handlers';
-
 /**
  * Chunk 0x0305b000
  */
 export default class CGameCtnChallengeParameters {
-	static 0x001(r: DataStream) {
+	static 0x001: Chunk = (r) => {
 		const tip1 = r.readString();
 		const tip2 = r.readString();
 		const tip3 = r.readString();
@@ -16,9 +14,9 @@ export default class CGameCtnChallengeParameters {
 			tip3,
 			tip4,
 		};
-	}
+	};
 
-	static 0x004(r: DataStream) {
+	static 0x004: Chunk = (r) => {
 		const bronzeTime = r.readUInt32();
 		const silverTime = r.readUInt32();
 		const goldTime = r.readUInt32();
@@ -31,9 +29,9 @@ export default class CGameCtnChallengeParameters {
 			goldTime,
 			authorTime,
 		};
-	}
+	};
 
-	static 0x008(r: DataStream) {
+	static 0x008: Chunk = (r) => {
 		const timeLimit = r.readUInt32();
 		const authorScore = r.readUInt32();
 
@@ -41,9 +39,9 @@ export default class CGameCtnChallengeParameters {
 			timeLimit,
 			authorScore,
 		};
-	}
+	};
 
-	static 0x00a(r: DataStream) {
+	static 0x00a: Chunk = (r) => {
 		const tip = r.readString();
 
 		const bronzeTime = r.readUInt32();
@@ -62,11 +60,11 @@ export default class CGameCtnChallengeParameters {
 			timeLimit,
 			authorScore,
 		};
-	}
+	};
 
-	static 0x00d(r: DataStream) {
+	static 0x00d: Chunk = (r) => {
 		const raceValidationGhost = r.readNodeReference();
 
 		return { raceValidationGhost };
-	}
+	};
 }

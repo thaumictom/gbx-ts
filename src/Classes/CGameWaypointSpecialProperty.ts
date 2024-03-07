@@ -1,10 +1,8 @@
-import { DataStream } from '../Handlers';
-
 /**
  * Chunk 0x2e009000
  */
 export default class CGameWaypointSpecialProperty {
-	static 0x000(r: DataStream) {
+	static 0x000: Chunk = (r) => {
 		const version = r.readUInt32();
 
 		if (version == 1) {
@@ -24,5 +22,5 @@ export default class CGameWaypointSpecialProperty {
 				order,
 			};
 		}
-	}
+	};
 }

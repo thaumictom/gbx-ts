@@ -17,3 +17,7 @@ interface IMeta {
 	collection: string;
 	author: string;
 }
+
+interface Chunk {
+	(reader: import('./Handlers').DataStream, fullChunkId: number): object | null;
+}
