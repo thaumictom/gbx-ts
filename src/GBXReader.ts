@@ -80,7 +80,11 @@ export class GBXReader {
 		};
 
 		// Check if chunk is supported
-		if (chunkHandlers[this.classId][this.chunkId] === undefined) return false;
+		if (
+			chunkHandlers[this.classId] === undefined ||
+			chunkHandlers[this.classId][this.chunkId] === undefined
+		)
+			return false;
 
 		Logger.debug(`Processing Chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 
