@@ -70,8 +70,12 @@ export class GBX {
 
 			// Check for duplicate keys
 			for (const key in chunkData) {
+				if (chunkData[key] === undefined) {
+					delete chunkData[key];
+					continue;
+				}
+
 				if (headerNode.hasOwnProperty(key)) {
-					if (headerNode[key] === undefined) continue;
 					throw new Error(`Duplicate key: ${key}`);
 				}
 			}
