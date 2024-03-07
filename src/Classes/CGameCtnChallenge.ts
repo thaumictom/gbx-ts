@@ -333,6 +333,12 @@ export default class CGameCtnChallenge {
 		};
 	};
 
+	static 0x021: Chunk = (r, fullChunkId) => {
+		r.forceChunkSkip(fullChunkId);
+
+		return null;
+	};
+
 	static 0x022: Chunk = (r) => {
 		const u01 = r.readUInt32();
 
