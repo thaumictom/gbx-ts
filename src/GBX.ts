@@ -18,10 +18,14 @@ export class GBX {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
+		Logger.debug(`Found GBX magic`);
+
 		const version = this.stream.readNumbers(2);
 
 		// Return if the file version is not supported.
 		if (version < 3) return Promise.reject(new Error('Unsupported GBX version'));
+
+		Logger.debug(`Reading GBX version ${version}`);
 
 		const byteFormat = this.stream.readChar(); // 'T' (Text) or 'B' (Binary), latter more common
 		const refTableCompression = this.stream.readChar(); // Unused
@@ -54,6 +58,8 @@ export class GBX {
 			});
 		}
 
+		Logger.debug(`Reading header data`);
+
 		let headerNode = {};
 
 		// Read header chunk data
@@ -61,7 +67,7 @@ export class GBX {
 			const fullChunkId = classId + this.headerChunks[el].chunkId;
 			const data = new DataStream(this.stream.readBytes(this.headerChunks[el].chunkSize as number));
 
-			const chunkData = new GBXReader(data).readChunk(fullChunkId) as object;
+			const chunkData = new GBXReader(data).readChunk(fullChunkId, true) as object;
 
 			if (!chunkData) {
 				// Chunk is not supported
@@ -90,8 +96,6 @@ export class GBX {
 		if (nbExternalNodes > 0)
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
 
-		Logger.debug(`Reading class 0x${Hex.fromDecimal(classId)}`);
-
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 
 		return Promise.resolve({ headerNode });
@@ -110,6 +114,8 @@ export class GBX {
 		const compressedData = this.stream.readBytes(compressedSize);
 
 		const data = new DataStream(await LZOHandler.decompress(compressedData));
+
+		Logger.debug(`Reading body data`);
 
 		const node = new GBXReader(data).readNode();
 

@@ -18,6 +18,16 @@ export default class DataStream {
 	}
 
 	/**
+	 * Creates an array with a callback function applied to each index.
+	 * @param length length of the array.
+	 * @param callback arrow function with index as argument.
+	 * @returns an array with the function applied to each index.
+	 */
+	public createArray(length: number, callback: (index: number) => any) {
+		return Array.from({ length }, (_, index) => callback(index));
+	}
+
+	/**
 	 * Reads a single byte at the current pointer position without advancing the pointer.
 	 * @returns a number between 0 to 255.
 	 */
@@ -42,7 +52,7 @@ export default class DataStream {
 	 * @returns an array of numbers between 0 to 255.
 	 */
 	public peekBytes(count: number): number[] {
-		return Array.from({ length: count }, (_, index) => this.peekByte(index));
+		return this.createArray(count, (index) => this.peekByte(index));
 	}
 
 	/**
@@ -51,7 +61,7 @@ export default class DataStream {
 	 * @returns an array of numbers between 0 to 255.
 	 */
 	public readBytes(count: number): number[] {
-		return Array.from({ length: count }, () => this.readByte());
+		return this.createArray(count, () => this.readByte());
 	}
 
 	/**
@@ -97,7 +107,7 @@ export default class DataStream {
 	}
 
 	/**
-	 * Peeks an unsigned 32-bit integer.
+	 * Reads an unsigned 32-bit integer.
 	 * @returns unsigned 32-bit integer.
 	 */
 	public readUInt32(): number {
@@ -231,7 +241,8 @@ export default class DataStream {
 				break;
 			}
 
-			if (possibleNextChunkId == 0xfacade01 && this.peekByte() === undefined) {
+			if (possibleNextChunkId == 0xfacade01 && this.peekByte(4) === undefined) {
+				Logger.warn(`Force skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 				Logger.warn(`Reached end of file early`);
 
 				break;

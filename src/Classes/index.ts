@@ -5,6 +5,9 @@ import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
 import CGameCtnMediaTrack from './CGameCtnMediaTrack';
 import CGameCtnMediaClip from './CGameCtnMediaClip';
+import CGameCtnReplayRecord from './CGameCtnReplayRecord';
+import CGameCtnGhost from './CGameCtnGhost';
+import CGameGhost from './CGameGhost';
 
 export {
 	CGameCtnChallenge,
@@ -14,4 +17,7 @@ export {
 	CGameWaypointSpecialProperty,
 	CGameCtnMediaTrack,
 	CGameCtnMediaClip,
+	CGameCtnReplayRecord,
+	CGameCtnGhost,
+	CGameGhost,
 };

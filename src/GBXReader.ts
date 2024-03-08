@@ -30,7 +30,7 @@ export class GBXReader {
 
 				const isChunkSupported = this.readChunk(fullChunkId);
 
-				if (!isChunkSupported) {
+				if (isChunkSupported === false) {
 					// Chunk is not supported
 					Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 					const data = this.stream.readBytes(chunkDataSize);
@@ -69,17 +69,21 @@ export class GBXReader {
 	 * @param fullChunkId The full chunk ID.
 	 * @returns A boolean indicating if the chunk is supported, otherwise an object with data or null.
 	 */
-	public readChunk(fullChunkId: number): boolean | object | null {
+	public readChunk(fullChunkId: number, headerChunk = false): boolean | object | null {
 		this.classId = fullChunkId & 0xfffff000;
 		this.chunkId = fullChunkId & 0xfff;
 
 		const chunkHandlers = {
 			0x0301b000: Chunk.CGameCtnCollectorList,
+			0x0303f000: Chunk.CGameGhost,
 			0x03043000: Chunk.CGameCtnChallenge,
 			0x03059000: Chunk.CGameCtnBlockSkin,
 			0x0305b000: Chunk.CGameCtnChallengeParameters,
 			0x03078000: Chunk.CGameCtnMediaTrack,
 			0x03079000: Chunk.CGameCtnMediaClip,
+			0x03092000: Chunk.CGameCtnGhost,
+			0x03093000: Chunk.CGameCtnReplayRecord,
+			0x2407e000: Chunk.CGameCtnReplayRecord,
 			0x2e009000: Chunk.CGameWaypointSpecialProperty,
 		};
 
@@ -90,7 +94,13 @@ export class GBXReader {
 		)
 			return false;
 
-		Logger.debug(`Processing Chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+		if (headerChunk && chunkHandlers[this.classId][this.chunkId + 0xf000] !== undefined) {
+			this.chunkId += 0xf000;
+		}
+
+		Logger.debug(
+			`Processing ${headerChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
+		);
 
 		return chunkHandlers[this.classId][this.chunkId](this.stream, fullChunkId);
 	}
