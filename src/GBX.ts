@@ -23,7 +23,7 @@ export class GBX {
 
 		Logger.debug(`Found GBX magic`);
 
-		const version = this.stream.readNumbers(2);
+		const version = this.stream.readUInt16();
 
 		// Return if the file version is not supported.
 		if (version < 3) return Promise.reject(new Error('Unsupported GBX version'));
@@ -38,13 +38,13 @@ export class GBX {
 		if (version >= 4) this.stream.readChar();
 
 		// Class ID
-		const classId = this.stream.readNumbers(4);
+		const classId = this.stream.readUInt32();
 
 		// User data size
-		if (version >= 6) this.stream.readNumbers(4);
+		if (version >= 6) this.stream.readUInt32();
 
 		// Amount of header chunks
-		const nbHeaderChunks = this.stream.readNumbers(4);
+		const nbHeaderChunks = this.stream.readUInt32();
 
 		if (nbHeaderChunks == 0) return Promise.reject(new Error('No header chunks'));
 
@@ -52,8 +52,8 @@ export class GBX {
 
 		// Read header chunks
 		for (let i = 0; i < nbHeaderChunks; i++) {
-			const chunkId = this.stream.readNumbers(4) & 0xfff;
-			const chunkSize = this.stream.readNumbers(4) & ~0x80000000;
+			const chunkId = this.stream.readUInt32() & 0xfff;
+			const chunkSize = this.stream.readUInt32() & ~0x80000000;
 			const isHeavy = (chunkSize & 0x80000000) != 0;
 
 			headerChunks.push({
@@ -95,8 +95,8 @@ export class GBX {
 		}
 
 		// Read amount of nodes and external nodes
-		const nbNodes = this.stream.readNumbers(4);
-		const nbExternalNodes = this.stream.readNumbers(4);
+		const nbNodes = this.stream.readUInt32();
+		const nbExternalNodes = this.stream.readUInt32();
 
 		if (nbExternalNodes > 0)
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
@@ -114,8 +114,8 @@ export class GBX {
 		const { headerNode } = await this.parseHeaders();
 
 		// Decompression
-		const uncompressedSize = this.stream.readNumbers(4);
-		const compressedSize = this.stream.readNumbers(4);
+		const uncompressedSize = this.stream.readUInt32();
+		const compressedSize = this.stream.readUInt32();
 		const compressedData = this.stream.readBytes(compressedSize);
 
 		const data = new DataStream(await LZOHandler.decompress(compressedData));
@@ -125,13 +125,5 @@ export class GBX {
 		const node = new GBXReader(data).readNode();
 
 		return Promise.resolve({ headerNode, node });
-	}
-
-	/**
-	 * Switches the buffer to a new one, resetting the pointer.
-	 * @param newBuffer A new buffer.
-	 */
-	private changeBuffer(newBuffer: Buffer) {
-		this.stream = new DataStream(newBuffer);
 	}
 }
