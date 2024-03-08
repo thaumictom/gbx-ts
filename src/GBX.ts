@@ -2,19 +2,22 @@ import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
 import { GBXReader } from './GBXReader';
 
 export class GBX {
-	private headerChunks: IHeaderChunks[] = [];
 	private stream: DataStream;
 
-	constructor(public options: IOptions) {
+	constructor(options: IOptions) {
 		if (options.path) {
 			this.stream = new DataStream(FileHandlers.getBufferFromPathSync(options.path));
+		}
+
+		if (options.stream) {
+			this.stream = new DataStream(options.stream);
 		}
 	}
 
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders(): Promise<any> {
+	public async parseHeaders(): Promise<{ headerNode: {} }> {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -45,13 +48,15 @@ export class GBX {
 
 		if (nbHeaderChunks == 0) return Promise.reject(new Error('No header chunks'));
 
+		let headerChunks: IHeaderChunks[] = [];
+
 		// Read header chunks
 		for (let i = 0; i < nbHeaderChunks; i++) {
 			const chunkId = this.stream.readNumbers(4) & 0xfff;
 			const chunkSize = this.stream.readNumbers(4) & ~0x80000000;
 			const isHeavy = (chunkSize & 0x80000000) != 0;
 
-			this.headerChunks.push({
+			headerChunks.push({
 				chunkId,
 				chunkSize,
 				isHeavy,
@@ -63,9 +68,9 @@ export class GBX {
 		let headerNode = {};
 
 		// Read header chunk data
-		for (const el in this.headerChunks) {
-			const fullChunkId = classId + this.headerChunks[el].chunkId;
-			const data = new DataStream(this.stream.readBytes(this.headerChunks[el].chunkSize as number));
+		for (const el in headerChunks) {
+			const fullChunkId = classId + headerChunks[el].chunkId;
+			const data = new DataStream(this.stream.readBytes(headerChunks[el].chunkSize as number));
 
 			const chunkData = new GBXReader(data).readChunk(fullChunkId, true) as object;
 
@@ -104,7 +109,7 @@ export class GBX {
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse(): Promise<object> {
+	public async parse(): Promise<{ headerNode: {}; node: object }> {
 		// Read headers
 		const { headerNode } = await this.parseHeaders();
 
