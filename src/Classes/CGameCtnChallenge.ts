@@ -1,19 +1,3 @@
-enum MapKind {
-	EndMarker,
-	Campaign,
-	Puzzle,
-	Retro,
-	TimeAttack,
-	Rounds,
-	InProgress,
-	Campaign_7,
-	Multi,
-	Solo,
-	Site,
-	SoloNadeo,
-	MultiNadeo,
-}
-
 /**
  * Chunk 0x03043000
  */

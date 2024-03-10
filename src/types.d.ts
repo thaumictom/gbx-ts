@@ -21,3 +21,19 @@ interface IMeta {
 interface Chunk {
 	(reader: import('./Handlers').DataStream, fullChunkId: number): object | null;
 }
+
+declare enum MapKind {
+	EndMarker,
+	Campaign,
+	Puzzle,
+	Retro,
+	TimeAttack,
+	Rounds,
+	InProgress,
+	Campaign_7,
+	Multi,
+	Solo,
+	Site,
+	SoloNadeo,
+	MultiNadeo,
+}
