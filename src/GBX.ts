@@ -2,8 +2,8 @@ import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
 import { GBXReader } from './GBXReader';
 
 export default class GBX<NodeType> {
-	private stream: DataStream;
-	private type: NodeType;
+	private stream!: DataStream;
+	private type?: NodeType;
 
 	constructor(options: IOptions) {
 		if (options.path) {
@@ -93,7 +93,7 @@ export default class GBX<NodeType> {
 	private mergeInstances(target: NodeType, source: NodeType): NodeType {
 		// Merge instance2 into instance1
 		for (const key in source) {
-			if (source.hasOwnProperty(key) && source[key] !== undefined) {
+			if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
 				target[key] = source[key];
 			}
 		}

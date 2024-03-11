@@ -2,7 +2,7 @@
  * Chunk 0x0301b000
  */
 export default class CGameCtnCollectorList {
-	public blockSet: { blockName: string; collection: string; author: string; nbPieces: number }[];
+	public blockSet?: { blockName: string; collection: string; author: string; nbPieces: number }[];
 
 	protected 0x0301b000 = ({ r }: Chunk) => {
 		this.blockSet = [];

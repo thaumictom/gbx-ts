@@ -2,42 +2,45 @@ import { DataStream, Logger, Hex } from './Handlers';
 import { classWrap } from './Data/ClassWrap';
 import * as Chunk from '.';
 
-type readerConstructor = { stream?: DataStream; headerChunks?: IHeaderChunks[]; type? };
+type Chunks = (typeof Chunk)[keyof typeof Chunk];
+
+interface GBXReaderOptions {
+	stream?: DataStream;
+	headerChunks?: IHeaderChunks[];
+	type?: any;
+}
 
 export class GBXReader<NodeType> {
-	private stream: DataStream;
-	private headerChunks: IHeaderChunks[];
-	private type?;
+	private current?: any;
 
-	private current: Chunk;
-
-	constructor({ stream, headerChunks, type }: readerConstructor) {
-		this.stream = stream;
-		this.headerChunks = headerChunks;
-		this.type = type;
+	constructor(public options: GBXReaderOptions) {
+		Object.assign(this, options);
 	}
 
 	/**
 	 * Reads a node.
 	 */
 	public readNode(): NodeType {
+		const stream = this.options.stream as DataStream;
+		const type = this.options.type;
+
 		while (true) {
-			const fullChunkId = this.stream.readUInt32();
+			const fullChunkId = stream.readUInt32();
 
 			// Reached end of node
 			if (fullChunkId == 0xfacade01) break;
 
 			// Check if chunk is skippable
-			if (this.stream.peekUInt32() == 0x534b4950) {
-				const skip = this.stream.readUInt32();
-				const chunkDataSize = this.stream.readUInt32();
+			if (stream.peekUInt32() == 0x534b4950) {
+				const skip = stream.readUInt32();
+				const chunkDataSize = stream.readUInt32();
 
 				const isChunkSupported = this.readChunk(fullChunkId);
 
 				if (!isChunkSupported) {
 					// Chunk is not supported
 					Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
-					const data = this.stream.readBytes(chunkDataSize);
+					const data = stream.readBytes(chunkDataSize);
 				}
 
 				continue;
@@ -48,7 +51,7 @@ export class GBXReader<NodeType> {
 			if (!isChunkSupported) {
 				throw new Error(
 					`Failed processing unskippable chunk 0x${Hex.fromDecimal(fullChunkId)}. ${
-						this.type ? 'Are you using the right type?' : ''
+						type ? 'Are you using the right type?' : ''
 					}`
 				);
 			}
@@ -63,6 +66,9 @@ export class GBXReader<NodeType> {
 	 * @returns A boolean indicating if the chunk is supported.
 	 */
 	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean {
+		const r = this.options.stream;
+		const chunkType = this.options.type;
+
 		let classId = fullChunkId & 0xfffff000;
 		let chunkId = fullChunkId & 0xfff;
 
@@ -74,7 +80,7 @@ export class GBXReader<NodeType> {
 			newChunkId = classId + chunkId;
 		}
 
-		const chunkHandlers = {
+		const chunkHandlers: { [key: number]: Chunks } = {
 			0x0301b000: Chunk.CGameCtnCollectorList,
 			0x0303f000: Chunk.CGameCtnGhost,
 			0x03043000: Chunk.CGameCtnChallenge,
@@ -87,9 +93,9 @@ export class GBXReader<NodeType> {
 			0x2e009000: Chunk.CGameWaypointSpecialProperty,
 		};
 
-		if (this.type !== undefined) {
+		if (chunkType !== undefined) {
 			// Create new chunk class if not already created
-			if (this.current === undefined) this.current = new this.type();
+			if (this.current === undefined) this.current = new chunkType();
 
 			// Check if chunk is supported
 			if (this.current[newChunkId] === undefined) return false;
@@ -98,7 +104,7 @@ export class GBXReader<NodeType> {
 				`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
 			);
 
-			this.current[newChunkId]({ r: this.stream, fullChunkId, isHeaderChunk });
+			this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
 
 			return true;
 		}
@@ -118,7 +124,7 @@ export class GBXReader<NodeType> {
 		);
 
 		// Read chunk
-		this.current[newChunkId]({ r: this.stream, fullChunkId, isHeaderChunk });
+		this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
 
 		return true;
 	}
@@ -127,12 +133,14 @@ export class GBXReader<NodeType> {
 	 * Reads a header chunk.
 	 */
 	public readHeaderChunk(classId: number): NodeType {
-		for (let i = 0; i < this.headerChunks.length; i++) {
-			const currentChunk = this.headerChunks[i];
+		const headerChunks = this.options.headerChunks;
+
+		for (let i = 0; i < headerChunks!.length; i++) {
+			const currentChunk = headerChunks![i];
 
 			const fullChunkId = classId + currentChunk.chunkId;
 
-			this.stream = new DataStream(currentChunk.chunkData);
+			this.options.stream = new DataStream(currentChunk.chunkData!);
 
 			const isChunkSupported = this.readChunk(fullChunkId, true);
 

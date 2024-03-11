@@ -4,11 +4,11 @@ import CGameCtnMediaTrack from './CGameCtnMediaTrack';
  * Chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
-	public tracks: CGameCtnMediaTrack[];
-	public name: string;
-	public stopWhenLeave: boolean;
-	public stopWhenRespawn: boolean;
-	public localPlayerClipEntIndex: number;
+	public tracks?: CGameCtnMediaTrack[];
+	public name?: string;
+	public stopWhenLeave?: boolean;
+	public stopWhenRespawn?: boolean;
+	public localPlayerClipEntIndex?: number;
 
 	protected 0x0307900d = ({ r }: Chunk) => {
 		this.tracks = [];
@@ -17,7 +17,7 @@ export default class CGameCtnMediaClip {
 		const nbTracks = r.readUInt32();
 
 		for (let i = 0; i < nbTracks; i++) {
-			const track = r.readNodeReference<CGameCtnMediaTrack>();
+			const track = r.readNodeReference() as CGameCtnMediaTrack;
 
 			this.tracks.push(track);
 		}

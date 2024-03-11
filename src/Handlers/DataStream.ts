@@ -10,7 +10,7 @@ export default class DataStream {
 	private stream: Buffer | Array<number>;
 	private position: number = 0;
 
-	private lookbackVersion: number;
+	private lookbackVersion?: number;
 	private lookbackStrings: string[] = [];
 
 	constructor(stream: Buffer | Array<number>) {
@@ -23,7 +23,7 @@ export default class DataStream {
 	 * @param callback arrow function with index as argument.
 	 * @returns an array with the function applied to each index.
 	 */
-	public createArray(length: number, callback: (index: number) => any) {
+	public createArray<T>(length: number, callback: (index: number) => T): T[] {
 		return Array.from({ length }, (_, index) => callback(index));
 	}
 
@@ -172,7 +172,7 @@ export default class DataStream {
 	/**
 	 * Reads a node reference.
 	 */
-	public readNodeReference<NodeType>(): NodeType {
+	public readNodeReference<NodeType>(): NodeType | undefined {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
@@ -184,7 +184,7 @@ export default class DataStream {
 			return node;
 		}
 
-		if (index == -1) return null;
+		if (index == -1) return undefined;
 
 		throw new Error('Invalid node reference');
 	}
@@ -194,7 +194,7 @@ export default class DataStream {
 	 * @returns a string.
 	 */
 	public readLookbackString(): string {
-		if (this.lookbackVersion == null) this.lookbackVersion = this.readNumbers(4);
+		if (this.lookbackVersion === undefined) this.lookbackVersion = this.readNumbers(4);
 
 		const index = new Uint32Array([this.readNumbers(4)])[0];
 

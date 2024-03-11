@@ -4,18 +4,18 @@ import CGameCtnGhost from './CGameCtnGhost';
  * Chunk 0x0305b000
  */
 export default class CGameCtnChallengeParameters {
-	public tip: string;
-	public tip1: string;
-	public tip2: string;
-	public tip3: string;
-	public tip4: string;
-	public bronzeTime: number;
-	public silverTime: number;
-	public goldTime: number;
-	public authorTime: number;
-	public timeLimit: number;
-	public authorScore: number;
-	public raceValidationGhost: CGameCtnGhost;
+	public tip?: string;
+	public tip1?: string;
+	public tip2?: string;
+	public tip3?: string;
+	public tip4?: string;
+	public bronzeTime?: number;
+	public silverTime?: number;
+	public goldTime?: number;
+	public authorTime?: number;
+	public timeLimit?: number;
+	public authorScore?: number;
+	public raceValidationGhost?: CGameCtnGhost;
 
 	protected 0x0305b001 = ({ r }: Chunk) => {
 		this.tip1 = r.readString();
@@ -50,6 +50,6 @@ export default class CGameCtnChallengeParameters {
 	};
 
 	protected 0x0305b00d = ({ r }: Chunk) => {
-		this.raceValidationGhost = r.readNodeReference<CGameCtnGhost>();
+		this.raceValidationGhost = r.readNodeReference() as CGameCtnGhost;
 	};
 }

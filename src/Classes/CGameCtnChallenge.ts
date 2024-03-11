@@ -7,47 +7,47 @@ import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
  * Chunk 0x03043000
  */
 export default class CGameCtnChallenge {
-	public mapInfo: IMeta;
-	public mapName: string;
-	public mapKind: MapKind;
-	public bronzeTime: number;
-	public silverTime: number;
-	public goldTime: number;
-	public authorTime: number;
-	public cost: number;
-	public isLapRace: boolean;
-	public isMultilap: boolean;
-	public playMode: number;
-	public authorScore: number;
-	public editorMode: number;
-	public nbCheckpoints: number;
-	public nbLaps: number;
+	public mapInfo?: IMeta;
+	public mapName?: string;
+	public mapKind?: MapKind;
+	public bronzeTime?: number;
+	public silverTime?: number;
+	public goldTime?: number;
+	public authorTime?: number;
+	public cost?: number;
+	public isLapRace?: boolean;
+	public isMultilap?: boolean;
+	public playMode?: number;
+	public authorScore?: number;
+	public editorMode?: number;
+	public nbCheckpoints?: number;
+	public nbLaps?: number;
 
-	public password: string;
-	public decoration: IMeta;
-	public mapCoordOrigin: number[];
-	public mapCoordTarget: number[];
-	public packMask: number;
-	public mapType: string;
-	public mapStyle: string;
-	public lightmapCacheUid: number[];
-	public lightmapVersion: number;
-	public titleId: number;
+	public password?: string;
+	public decoration?: IMeta;
+	public mapCoordOrigin?: number[];
+	public mapCoordTarget?: number[];
+	public packMask?: number;
+	public mapType?: string;
+	public mapStyle?: string;
+	public lightmapCacheUid?: number[];
+	public lightmapVersion?: number;
+	public titleId?: number;
 
-	public headerVersion: number;
-	public xml: string;
-	public thumbnailSize: number;
-	public thumbnailData: number[];
-	public comments: string;
-	public authorVersion: number;
-	public authorLogin: string;
-	public authorNickname: string;
-	public authorZone: string;
-	public authorExtraInfo: string;
-	public playerModel: IMeta;
-	public blockStock: CGameCtnCollectorList;
-	public challengeParameters: CGameCtnChallengeParameters;
-	public blocks: {
+	public headerVersion?: number;
+	public xml?: string;
+	public thumbnailSize?: number;
+	public thumbnailData?: number[];
+	public comments?: string;
+	public authorVersion?: number;
+	public authorLogin?: string;
+	public authorNickname?: string;
+	public authorZone?: string;
+	public authorExtraInfo?: string;
+	public playerModel?: IMeta;
+	public blockStock?: CGameCtnCollectorList;
+	public challengeParameters?: CGameCtnChallengeParameters;
+	public blocks?: {
 		blockName: string;
 		rotation: number;
 		position: { x: number; y: number; z: number };
@@ -55,15 +55,15 @@ export default class CGameCtnChallenge {
 		skin?: CGameCtnBlockSkin;
 		blockParameters?: CGameWaypointSpecialProperty;
 	}[];
-	public size: number[];
-	public needUnlock: boolean;
-	public customMusicPackDesc: string;
-	public clipGlobal: null;
-	public hasCustomCamThumbnail: boolean;
-	public thumbnailPosition: number[];
-	public thumbnailFov: number;
-	public thumbnailNearClipPlane: number;
-	public thumbnailFarClipPlane: number;
+	public size?: number[];
+	public needUnlock?: boolean;
+	public customMusicPackDesc?: string;
+	public clipGlobal?: null;
+	public hasCustomCamThumbnail?: boolean;
+	public thumbnailPosition?: number[];
+	public thumbnailFov?: number;
+	public thumbnailNearClipPlane?: number;
+	public thumbnailFarClipPlane?: number;
 
 	protected 0x03043002 = ({ r }: Chunk) => {
 		const version = r.readByte();
@@ -205,8 +205,8 @@ export default class CGameCtnChallenge {
 	};
 
 	protected 0x03043011 = ({ r }: Chunk) => {
-		this.blockStock = r.readNodeReference<CGameCtnCollectorList>();
-		this.challengeParameters = r.readNodeReference<CGameCtnChallengeParameters>();
+		this.blockStock = r.readNodeReference() as CGameCtnCollectorList;
+		this.challengeParameters = r.readNodeReference() as CGameCtnChallengeParameters;
 		this.mapKind = r.readUInt32() as MapKind;
 	};
 
@@ -235,13 +235,13 @@ export default class CGameCtnChallenge {
 				z: r.readByte(),
 			};
 
-			let flags: number;
+			let flags: number = 0;
 
 			if (version == 0) flags = r.readUInt16();
 			else if (version > 0) flags = r.readUInt32();
 
 			if (flags == 0xffffffff) {
-				this.blocks.push({
+				this.blocks?.push({
 					blockName,
 					rotation,
 					position,
@@ -250,18 +250,20 @@ export default class CGameCtnChallenge {
 				return false;
 			}
 
-			let author: string, skin: CGameCtnBlockSkin, blockParameters: CGameWaypointSpecialProperty;
+			let author: string | undefined;
+			let skin: CGameCtnBlockSkin | undefined;
+			let blockParameters: CGameWaypointSpecialProperty | undefined;
 
 			if ((flags & 0x8000) != 0) {
 				author = r.readLookbackString();
-				skin = r.readNodeReference<CGameCtnBlockSkin>();
+				skin = r.readNodeReference() as CGameCtnBlockSkin;
 			}
 
 			if (flags & 0x100000) {
-				blockParameters = r.readNodeReference<CGameWaypointSpecialProperty>();
+				blockParameters = r.readNodeReference() as CGameWaypointSpecialProperty;
 			}
 
-			this.blocks.push({
+			this.blocks?.push({
 				blockName,
 				rotation,
 				position,

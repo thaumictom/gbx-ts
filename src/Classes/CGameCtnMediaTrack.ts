@@ -2,8 +2,8 @@
  * Chunk 0x03078000
  */
 export default class CGameCtnMediaTrack {
-	public name: string;
-	public blocks: any[];
+	public name?: string;
+	public blocks?: any[];
 
 	protected 0x03078001 = ({ r }: Chunk) => {
 		this.blocks = [];

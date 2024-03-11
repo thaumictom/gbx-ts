@@ -5,7 +5,8 @@
 		// "lib": ["ES2022", "DOM"],
 		"declaration": true,
 		"outDir": "./dist",
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"strict": true
 	},
 	"include": ["src/**/*"]
 }

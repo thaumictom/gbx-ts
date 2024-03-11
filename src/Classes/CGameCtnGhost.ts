@@ -3,18 +3,18 @@ import CGameGhost from './CGameGhost';
 /**
  * Chunk 0x03092000
  */
-export default class extends CGameGhost {
-	public uid: string;
-	public ghostLogin: string;
-	public playerMobilId: string;
-	public eventsDuration: number;
-	public controlNames: string[];
-	public controlEntries: { time: number; controlNameIndex: number; onoff: number }[];
-	public gameVersion: string;
-	public exeChecksum: number;
-	public osKind: number;
-	public cpuKind: number;
-	public raceSettingsXML: string;
+export default class CGameCtnGhost extends CGameGhost {
+	public uid?: string;
+	public ghostLogin?: string;
+	public playerMobilId?: string;
+	public eventsDuration?: number;
+	public controlNames?: string[];
+	public controlEntries?: { time: number; controlNameIndex: number; onoff: number }[];
+	public gameVersion?: string;
+	public exeChecksum?: number;
+	public osKind?: number;
+	public cpuKind?: number;
+	public raceSettingsXML?: string;
 
 	protected 0x0309200c = ({ r }: Chunk) => {
 		const u01 = r.readUInt32();

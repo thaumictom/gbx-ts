@@ -6,20 +6,20 @@ import CGameCtnGhost from './CGameCtnGhost';
  * Chunk 0x03093000 (0x2407e000)
  */
 export default class CGameCtnReplayRecord {
-	public mapInfo: IMeta;
-	public time: number;
-	public playerNickname: string;
-	public playerLogin: string;
-	public titleUID: string;
-	public authorVersion: number;
-	public authorLogin: string;
-	public authorNickname: string;
-	public authorZone: string;
-	public authorExtraInfo: string;
-	public xml: string;
-	public challengeData: GBX<CGameCtnChallenge>;
-	public ghosts: any[];
-	public extras: any[];
+	public mapInfo?: IMeta;
+	public time?: number;
+	public playerNickname?: string;
+	public playerLogin?: string;
+	public titleUID?: string;
+	public authorVersion?: number;
+	public authorLogin?: string;
+	public authorNickname?: string;
+	public authorZone?: string;
+	public authorExtraInfo?: string;
+	public xml?: string;
+	public challengeData?: GBX<CGameCtnChallenge>;
+	public ghosts?: CGameCtnGhost[];
+	public extras?: { extra1: number; extra2: number }[];
 
 	protected 0x03093000 = ({ r }: Chunk) => {
 		const version = r.readUInt32();
@@ -57,7 +57,10 @@ export default class CGameCtnReplayRecord {
 		} else {
 			const length = r.readUInt32();
 
-			this.challengeData = new GBX<CGameCtnChallenge>({ stream: r.readBytes(length) });
+			this.challengeData = new GBX({
+				stream: r.readBytes(length),
+				type: CGameCtnChallenge,
+			});
 		}
 	};
 
@@ -70,7 +73,7 @@ export default class CGameCtnReplayRecord {
 
 		const nbGhosts = r.readUInt32();
 
-		this.ghosts = r.createArray(nbGhosts, () => r.readNodeReference<CGameCtnGhost>());
+		this.ghosts = r.createArray(nbGhosts, () => r.readNodeReference() as CGameCtnGhost);
 
 		const u01 = r.readUInt32();
 
