@@ -1,32 +1,32 @@
+import CGameCtnMediaTrack from './CGameCtnMediaTrack';
+
 /**
  * Chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
-	static 0x00d: Chunk = (r) => {
+	public tracks: CGameCtnMediaTrack[];
+	public name: string;
+	public stopWhenLeave: boolean;
+	public stopWhenRespawn: boolean;
+	public localPlayerClipEntIndex: number;
+
+	protected 0x0307900d = ({ r }: Chunk) => {
+		this.tracks = [];
+
 		const version = r.readUInt32();
 		const nbTracks = r.readUInt32();
 
-		let tracks = [];
-
 		for (let i = 0; i < nbTracks; i++) {
-			const track = r.readNodeReference(); // CGameCtnMediaTrack
-			tracks.push(track);
+			const track = r.readNodeReference<CGameCtnMediaTrack>();
+
+			this.tracks.push(track);
 		}
 
-		const name = r.readString();
-		const stopWhenLeave = r.readBoolean();
+		this.name = r.readString();
+		this.stopWhenLeave = r.readBoolean();
 		const u01 = r.readUInt32();
-		const stopWhenRespawn = r.readBoolean();
+		this.stopWhenRespawn = r.readBoolean();
 		const u02 = r.readUInt32();
-		const localPlayerClipEntIndex = r.readUInt32();
-
-		return {
-			version,
-			tracks,
-			name,
-			stopWhenLeave,
-			stopWhenRespawn,
-			localPlayerClipEntIndex,
-		};
+		this.localPlayerClipEntIndex = r.readUInt32();
 	};
 }

@@ -2,8 +2,10 @@
  * Chunk 0x0301b000
  */
 export default class CGameCtnCollectorList {
-	static 0x000: Chunk = (r) => {
-		let blockSet = [];
+	public blockSet: { blockName: string; collection: string; author: string; nbPieces: number }[];
+
+	protected 0x0301b000 = ({ r }: Chunk) => {
+		this.blockSet = [];
 
 		const archiveCount = r.readUInt32();
 
@@ -13,14 +15,12 @@ export default class CGameCtnCollectorList {
 			const author = r.readLookbackString();
 			const nbPieces = r.readUInt32();
 
-			blockSet.push({
+			this.blockSet.push({
 				blockName,
 				collection,
 				author,
 				nbPieces,
 			});
 		}
-
-		return { blockSet };
 	};
 }

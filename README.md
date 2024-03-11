@@ -21,9 +21,9 @@ npm install lzo-ts
 ## Usage
 
 ```ts
-import { GBX } from 'gbx';
+import { GBX, CGameCtnChallenge } from 'gbx';
 
-const gbx = await new GBX({ path: 'path/to/file.Map.Gbx' }).parse();
+const gbx = await new GBX<CGameCtnChallenge>({ path: 'path/to/file.Map.Gbx' }).parse();
 
 console.log(gbx);
 ```

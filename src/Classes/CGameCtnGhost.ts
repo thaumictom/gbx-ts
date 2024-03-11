@@ -1,97 +1,78 @@
+import CGameGhost from './CGameGhost';
+
 /**
  * Chunk 0x03092000
  */
-export default class CGameCtnGhost {
-	static 0x00c: Chunk = (r) => {
+export default class extends CGameGhost {
+	public uid: string;
+	public ghostLogin: string;
+	public playerMobilId: string;
+	public eventsDuration: number;
+	public controlNames: string[];
+	public controlEntries: { time: number; controlNameIndex: number; onoff: number }[];
+	public gameVersion: string;
+	public exeChecksum: number;
+	public osKind: number;
+	public cpuKind: number;
+	public raceSettingsXML: string;
+
+	protected 0x0309200c = ({ r }: Chunk) => {
 		const u01 = r.readUInt32();
-
-		return null;
 	};
 
-	static 0x00e: Chunk = (r) => {
-		const uid = r.readLookbackString();
-
-		return {
-			uid,
-		};
+	protected 0x0309200e = ({ r }: Chunk) => {
+		this.uid = r.readLookbackString();
 	};
 
-	static 0x00f: Chunk = (r) => {
-		const ghostLogin = r.readString();
-
-		return {
-			ghostLogin,
-		};
+	protected 0x0309200f = ({ r }: Chunk) => {
+		this.ghostLogin = r.readString();
 	};
 
-	static 0x010: Chunk = (r) => {
+	protected 0x03092010 = ({ r }: Chunk) => {
 		const u01 = r.readLookbackString();
-
-		return null;
 	};
 
-	static 0x012: Chunk = (r) => {
+	protected 0x03092012 = ({ r }: Chunk) => {
 		const u01 = r.readUInt32();
 		const u02 = r.readNumbers(16);
-
-		return null;
 	};
 
-	static 0x015: Chunk = (r) => {
-		//lookbackstring playerMobilId
-		const playerMobilId = r.readLookbackString();
-
-		return {
-			playerMobilId,
-		};
+	protected 0x03092015 = ({ r }: Chunk) => {
+		this.playerMobilId = r.readLookbackString();
 	};
 
-	static 0x018: Chunk = (r) => {
+	protected 0x03092018 = ({ r }: Chunk) => {
 		const u01 = r.readMeta();
-
-		return null;
 	};
 
-	static 0x019: Chunk = (r) => {
-		const eventsDuration = r.readUInt32();
+	protected 0x03092019 = ({ r }: Chunk) => {
+		this.controlNames = [];
+		this.controlEntries = [];
+
+		this.eventsDuration = r.readUInt32();
 		const u01 = r.readUInt32();
 		const nbControlNames = r.readUInt32();
 
-		const controlNames = [];
-
 		for (let i = 0; i < nbControlNames; i++) {
-			controlNames.push(r.readLookbackString());
+			this.controlNames.push(r.readLookbackString());
 		}
 
 		const nbControlEntries = r.readUInt32();
 		const u02 = r.readUInt32();
 
-		const controlEntries = [];
-
 		for (let i = 0; i < nbControlEntries; i++) {
-			controlEntries.push({
+			this.controlEntries.push({
 				time: r.readUInt32() + 100000,
 				controlNameIndex: r.readByte(),
 				onoff: r.readUInt32(),
 			});
 		}
 
-		const gameVersion = r.readString();
-		const exeChecksum = r.readUInt32();
-		const osKind = r.readUInt32();
-		const cpuKind = r.readUInt32();
-		const raceSettingsXML = r.readString();
+		this.gameVersion = r.readString();
+		this.exeChecksum = r.readUInt32();
+		this.osKind = r.readUInt32();
+		this.cpuKind = r.readUInt32();
+		this.raceSettingsXML = r.readString();
 		const u03 = r.readUInt32();
-
-		return {
-			eventsDuration,
-			controlNames,
-			controlEntries,
-			gameVersion,
-			exeChecksum,
-			osKind,
-			cpuKind,
-			raceSettingsXML,
-		};
 	};
 }

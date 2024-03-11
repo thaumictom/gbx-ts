@@ -2,22 +2,19 @@
  * Chunk 0x03059000
  */
 export default class CGameCtnBlockSkin {
-	static 0x002: Chunk = (r) => {
-		const text = r.readString();
-		const packDesc = r.readFileReference();
-		const parentPackDesc = r.readFileReference();
+	public text: string;
+	public packDesc: string;
+	public parentPackDesc: string;
+	public foregroundPackDesc: string;
 
-		return {
-			text,
-			packDesc,
-			parentPackDesc,
-		};
+	protected 0x03059002 = ({ r }: Chunk) => {
+		this.text = r.readString();
+		this.packDesc = r.readFileReference();
+		this.parentPackDesc = r.readFileReference();
 	};
 
-	static 0x003: Chunk = (r) => {
+	protected 0x03059003 = ({ r }: Chunk) => {
 		const version = r.readUInt32();
-		const foregroundPackDesc = r.readFileReference();
-
-		return { foregroundPackDesc };
+		this.foregroundPackDesc = r.readFileReference();
 	};
 }

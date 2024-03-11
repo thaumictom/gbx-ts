@@ -1,10 +1,13 @@
 interface IOptions {
-	path: string;
+	path?: string;
+	stream?: number[] | Buffer;
+	type?: any;
 }
 
 interface IHeaderChunks {
 	chunkId: number;
-	chunkSize?: number;
+	chunkSize: number;
+	chunkData?: number[];
 	isHeavy: boolean;
 }
 
@@ -16,10 +19,6 @@ interface IMeta {
 	id: string;
 	collection: string;
 	author: string;
-}
-
-interface Chunk {
-	(reader: import('./Handlers').DataStream, fullChunkId: number): object | null;
 }
 
 declare enum MapKind {
@@ -37,3 +36,9 @@ declare enum MapKind {
 	SoloNadeo,
 	MultiNadeo,
 }
+
+declare type Chunk = {
+	r: import('./Handlers').DataStream;
+	fullChunkId: number;
+	isHeaderChunk: boolean;
+};

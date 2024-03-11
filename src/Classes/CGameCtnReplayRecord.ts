@@ -1,88 +1,82 @@
+import GBX from '../GBX';
+import CGameCtnChallenge from './CGameCtnChallenge';
+import CGameCtnGhost from './CGameCtnGhost';
+
 /**
- * Chunk 0x03093000
+ * Chunk 0x03093000 (0x2407e000)
  */
 export default class CGameCtnReplayRecord {
-	static 0x000: Chunk = (r) => {
+	public mapInfo: IMeta;
+	public time: number;
+	public playerNickname: string;
+	public playerLogin: string;
+	public titleUID: string;
+	public authorVersion: number;
+	public authorLogin: string;
+	public authorNickname: string;
+	public authorZone: string;
+	public authorExtraInfo: string;
+	public xml: string;
+	public challengeData: GBX<CGameCtnChallenge>;
+	public ghosts: any[];
+	public extras: any[];
+
+	protected 0x03093000 = ({ r }: Chunk) => {
 		const version = r.readUInt32();
 
-		let mapInfo: IMeta, time: number, playerNickname: string, playerLogin: string, titleUID: string;
-
 		if (version >= 2) {
-			mapInfo = r.readMeta();
-			time = r.readUInt32();
-			playerNickname = r.readString();
+			this.mapInfo = r.readMeta();
+			this.time = r.readUInt32();
+			this.playerNickname = r.readString();
 		}
 
 		if (version >= 6) {
-			playerLogin = r.readString();
+			this.playerLogin = r.readString();
 		}
 
 		if (version >= 8) {
 			const u01 = r.readByte();
-			titleUID = r.readLookbackString();
+
+			this.titleUID = r.readLookbackString();
 		}
-
-		return {
-			mapInfo,
-			time,
-			playerNickname,
-			playerLogin,
-			titleUID,
-		};
 	};
 
-	static 0x001: Chunk = (r) => {
-		const xml = r.readString();
-
-		return {
-			xml,
-		};
+	protected 0x03093001 = ({ r }: Chunk) => {
+		this.xml = r.readString();
 	};
 
-	static 0xf002: Chunk = (r) => {
-		const version = r.readUInt32();
-		const authorVersion = r.readUInt32();
-		const authorLogin = r.readString();
-		const authorNickname = r.readString();
-		const authorZone = r.readString();
-		const authorExtraInfo = r.readString();
+	protected 0x03093002 = ({ r, isHeaderChunk }: Chunk) => {
+		if (isHeaderChunk) {
+			const version = r.readUInt32();
 
-		return {
-			authorVersion,
-			authorLogin,
-			authorNickname,
-			authorZone,
-			authorExtraInfo,
-		};
+			this.authorVersion = r.readUInt32();
+			this.authorLogin = r.readString();
+			this.authorNickname = r.readString();
+			this.authorZone = r.readString();
+			this.authorExtraInfo = r.readString();
+		} else {
+			const length = r.readUInt32();
+
+			this.challengeData = new GBX<CGameCtnChallenge>({ stream: r.readBytes(length) });
+		}
 	};
 
-	static 0x002: Chunk = (r) => {
-		const length = r.readUInt32();
-
-		const data = r.readBytes(length);
-
-		return {
-			data,
-		};
-	};
-
-	static 0x007: Chunk = (r) => {
+	protected 0x03093007 = ({ r }: Chunk) => {
 		const u01 = r.readUInt32();
-
-		return null;
 	};
 
-	static 0x014: Chunk = (r, fullChunkId) => {
+	protected 0x03093014 = ({ r }: Chunk) => {
 		const version = r.readUInt32();
 
 		const nbGhosts = r.readUInt32();
 
-		const ghosts = r.createArray(nbGhosts, () => r.readNodeReference()); // CGameCtnGhost
+		this.ghosts = r.createArray(nbGhosts, () => r.readNodeReference<CGameCtnGhost>());
 
 		const u01 = r.readUInt32();
 
 		const nbExtras = r.readUInt32();
-		const extras = r.createArray(nbExtras, () => {
+
+		this.extras = r.createArray(nbExtras, () => {
 			const extra1 = r.readUInt32();
 			const extra2 = r.readUInt32();
 
@@ -91,16 +85,9 @@ export default class CGameCtnReplayRecord {
 				extra2,
 			};
 		});
-
-		return {
-			ghosts,
-			extras,
-		};
 	};
 
-	static 0x015: Chunk = (r, fullChunkId) => {
-		r.forceChunkSkip(fullChunkId); // errors out
-
-		return null;
+	protected 0x03093015 = ({ r, fullChunkId }: Chunk) => {
+		r.forceChunkSkip(fullChunkId);
 	};
 }

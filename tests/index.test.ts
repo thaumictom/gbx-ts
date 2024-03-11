@@ -1,4 +1,4 @@
-import GBX from '../src/index';
+import { GBX, CGameCtnChallenge } from '../src/index';
 import { Logger } from '../src/Handlers';
 
 import { performance } from 'perf_hooks';
@@ -12,7 +12,7 @@ process.env.DEVEL = 'true';
 test('TM2020 Map', async () => {
 	const t0 = performance.now();
 
-	const file1 = await new GBX({
+	const file1 = await new GBX<CGameCtnChallenge>({
 		// Alive by Keissla
 		path: './tests/files/Alive.Map.Gbx',
 	}).parse();

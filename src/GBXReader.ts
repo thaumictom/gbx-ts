@@ -1,22 +1,26 @@
 import { DataStream, Logger, Hex } from './Handlers';
-import * as Chunk from './Classes';
+import { classWrap } from './Data/ClassWrap';
+import * as Chunk from '.';
 
-export class GBXReader {
+type readerConstructor = { stream?: DataStream; headerChunks?: IHeaderChunks[]; type? };
+
+export class GBXReader<NodeType> {
 	private stream: DataStream;
+	private headerChunks: IHeaderChunks[];
+	private type?;
 
-	private classId: number;
-	private chunkId: number;
+	private current: Chunk;
 
-	constructor(stream: DataStream) {
+	constructor({ stream, headerChunks, type }: readerConstructor) {
 		this.stream = stream;
+		this.headerChunks = headerChunks;
+		this.type = type;
 	}
 
 	/**
 	 * Reads a node.
 	 */
-	public readNode(): object {
-		let node = {};
-
+	public readNode(): NodeType {
 		while (true) {
 			const fullChunkId = this.stream.readUInt32();
 
@@ -30,7 +34,7 @@ export class GBXReader {
 
 				const isChunkSupported = this.readChunk(fullChunkId);
 
-				if (isChunkSupported === false) {
+				if (!isChunkSupported) {
 					// Chunk is not supported
 					Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 					const data = this.stream.readBytes(chunkDataSize);
@@ -39,43 +43,40 @@ export class GBXReader {
 				continue;
 			}
 
-			let chunkData = this.readChunk(fullChunkId);
+			const isChunkSupported = this.readChunk(fullChunkId);
 
-			if (chunkData === false)
-				throw new Error(`Failed processing unskippable chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
-
-			chunkData = chunkData as object;
-
-			// Check for duplicate keys
-			for (const key in chunkData) {
-				if (chunkData[key] === undefined) {
-					delete chunkData[key];
-					continue;
-				}
-
-				if (node.hasOwnProperty(key)) {
-					throw new Error(`Duplicate key: ${key}`);
-				}
+			if (!isChunkSupported) {
+				throw new Error(
+					`Failed processing unskippable chunk 0x${Hex.fromDecimal(fullChunkId)}. ${
+						this.type ? 'Are you using the right type?' : ''
+					}`
+				);
 			}
-
-			if (chunkData !== null) node = { ...node, ...chunkData };
 		}
 
-		return node;
+		return this.current as NodeType;
 	}
 
 	/**
 	 * Check if the chunk is supported and process it.
 	 * @param fullChunkId The full chunk ID.
-	 * @returns A boolean indicating if the chunk is supported, otherwise an object with data or null.
+	 * @returns A boolean indicating if the chunk is supported.
 	 */
-	public readChunk(fullChunkId: number, headerChunk = false): boolean | object | null {
-		this.classId = fullChunkId & 0xfffff000;
-		this.chunkId = fullChunkId & 0xfff;
+	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean {
+		let classId = fullChunkId & 0xfffff000;
+		let chunkId = fullChunkId & 0xfff;
+
+		let newChunkId = fullChunkId;
+
+		// Check if class has a wrapper
+		if (classWrap[classId] !== undefined) {
+			classId = classWrap[classId] & 0xfffff000;
+			newChunkId = classId + chunkId;
+		}
 
 		const chunkHandlers = {
 			0x0301b000: Chunk.CGameCtnCollectorList,
-			0x0303f000: Chunk.CGameGhost,
+			0x0303f000: Chunk.CGameCtnGhost,
 			0x03043000: Chunk.CGameCtnChallenge,
 			0x03059000: Chunk.CGameCtnBlockSkin,
 			0x0305b000: Chunk.CGameCtnChallengeParameters,
@@ -83,25 +84,64 @@ export class GBXReader {
 			0x03079000: Chunk.CGameCtnMediaClip,
 			0x03092000: Chunk.CGameCtnGhost,
 			0x03093000: Chunk.CGameCtnReplayRecord,
-			0x2407e000: Chunk.CGameCtnReplayRecord,
 			0x2e009000: Chunk.CGameWaypointSpecialProperty,
 		};
 
-		// Check if chunk is supported
-		if (
-			chunkHandlers[this.classId] === undefined ||
-			chunkHandlers[this.classId][this.chunkId] === undefined
-		)
-			return false;
+		if (this.type !== undefined) {
+			// Create new chunk class if not already created
+			if (this.current === undefined) this.current = new this.type();
 
-		if (headerChunk && chunkHandlers[this.classId][this.chunkId + 0xf000] !== undefined) {
-			this.chunkId += 0xf000;
+			// Check if chunk is supported
+			if (this.current[newChunkId] === undefined) return false;
+
+			Logger.debug(
+				`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
+			);
+
+			this.current[newChunkId]({ r: this.stream, fullChunkId, isHeaderChunk });
+
+			return true;
 		}
 
+		if (chunkHandlers[classId] === undefined)
+			// Check if class is supported
+			return false;
+
+		// Create new chunk class if not already created
+		if (this.current === undefined) this.current = new chunkHandlers[classId]();
+
+		// Check if chunk is supported
+		if (this.current[newChunkId] === undefined) return false;
+
 		Logger.debug(
-			`Processing ${headerChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
+			`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
 		);
 
-		return chunkHandlers[this.classId][this.chunkId](this.stream, fullChunkId);
+		// Read chunk
+		this.current[newChunkId]({ r: this.stream, fullChunkId, isHeaderChunk });
+
+		return true;
+	}
+
+	/**
+	 * Reads a header chunk.
+	 */
+	public readHeaderChunk(classId: number): NodeType {
+		for (let i = 0; i < this.headerChunks.length; i++) {
+			const currentChunk = this.headerChunks[i];
+
+			const fullChunkId = classId + currentChunk.chunkId;
+
+			this.stream = new DataStream(currentChunk.chunkData);
+
+			const isChunkSupported = this.readChunk(fullChunkId, true);
+
+			if (!isChunkSupported) {
+				// Chunk is not supported
+				Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+			}
+		}
+
+		return this.current as NodeType;
 	}
 }

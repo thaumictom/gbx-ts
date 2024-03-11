@@ -1,70 +1,55 @@
+import CGameCtnGhost from './CGameCtnGhost';
+
 /**
  * Chunk 0x0305b000
  */
 export default class CGameCtnChallengeParameters {
-	static 0x001: Chunk = (r) => {
-		const tip1 = r.readString();
-		const tip2 = r.readString();
-		const tip3 = r.readString();
-		const tip4 = r.readString();
+	public tip: string;
+	public tip1: string;
+	public tip2: string;
+	public tip3: string;
+	public tip4: string;
+	public bronzeTime: number;
+	public silverTime: number;
+	public goldTime: number;
+	public authorTime: number;
+	public timeLimit: number;
+	public authorScore: number;
+	public raceValidationGhost: CGameCtnGhost;
 
-		return {
-			tip1,
-			tip2,
-			tip3,
-			tip4,
-		};
+	protected 0x0305b001 = ({ r }: Chunk) => {
+		this.tip1 = r.readString();
+		this.tip2 = r.readString();
+		this.tip3 = r.readString();
+		this.tip4 = r.readString();
 	};
 
-	static 0x004: Chunk = (r) => {
-		const bronzeTime = r.readUInt32();
-		const silverTime = r.readUInt32();
-		const goldTime = r.readUInt32();
-		const authorTime = r.readUInt32();
+	protected 0x0305b004 = ({ r }: Chunk) => {
+		this.bronzeTime = r.readUInt32();
+		this.silverTime = r.readUInt32();
+		this.goldTime = r.readUInt32();
+		this.authorTime = r.readUInt32();
+
 		const u01 = r.readUInt32();
-
-		return {
-			bronzeTime,
-			silverTime,
-			goldTime,
-			authorTime,
-		};
 	};
 
-	static 0x008: Chunk = (r) => {
-		const timeLimit = r.readUInt32();
-		const authorScore = r.readUInt32();
-
-		return {
-			timeLimit,
-			authorScore,
-		};
+	protected 0x0305b008 = ({ r }: Chunk) => {
+		this.timeLimit = r.readUInt32();
+		this.authorScore = r.readUInt32();
 	};
 
-	static 0x00a: Chunk = (r) => {
-		const tip = r.readString();
+	protected 0x0305b00a = ({ r }: Chunk) => {
+		this.tip = r.readString();
 
-		const bronzeTime = r.readUInt32();
-		const silverTime = r.readUInt32();
-		const goldTime = r.readUInt32();
-		const authorTime = r.readUInt32();
-		const timeLimit = r.readUInt32();
-		const authorScore = r.readUInt32();
-
-		return {
-			tip,
-			bronzeTime,
-			silverTime,
-			goldTime,
-			authorTime,
-			timeLimit,
-			authorScore,
-		};
+		this.bronzeTime = r.readUInt32();
+		this.silverTime = r.readUInt32();
+		this.goldTime = r.readUInt32();
+		this.authorTime = r.readUInt32();
+		this.timeLimit = r.readUInt32();
+		this.authorScore = r.readUInt32();
 	};
 
-	static 0x00d: Chunk = (r) => {
-		const raceValidationGhost = r.readNodeReference();
-
-		return { raceValidationGhost };
+	protected 0x0305b00d = ({ r }: Chunk) => {
+		this.raceValidationGhost = r.readNodeReference<CGameCtnGhost>();
 	};
 }

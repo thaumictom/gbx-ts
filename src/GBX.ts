@@ -1,8 +1,9 @@
 import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
 import { GBXReader } from './GBXReader';
 
-export class GBX {
+export default class GBX<NodeType> {
 	private stream: DataStream;
+	private type: NodeType;
 
 	constructor(options: IOptions) {
 		if (options.path) {
@@ -12,12 +13,16 @@ export class GBX {
 		if (options.stream) {
 			this.stream = new DataStream(options.stream);
 		}
+
+		if (options.type) {
+			this.type = options.type;
+		}
 	}
 
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders(): Promise<{ headerNode: {} }> {
+	public async parseHeaders(): Promise<NodeType> {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -63,36 +68,15 @@ export class GBX {
 			});
 		}
 
+		for (let i = 0; i < nbHeaderChunks; i++) {
+			headerChunks[i].chunkData = this.stream.readBytes(headerChunks[i].chunkSize as number);
+		}
+
 		Logger.debug(`Reading header data`);
 
-		let headerNode = {};
-
-		// Read header chunk data
-		for (const el in headerChunks) {
-			const fullChunkId = classId + headerChunks[el].chunkId;
-			const data = new DataStream(this.stream.readBytes(headerChunks[el].chunkSize as number));
-
-			const chunkData = new GBXReader(data).readChunk(fullChunkId, true) as object;
-
-			if (!chunkData) {
-				// Chunk is not supported
-				Logger.warn(`Skipped header chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
-			}
-
-			// Check for duplicate keys
-			for (const key in chunkData) {
-				if (chunkData[key] === undefined) {
-					delete chunkData[key];
-					continue;
-				}
-
-				if (headerNode.hasOwnProperty(key)) {
-					throw new Error(`Duplicate key: ${key}`);
-				}
-			}
-
-			if (chunkData !== null) headerNode = { ...headerNode, ...chunkData };
-		}
+		const headerNode = new GBXReader<NodeType>({ headerChunks, type: this.type }).readHeaderChunk(
+			classId
+		);
 
 		// Read amount of nodes and external nodes
 		const nbNodes = this.stream.readUInt32();
@@ -103,27 +87,37 @@ export class GBX {
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 
-		return Promise.resolve({ headerNode });
+		return Promise.resolve(headerNode);
+	}
+
+	private mergeInstances(target: NodeType, source: NodeType): NodeType {
+		// Merge instance2 into instance1
+		for (const key in source) {
+			if (source.hasOwnProperty(key) && source[key] !== undefined) {
+				target[key] = source[key];
+			}
+		}
+		return target;
 	}
 
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse(): Promise<{ headerNode: {}; node: object }> {
+	public async parse(): Promise<NodeType> {
 		// Read headers
-		const { headerNode } = await this.parseHeaders();
+		const headerNode = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.stream.readUInt32();
 		const compressedSize = this.stream.readUInt32();
 		const compressedData = this.stream.readBytes(compressedSize);
 
-		const data = new DataStream(await LZOHandler.decompress(compressedData));
+		const bodyNode = new DataStream(await LZOHandler.decompress(compressedData));
 
 		Logger.debug(`Reading body data`);
 
-		const node = new GBXReader(data).readNode();
+		const node = new GBXReader<NodeType>({ stream: bodyNode, type: this.type }).readNode();
 
-		return Promise.resolve({ headerNode, node });
+		return Promise.resolve(this.mergeInstances(node, headerNode));
 	}
 }

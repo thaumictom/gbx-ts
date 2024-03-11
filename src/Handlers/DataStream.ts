@@ -172,14 +172,14 @@ export default class DataStream {
 	/**
 	 * Reads a node reference.
 	 */
-	public readNodeReference(): object | null {
+	public readNodeReference<NodeType>(): NodeType {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
 		if (index >= 0) {
 			const classId = this.readNumbers(4);
 
-			const node = new GBXReader(this).readNode();
+			const node = new GBXReader<NodeType>({ stream: this }).readNode();
 
 			return node;
 		}
