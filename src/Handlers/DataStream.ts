@@ -235,7 +235,7 @@ export default class DataStream {
 		while (true) {
 			const possibleNextChunkId = this.peekUInt32();
 
-			if ((possibleNextChunkId & 0xfffff000) == (fullChunkId & 0xfffff000)) {
+			if ((possibleNextChunkId & 0xffffff00) == (fullChunkId & 0xffffff00)) {
 				Logger.warn(`Force skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 
 				break;
