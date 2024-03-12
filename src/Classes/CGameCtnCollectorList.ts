@@ -1,26 +1,24 @@
 /**
- * Chunk 0x0301b000
+ * A list of blocks defining the puzzle inventory.
+ * @chunk 0x0301b000
  */
 export default class CGameCtnCollectorList {
-	public blockSet?: { blockName: string; collection: string; author: string; nbPieces: number }[];
+	public blockSet?: { blockModel: IMeta; count: number }[];
 
+	/**
+	 * Puzzle pieces
+	 */
 	protected 0x0301b000 = ({ r }: Chunk) => {
-		this.blockSet = [];
+		const nbBlocks = r.readUInt32();
 
-		const archiveCount = r.readUInt32();
+		this.blockSet = r.createArray(nbBlocks, () => {
+			const blockModel = r.readMeta();
+			const count = r.readUInt32();
 
-		for (let i = 0; i < archiveCount; i++) {
-			const blockName = r.readLookbackString();
-			const collection = r.readLookbackString();
-			const author = r.readLookbackString();
-			const nbPieces = r.readUInt32();
-
-			this.blockSet.push({
-				blockName,
-				collection,
-				author,
-				nbPieces,
-			});
-		}
+			return {
+				blockModel,
+				count,
+			};
+		});
 	};
 }

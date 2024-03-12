@@ -1,7 +1,7 @@
 import CGameCtnMediaTrack from './CGameCtnMediaTrack';
 
 /**
- * Chunk 0x03079000
+ * @chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
 	public tracks?: CGameCtnMediaTrack[];

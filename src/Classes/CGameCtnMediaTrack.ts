@@ -1,5 +1,5 @@
 /**
- * Chunk 0x03078000
+ * @chunk 0x03078000
  */
 export default class CGameCtnMediaTrack {
 	public name?: string;
