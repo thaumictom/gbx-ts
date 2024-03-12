@@ -2,8 +2,6 @@ import { DataStream, Logger, Hex } from './Handlers';
 import { classWrap } from './Data/ClassWrap';
 import * as Chunk from '.';
 
-type Chunks = (typeof Chunk)[keyof typeof Chunk];
-
 interface GBXReaderOptions {
 	stream?: DataStream;
 	headerChunks?: IHeaderChunks[];
@@ -65,7 +63,7 @@ export class GBXReader<NodeType> {
 	 * @param fullChunkId The full chunk ID.
 	 * @returns A boolean indicating if the chunk is supported.
 	 */
-	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean {
+	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean | null {
 		const r = this.options.stream;
 		const chunkType = this.options.type;
 
@@ -80,7 +78,7 @@ export class GBXReader<NodeType> {
 			newChunkId = classId + chunkId;
 		}
 
-		const chunkHandlers: { [key: number]: Chunks } = {
+		const chunkHandlers: { [key: number]: any } = {
 			0x0301b000: Chunk.CGameCtnCollectorList,
 			0x0303f000: Chunk.CGameCtnGhost,
 			0x03043000: Chunk.CGameCtnChallenge,
@@ -90,6 +88,7 @@ export class GBXReader<NodeType> {
 			0x03079000: Chunk.CGameCtnMediaClip,
 			0x03092000: Chunk.CGameCtnGhost,
 			0x03093000: Chunk.CGameCtnReplayRecord,
+			0x0911f000: Chunk.CPlugEntRecordData,
 			0x2e009000: Chunk.CGameWaypointSpecialProperty,
 		};
 
@@ -124,7 +123,9 @@ export class GBXReader<NodeType> {
 		);
 
 		// Read chunk
-		this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
+		const isChunkSupported = this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
+
+		if (isChunkSupported === null) return null;
 
 		return true;
 	}

@@ -1,26 +1,28 @@
+import CGameCtnBlockSkin from './Classes/CGameCtnBlockSkin';
+import CGameCtnChallenge from './Classes/CGameCtnChallenge';
+import CGameCtnChallengeParameters from './Classes/CGameCtnChallengeParameters';
+import CGameCtnCollectorList from './Classes/CGameCtnCollectorList';
+import CGameCtnGhost from './Classes/CGameCtnGhost';
+import CGameCtnMediaClip from './Classes/CGameCtnMediaClip';
+import CGameCtnMediaTrack from './Classes/CGameCtnMediaTrack';
+import CGameCtnReplayRecord from './Classes/CGameCtnReplayRecord';
+import CGameGhost from './Classes/CGameGhost';
+import CGameWaypointSpecialProperty from './Classes/CGameWaypointSpecialProperty';
+import CPlugEntRecordData from './Classes/CPlugEntRecordData';
+
 import GBX from './GBX';
 
-import CGameCtnChallenge from './Classes/CGameCtnChallenge';
-import CGameCtnCollectorList from './Classes/CGameCtnCollectorList';
-import CGameCtnChallengeParameters from './Classes/CGameCtnChallengeParameters';
-import CGameCtnBlockSkin from './Classes/CGameCtnBlockSkin';
-import CGameWaypointSpecialProperty from './Classes/CGameWaypointSpecialProperty';
-import CGameCtnMediaTrack from './Classes/CGameCtnMediaTrack';
-import CGameCtnMediaClip from './Classes/CGameCtnMediaClip';
-import CGameCtnReplayRecord from './Classes/CGameCtnReplayRecord';
-import CGameCtnGhost from './Classes/CGameCtnGhost';
-import CGameGhost from './Classes/CGameGhost';
-
 export {
-	GBX,
-	CGameCtnChallenge,
-	CGameCtnCollectorList,
-	CGameCtnChallengeParameters,
 	CGameCtnBlockSkin,
-	CGameWaypointSpecialProperty,
-	CGameCtnMediaTrack,
-	CGameCtnMediaClip,
-	CGameCtnReplayRecord,
+	CGameCtnChallenge,
+	CGameCtnChallengeParameters,
+	CGameCtnCollectorList,
 	CGameCtnGhost,
+	CGameCtnMediaClip,
+	CGameCtnMediaTrack,
+	CGameCtnReplayRecord,
 	CGameGhost,
+	CGameWaypointSpecialProperty,
+	CPlugEntRecordData,
+	GBX,
 };

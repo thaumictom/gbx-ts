@@ -37,8 +37,25 @@ declare enum MapKind {
 	MultiNadeo,
 }
 
+declare enum PlayMode {
+	Race,
+	Platform,
+	Puzzle,
+	Crazy,
+	Shortcut,
+	Stunts,
+	Script,
+}
+
+declare enum EditorMode {
+	Advanced,
+	Simple,
+	HasGhostBlocks,
+	Gamepad = 4,
+}
+
 declare type Chunk = {
 	r: import('./Handlers').DataStream;
-	fullChunkId: number;
-	isHeaderChunk: boolean;
+	fullChunkId?: number;
+	isHeaderChunk?: boolean;
 };
