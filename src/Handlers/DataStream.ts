@@ -177,11 +177,11 @@ export default class DataStream {
 		const index = (this.readNumbers(4) << 1) >> 1;
 
 		if (index >= 0) {
-			const classId = this.readNumbers(4);
+			const classId = this.readUInt32();
 
-			const node = new GBXReader<NodeType>({ stream: this }).readNode();
+			const node = new GBXReader<NodeType>({ stream: this, classId }).readNode();
 
-			return node;
+			return node as NodeType;
 		}
 
 		if (index == -1) return undefined;

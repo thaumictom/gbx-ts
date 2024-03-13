@@ -1,9 +1,11 @@
 import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
 import { GBXReader } from './GBXReader';
+import CGameCtnChallenge from './Classes/CGameCtnChallenge';
 
 export default class GBX<NodeType> {
 	private stream!: DataStream;
-	private type?: NodeType;
+	public classId?: number;
+	public chunks?: number[] = [];
 
 	constructor(options: IOptions) {
 		if (options.path) {
@@ -12,10 +14,6 @@ export default class GBX<NodeType> {
 
 		if (options.stream) {
 			this.stream = new DataStream(options.stream);
-		}
-
-		if (options.type) {
-			this.type = options.type;
 		}
 	}
 
@@ -43,7 +41,7 @@ export default class GBX<NodeType> {
 		if (version >= 4) this.stream.readChar();
 
 		// Class ID
-		const classId = this.stream.readUInt32();
+		this.classId = this.stream.readUInt32();
 
 		// User data size
 		if (version >= 6) this.stream.readUInt32();
@@ -74,9 +72,10 @@ export default class GBX<NodeType> {
 
 		Logger.debug(`Reading header data`);
 
-		const headerNode = new GBXReader<NodeType>({ headerChunks, type: this.type }).readHeaderChunk(
-			classId
-		);
+		const headerNode = new GBXReader<NodeType>({
+			headerChunks,
+			classId: this.classId,
+		}).readHeaderChunk(this.classId);
 
 		// Read amount of nodes and external nodes
 		const nbNodes = this.stream.readUInt32();
@@ -116,7 +115,12 @@ export default class GBX<NodeType> {
 
 		Logger.debug(`Reading body data`);
 
-		const node = new GBXReader<NodeType>({ stream: bodyNode, type: this.type }).readNode();
+		const { node, chunks } = new GBXReader<NodeType>({
+			stream: bodyNode,
+			classId: this.classId!,
+		}).readNode();
+
+		this.chunks = chunks;
 
 		return Promise.resolve(this.mergeInstances(node, headerNode));
 	}

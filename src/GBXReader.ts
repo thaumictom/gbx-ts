@@ -1,11 +1,11 @@
 import { DataStream, Logger, Hex } from './Handlers';
 import { classWrap } from './Data/ClassWrap';
-import * as Chunk from '.';
+import getNodeType from './Data/NodeTypes';
 
 interface GBXReaderOptions {
+	classId: number;
 	stream?: DataStream;
 	headerChunks?: IHeaderChunks[];
-	type?: any;
 }
 
 export class GBXReader<NodeType> {
@@ -18,9 +18,10 @@ export class GBXReader<NodeType> {
 	/**
 	 * Reads a node.
 	 */
-	public readNode(): NodeType {
+	public readNode(): { node: NodeType; chunks?: any[] } {
 		const stream = this.options.stream as DataStream;
-		const type = this.options.type;
+
+		let chunks: any[] = [];
 
 		while (true) {
 			const fullChunkId = stream.readUInt32();
@@ -47,15 +48,11 @@ export class GBXReader<NodeType> {
 			const isChunkSupported = this.readChunk(fullChunkId);
 
 			if (!isChunkSupported) {
-				throw new Error(
-					`Failed processing unskippable chunk 0x${Hex.fromDecimal(fullChunkId)}. ${
-						type ? 'Are you using the right type?' : ''
-					}`
-				);
+				throw new Error(`Failed processing unskippable chunk 0x${Hex.fromDecimal(fullChunkId)}.`);
 			}
 		}
 
-		return this.current as NodeType;
+		return { node: this.current as NodeType, chunks };
 	}
 
 	/**
@@ -63,69 +60,37 @@ export class GBXReader<NodeType> {
 	 * @param fullChunkId The full chunk ID.
 	 * @returns A boolean indicating if the chunk is supported.
 	 */
-	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean | null {
+	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean {
 		const r = this.options.stream;
-		const chunkType = this.options.type;
 
+		let classIdFromNode = this.options.classId;
 		let classId = fullChunkId & 0xfffff000;
-		let chunkId = fullChunkId & 0xfff;
 
-		let newChunkId = fullChunkId;
+		classIdFromNode = classWrap[classIdFromNode] ?? classIdFromNode;
+		classId = classWrap[classId] ?? classId;
 
-		// Check if class has a wrapper
-		if (classWrap[classId] !== undefined) {
-			classId = classWrap[classId] & 0xfffff000;
-			newChunkId = classId + chunkId;
-		}
+		// Get chunk handler
+		const chunkHandler = getNodeType(classIdFromNode);
 
-		const chunkHandlers: { [key: number]: any } = {
-			0x0301b000: Chunk.CGameCtnCollectorList,
-			0x0303f000: Chunk.CGameCtnGhost,
-			0x03043000: Chunk.CGameCtnChallenge,
-			0x03059000: Chunk.CGameCtnBlockSkin,
-			0x0305b000: Chunk.CGameCtnChallengeParameters,
-			0x03078000: Chunk.CGameCtnMediaTrack,
-			0x03079000: Chunk.CGameCtnMediaClip,
-			0x03092000: Chunk.CGameCtnGhost,
-			0x03093000: Chunk.CGameCtnReplayRecord,
-			0x0911f000: Chunk.CPlugEntRecordData,
-			0x2e009000: Chunk.CGameWaypointSpecialProperty,
-		};
+		const wrappedChunkId = classId + (fullChunkId & 0xfff);
 
-		if (chunkType !== undefined) {
-			// Create new chunk class if not already created
-			if (this.current === undefined) this.current = new chunkType();
-
-			// Check if chunk is supported
-			if (this.current[newChunkId] === undefined) return false;
-
-			Logger.debug(
-				`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
-			);
-
-			this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
-
-			return true;
-		}
-
-		if (chunkHandlers[classId] === undefined)
-			// Check if class is supported
-			return false;
+		// Check if class is supported
+		if (chunkHandler === undefined) return false;
 
 		// Create new chunk class if not already created
-		if (this.current === undefined) this.current = new chunkHandlers[classId]();
+		if (this.current === undefined) this.current = new chunkHandler();
+
+		// Wrap chunk ID
 
 		// Check if chunk is supported
-		if (this.current[newChunkId] === undefined) return false;
+		if (this.current[wrappedChunkId] === undefined) return false;
 
 		Logger.debug(
-			`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(fullChunkId)}`
+			`Processing ${isHeaderChunk ? 'header chunk' : 'chunk'}: 0x${Hex.fromDecimal(wrappedChunkId)}`
 		);
 
 		// Read chunk
-		const isChunkSupported = this.current[newChunkId]({ r, fullChunkId, isHeaderChunk });
-
-		if (isChunkSupported === null) return null;
+		this.current[wrappedChunkId]({ r, fullChunkId, isHeaderChunk });
 
 		return true;
 	}
