@@ -10,9 +10,6 @@ export default class DataStream {
 	private stream: Buffer | Array<number>;
 	private position: number = 0;
 
-	private lookbackVersion?: number;
-	private lookbackStrings: string[] = [];
-
 	constructor(stream: Buffer | Array<number>) {
 		this.stream = stream;
 	}
@@ -169,6 +166,8 @@ export default class DataStream {
 		return filePath;
 	}
 
+	private nodeList: any[] = [];
+
 	/**
 	 * Reads a node reference.
 	 */
@@ -176,18 +175,27 @@ export default class DataStream {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
-		if (index >= 0) {
+		if (index == -1) return undefined;
+
+		const isNodeInstantiated = this.nodeList[index] !== undefined;
+
+		if (index >= 0 && !isNodeInstantiated) {
 			const classId = this.readUInt32();
 
 			const node = new GBXReader<NodeType>({ stream: this, classId }).readNode();
 
+			this.nodeList[index] = node;
+
 			return node as NodeType;
 		}
 
-		if (index == -1) return undefined;
+		if (isNodeInstantiated) return this.nodeList[index];
 
 		throw new Error('Invalid node reference');
 	}
+
+	private lookbackVersion?: number;
+	private lookbackStrings: string[] = [];
 
 	/**
 	 * Reads a lookback string.
