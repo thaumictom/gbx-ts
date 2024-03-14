@@ -8,8 +8,6 @@ interface GBXReaderOptions {
 	headerChunks?: IHeaderChunks[];
 }
 
-type Chunks = { [x: number]: boolean };
-
 export class GBXReader<NodeType> {
 	private current?: any;
 

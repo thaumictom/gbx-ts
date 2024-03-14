@@ -4,7 +4,7 @@ import { GBXReader } from './GBXReader';
 export default class GBX<NodeType> {
 	private stream!: DataStream;
 	public classId?: number;
-	public chunks?: number[] = [];
+	public chunks?: Chunks;
 	public node?: NodeType;
 
 	constructor(options: IOptions) {

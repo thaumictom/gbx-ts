@@ -33,6 +33,7 @@ interface ChunkFunctions {
 	readUnknown<T>(unknown: T): T;
 }
 
+type Chunks = { [x: number]: boolean };
 type Unknowns = { [x: number]: any[] };
 type Versions = { [x: number]: number };
 
