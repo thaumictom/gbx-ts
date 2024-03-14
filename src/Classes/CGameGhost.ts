@@ -3,8 +3,8 @@
  * @chunk 0x0303F000
  */
 export default class CGameGhost {
-	public sampleData?: number[];
 	public isReplaying?: boolean;
+	public sampleData?: number[];
 
 	/**
 	 * Old sample data
@@ -24,8 +24,8 @@ export default class CGameGhost {
 	/**
 	 * Unknown
 	 */
-	protected 0x0303f004 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x0303f004 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -41,9 +41,11 @@ export default class CGameGhost {
 	/**
 	 * Is replaying and sample data
 	 */
-	protected 0x0303f006 = ({ r }: Chunk) => {
+	protected 0x0303f006 = (chunk: Chunk) => {
+		const { r } = chunk;
+
 		this.isReplaying = r.readBoolean();
 
-		this[0x0303f005]({ r });
+		this[0x0303f005](chunk);
 	};
 }

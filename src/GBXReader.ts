@@ -11,17 +11,40 @@ interface GBXReaderOptions {
 export class GBXReader<NodeType> {
 	private current?: any;
 
+	private fullChunkId: number = 0;
+	private versions: { [key: number]: number } = {};
+	private unknowns: { [key: number]: any[] } = {};
+
 	constructor(public options: GBXReaderOptions) {
 		Object.assign(this, options);
+	}
+
+	protected readVersion(version: number): number {
+		this.versions[this.fullChunkId] = version;
+
+		return version;
+	}
+
+	protected readUnknown<T>(unknown: T): T {
+		if (this.unknowns[this.fullChunkId] === undefined) this.unknowns[this.fullChunkId] = [];
+
+		this.unknowns[this.fullChunkId].push(unknown);
+
+		return unknown;
 	}
 
 	/**
 	 * Reads a node.
 	 */
-	public readNode(): { node: NodeType; chunks?: any[] } {
+	public readNode(): {
+		node: NodeType;
+		chunks: any[];
+		versions: { [key: number]: any };
+		unknowns: { [key: number]: any[] };
+	} {
 		const stream = this.options.stream as DataStream;
 
-		let chunks: any[] = [];
+		let chunks: number[] = [];
 
 		while (true) {
 			const fullChunkId = stream.readUInt32();
@@ -29,12 +52,15 @@ export class GBXReader<NodeType> {
 			// Reached end of node
 			if (fullChunkId == 0xfacade01) break;
 
+			// Add chunk to list
+			chunks.push(fullChunkId);
+
 			// Check if chunk is skippable
 			if (stream.peekUInt32() == 0x534b4950) {
 				const skip = stream.readUInt32();
 				const chunkDataSize = stream.readUInt32();
 
-				const isChunkSupported = this.readChunk(fullChunkId);
+				const isChunkSupported = this.readChunk(fullChunkId, false, chunkDataSize);
 
 				if (!isChunkSupported) {
 					// Chunk is not supported
@@ -52,7 +78,12 @@ export class GBXReader<NodeType> {
 			}
 		}
 
-		return { node: this.current as NodeType, chunks };
+		return {
+			node: this.current as NodeType,
+			chunks,
+			versions: this.versions,
+			unknowns: this.unknowns,
+		};
 	}
 
 	/**
@@ -60,8 +91,9 @@ export class GBXReader<NodeType> {
 	 * @param fullChunkId The full chunk ID.
 	 * @returns A boolean indicating if the chunk is supported.
 	 */
-	public readChunk(fullChunkId: number, isHeaderChunk = false): boolean {
+	public readChunk(fullChunkId: number, isHeaderChunk = false, length: number = 0): boolean {
 		const r = this.options.stream;
+		this.fullChunkId = fullChunkId;
 
 		let classIdFromNode = this.options.classId;
 		let classId = fullChunkId & 0xfffff000;
@@ -90,7 +122,18 @@ export class GBXReader<NodeType> {
 		);
 
 		// Read chunk
-		this.current[wrappedChunkId]({ r, fullChunkId, isHeaderChunk });
+		this.current[wrappedChunkId](
+			{
+				r, // DataStream
+				length, // Length of the chunk (only on skippable chunks, otherwise 0)
+				fullChunkId, // Full chunk ID
+				isHeaderChunk, // Boolean indicating if the chunk is a header chunk
+			},
+			{
+				readVersion: this.readVersion.bind(this),
+				readUnknown: this.readUnknown.bind(this),
+			}
+		);
 
 		return true;
 	}
@@ -98,13 +141,17 @@ export class GBXReader<NodeType> {
 	/**
 	 * Reads a header chunk.
 	 */
-	public readHeaderChunk(classId: number): NodeType {
+	public readHeaderChunk(classId: number) {
 		const headerChunks = this.options.headerChunks;
+
+		let chunks: number[] = [];
 
 		for (let i = 0; i < headerChunks!.length; i++) {
 			const currentChunk = headerChunks![i];
 
 			const fullChunkId = classId + currentChunk.chunkId;
+
+			chunks.push(fullChunkId);
 
 			this.options.stream = new DataStream(currentChunk.chunkData!);
 
@@ -116,6 +163,11 @@ export class GBXReader<NodeType> {
 			}
 		}
 
-		return this.current as NodeType;
+		return {
+			node: this.current as NodeType,
+			chunks,
+			versions: this.versions,
+			unknowns: this.unknowns,
+		};
 	}
 }

@@ -8,32 +8,32 @@ import CPlugEntRecordData from './CPlugEntRecordData';
  * @chunk 0x03093000 / 0x2407e000
  */
 export default class CGameCtnReplayRecord {
-	public mapInfo?: IMeta;
-	public time?: number;
-	public playerNickname?: string;
-	public playerLogin?: string;
-	public titleId?: string;
-	public authorVersion?: number;
+	public authorExtraInfo?: string;
 	public authorLogin?: string;
 	public authorNickname?: string;
+	public authorVersion?: number;
 	public authorZone?: string;
-	public authorExtraInfo?: string;
-	public xml?: string;
 	public challengeData?: GBX<CGameCtnChallenge>;
-	public ghosts?: CGameCtnGhost[];
+	public controlEntries?: { name: any; time: number; onoff: number; analog: boolean }[];
+	public controlNames?: string[];
+	public eventsDuration?: number;
 	public extras?: { extra1: number; extra2: number }[];
 	public game?: string;
-	public eventsDuration?: number;
-	public controlNames?: string[];
-	public controlEntries?: { name: any; time: number; onoff: number; analog: boolean }[];
+	public ghosts?: NodeReference<CGameCtnGhost>[];
+	public mapInfo?: IMeta;
+	public playerLogin?: string;
+	public playerNickname?: string;
 	public playgroundScript?: string;
-	public recordData?: CPlugEntRecordData;
+	public recordData?: NodeReference<CPlugEntRecordData>;
+	public time?: number;
+	public titleId?: string;
+	public xml?: string;
 
 	/**
 	 * (Header) Basic information
 	 */
-	protected 0x03093000 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03093000 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
 
 		if (version >= 2) {
 			this.mapInfo = r.readMeta();
@@ -46,7 +46,7 @@ export default class CGameCtnReplayRecord {
 		}
 
 		if (version >= 8) {
-			const u01 = r.readByte();
+			f.readUnknown(r.readByte());
 
 			this.titleId = r.readLookbackString();
 		}
@@ -63,9 +63,9 @@ export default class CGameCtnReplayRecord {
 	 * (Header) Author information
 	 * (Body) Track data
 	 */
-	protected 0x03093002 = ({ r, isHeaderChunk }: Chunk) => {
+	protected 0x03093002 = ({ r, isHeaderChunk }: Chunk, f: ChunkFunctions) => {
 		if (isHeaderChunk) {
-			const version = r.readUInt32();
+			f.readVersion(r.readUInt32());
 
 			this.authorVersion = r.readUInt32();
 			this.authorLogin = r.readString();
@@ -92,37 +92,36 @@ export default class CGameCtnReplayRecord {
 	/**
 	 * Ghost data
 	 */
-	protected 0x03093004 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03093004 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 
-		const u01 = r.readUInt32();
+		this.ghosts = r.createArray(r.readUInt32(), () => r.readNodeReference<CGameCtnGhost>()!);
 
-		this.ghosts = r.createArray(r.readUInt32(), () => r.readNodeReference() as CGameCtnGhost);
-
-		const u02 = r.readUInt32();
-		const u03 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * Unknown
 	 */
-	protected 0x03093005 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x03093005 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03093007 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x03093007 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * (Skippable) Game
 	 */
-	protected 0x03093008 = ({ r }: Chunk) => {
+	protected 0x03093008 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.game = r.readString();
-		const u01 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -135,18 +134,18 @@ export default class CGameCtnReplayRecord {
 	/**
 	 * Validation
 	 */
-	protected 0x0309300d = ({ r }: Chunk) => {
+	protected 0x0309300d = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.eventsDuration = r.readUInt32();
 
 		if (this.eventsDuration == 0) return;
 
-		const u01 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.controlNames = r.createArray(r.readUInt32(), () => r.readLookbackString());
 
 		const nbControlEntries = r.readUInt32();
 
-		const u02 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.controlEntries = r.createArray(nbControlEntries, () => {
 			const time = r.readUInt32() + 100000;
@@ -170,12 +169,13 @@ export default class CGameCtnReplayRecord {
 	/**
 	 * (Skippable) Game and unknown data
 	 */
-	protected 0x0309300f = ({ r }: Chunk) => {
+	protected 0x0309300f = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.game = r.readString();
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
-		const u03 = r.readUInt32();
-		const u04 = r.readString();
+
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readString());
 	};
 
 	/**
@@ -188,12 +188,12 @@ export default class CGameCtnReplayRecord {
 	/**
 	 * Ghost data
 	 */
-	protected 0x03093014 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03093014 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
-		this.ghosts = r.createArray(r.readUInt32(), () => r.readNodeReference() as CGameCtnGhost);
+		this.ghosts = r.createArray(r.readUInt32(), () => r.readNodeReference<CGameCtnGhost>()!);
 
-		const u01 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.extras = r.createArray(r.readUInt32(), () => {
 			const extra1 = r.readUInt32();
@@ -233,44 +233,48 @@ export default class CGameCtnReplayRecord {
 	/**
 	 * (Skippable) Player of interest
 	 */
-	protected 0x0309301b = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.createArray(r.readUInt32(), () => {
-			return { u01: r.readUInt32(), u02: r.readUInt32() };
-		});
+	protected 0x0309301b = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(
+			r.createArray(r.readUInt32(), () => {
+				return { 1: r.readUInt32(), 2: r.readUInt32() };
+			})
+		);
 	};
 
 	/**
 	 * (Skippable) Playground script (Campaign solo)
 	 */
-	protected 0x0309301c = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x0309301c = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+
 		this.playgroundScript = r.readString();
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03093021 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readBoolean();
+	protected 0x03093021 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(r.readBoolean());
 	};
 
 	/**
 	 * (Skippable) Record data
 	 */
-	protected 0x03093024 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readUInt32();
-		this.recordData = r.readNodeReference() as CPlugEntRecordData;
+	protected 0x03093024 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+
+		this.recordData = r.readNodeReference<CPlugEntRecordData>();
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03093025 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
+	protected 0x03093025 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 	};
 }

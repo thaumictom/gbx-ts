@@ -7,51 +7,46 @@ import CPlugEntRecordData from './CPlugEntRecordData';
  */
 export default class CGameCtnGhost extends CGameGhost {
 	public appearanceVersion?: number;
-	public playerModel?: IMeta;
-	public lightTrailColor?: number[];
-	public skinPackDescs?: string[];
-	public hasBadges?: boolean;
+	public apperanceVersion?: number;
 	public badge?: {
 		version?: number;
 		color?: number[];
 		stickers?: { item1: string; item2: string }[];
 		layers?: string[];
 	};
-	public apperanceVersion?: number;
-	public ghostNickname?: string;
-	public ghostAvatarName?: string;
-	public recordingContext?: string;
-	public recordData?: CPlugEntRecordData;
-	public ghostTrigram?: string;
-	public ghostZone?: string;
-	public ghostClubTag?: string;
-
-	public skinFile?: string;
-	public checkpoints?: {
-		time: number;
-		speed: number;
-	}[];
-	public raceTime?: number;
-	public respawns?: number;
-	public stuntScore?: number;
-	public ghostUid?: string;
-	public validateChallengeUid?: string;
-
-	public ghostLogin?: string;
-	public eventsDuration?: number;
-	public controlNames?: string[];
+	public checkpoints?: { time: number; speed: number }[];
 	public controlEntries?: { name: string; time: number; onoff: number; analog: boolean }[];
-	public validationExeVersion?: string;
-	public validationExeChecksum?: number;
-	public validationOsKind?: number;
-	public validationCpuKind?: number;
-	public validationRaceSettings?: string;
+	public controlNames?: string[];
+	public eventsDuration?: number;
+	public ghostAvatarName?: string;
+	public ghostClubTag?: string;
+	public ghostLogin?: string;
+	public ghostNickname?: string;
+	public ghostTrigram?: string;
+	public ghostUid?: string;
+	public ghostZone?: string;
+	public hasBadges?: boolean;
+	public lightTrailColor?: number[] | Vector3;
+	public playerModel?: IMeta;
+	public raceTime?: number;
+	public recordData?: NodeReference<CPlugEntRecordData>;
+	public recordingContext?: string;
+	public respawns?: number;
+	public skinFile?: string;
+	public skinPackDescs?: string[];
 	public steeringWheelSensitivity?: boolean;
+	public stuntScore?: number;
+	public validationChallengeUid?: string;
+	public validationCpuKind?: number;
+	public validationExeChecksum?: number;
+	public validationExeVersion?: string;
+	public validationOsKind?: number;
+	public validationRaceSettings?: string;
 
 	/**
 	 * (Skippable) Basic information
 	 */
-	protected 0x03092000 = ({ r }: Chunk) => {
+	protected 0x03092000 = ({ r }: Chunk, f: ChunkFunctions) => {
 		const version = r.readUInt32();
 
 		if (version >= 9) {
@@ -59,7 +54,7 @@ export default class CGameCtnGhost extends CGameGhost {
 		}
 
 		this.playerModel = r.readMeta();
-		this.lightTrailColor = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.lightTrailColor = r.readVector3();
 		this.skinPackDescs = r.createArray(r.readUInt32(), () => r.readFileReference());
 		this.hasBadges = r.readBoolean();
 
@@ -70,8 +65,8 @@ export default class CGameCtnGhost extends CGameGhost {
 			this.badge.color = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
 
 			if (this.badge.version == 0) {
-				const u01 = r.readUInt32();
-				const u02 = r.readString();
+				f.readUnknown(r.readUInt32());
+				f.readUnknown(r.readString());
 			}
 
 			this.badge.stickers = r.createArray(r.readUInt32(), () => {
@@ -88,7 +83,7 @@ export default class CGameCtnGhost extends CGameGhost {
 		}
 
 		if (this.apperanceVersion ?? 0 >= 1) {
-			const u01 = r.readString();
+			f.readUnknown(r.readString());
 		}
 
 		this.ghostNickname = r.readString();
@@ -99,13 +94,13 @@ export default class CGameCtnGhost extends CGameGhost {
 		}
 
 		if (version >= 4) {
-			const u01 = r.readBoolean();
+			f.readUnknown(r.readBoolean());
 		}
 
 		if (version >= 5) {
-			this.recordData = r.readNodeReference() as CPlugEntRecordData;
+			this.recordData = r.readNodeReference<CPlugEntRecordData>();
 
-			const u01 = r.createArray(r.readUInt32(), () => r.readUInt32());
+			f.readUnknown(r.createArray(r.readUInt32(), () => r.readUInt32()));
 		}
 
 		if (version >= 6) {
@@ -154,11 +149,11 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * Driver data
 	 */
-	protected 0x03092006 = ({ r }: Chunk) => {
+	protected 0x03092006 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.playerModel = r.readMeta();
 		this.skinFile = r.readString();
 
-		const u01 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.ghostNickname = r.readString();
 	};
@@ -167,7 +162,7 @@ export default class CGameCtnGhost extends CGameGhost {
 	 * Old light trail color
 	 */
 	protected 0x03092007 = ({ r }: Chunk) => {
-		this.lightTrailColor = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.lightTrailColor = r.readVector3();
 	};
 
 	/**
@@ -194,21 +189,21 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * Unknown
 	 */
-	protected 0x0309200c = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x0309200c = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * Driver data
 	 */
-	protected 0x0309200d = ({ r }: Chunk) => {
+	protected 0x0309200d = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.playerModel = r.readMeta();
 		this.skinFile = r.readString();
 
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
-		const u03 = r.readUInt32();
-		const u04 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 
 		this.ghostNickname = r.readString();
 	};
@@ -231,24 +226,24 @@ export default class CGameCtnGhost extends CGameGhost {
 	 * Validation map UID
 	 */
 	protected 0x03092010 = ({ r }: Chunk) => {
-		this.validateChallengeUid = r.readLookbackString();
+		this.validationChallengeUid = r.readLookbackString();
 	};
 
 	/**
 	 * Validation (TMU)
 	 */
-	protected 0x03092011 = ({ r }: Chunk, version?: number) => {
+	protected 0x03092011 = ({ r }: Chunk, f: ChunkFunctions, version?: number) => {
 		this.eventsDuration = r.readUInt32();
 
 		if (this.eventsDuration == 0 && (version ?? 0) >= 1) return;
 
-		const u01 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.controlNames = r.createArray(r.readUInt32(), () => r.readLookbackString());
 
 		const nbControlEntries = r.readUInt32();
 
-		const u02 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.controlEntries = r.createArray(nbControlEntries, () => {
 			const time = r.readUInt32() + 100000;
@@ -271,24 +266,24 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * Unknown
 	 */
-	protected 0x03092012 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
-		const u02 = r.readNumbers(16);
+	protected 0x03092012 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readNumbers(16));
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03092013 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
+	protected 0x03092013 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03092014 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x03092014 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -311,60 +306,63 @@ export default class CGameCtnGhost extends CGameGhost {
 	 * Player model
 	 */
 	protected 0x03092018 = ({ r }: Chunk) => {
-		const u01 = r.readMeta();
+		this.playerModel = r.readMeta();
 	};
 
 	/**
 	 * Validation (TMUF)
 	 */
-	protected 0x03092019 = ({ r }: Chunk, version?: number) => {
-		this[0x03092011]({ r }, version);
+	protected 0x03092019 = (chunk: Chunk, f: ChunkFunctions, version?: number) => {
+		this[0x03092011](chunk, f, version);
+		const { r } = chunk;
 
 		if (this.eventsDuration == 0 && (version ?? 0) >= 1) return;
 
-		const u03 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x0309201a = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x0309201a = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03092023 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readString();
-		const u02 = r.readUInt32();
-		const u03 = r.readString();
-		const u04 = r.readUInt32();
-		const u05 = r.readUInt32();
-		const u06 = r.readString();
-		const u07 = r.readUInt32();
-		const u08 = r.readString();
+	protected 0x03092023 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
+		f.readUnknown(r.readString());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readString());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readString());
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readString());
 
 		if (version >= 2) {
-			const u01 = r.readByte();
-			const u02 = r.readUInt32();
-			const u03 = r.readUInt32();
+			f.readUnknown(r.readByte());
+			f.readUnknown(r.readUInt32());
+			f.readUnknown(r.readUInt32());
 		}
 
 		if (version >= 3) {
-			const u01 = r.readByte();
-			const u02 = r.readByte();
+			f.readUnknown(r.readByte());
+			f.readUnknown(r.readByte());
 		}
 	};
 
 	/**
 	 * (Skippable) Validation TM2
 	 */
-	protected 0x03092025 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03092025 = (chunk: Chunk, f: ChunkFunctions) => {
+		const { r } = chunk;
 
-		this[0x03092019]({ r }, version);
+		const version = f.readVersion(r.readUInt32());
+
+		this[0x03092019](chunk, f, version);
 
 		this.steeringWheelSensitivity = r.readBoolean();
 	};
@@ -372,7 +370,7 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * (Skippable) Unknown
 	 */
-	protected 0x03092026 = ({ r }: Chunk) => {
-		const u01 = r.readNumbers(16);
+	protected 0x03092026 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readNumbers(16));
 	};
 }

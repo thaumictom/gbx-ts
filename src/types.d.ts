@@ -21,6 +21,30 @@ interface IMeta {
 	author: string;
 }
 
+interface Chunk {
+	r: import('./Handlers').DataStream;
+	fullChunkId: number;
+	isHeaderChunk: boolean;
+	length: number;
+}
+
+interface ChunkFunctions {
+	readVersion<T>(version: T): T;
+	readUnknown<T>(unknown: T): T;
+}
+
+interface ChunkList {
+	[key: number]: {
+		unknowns: any[];
+		version: any;
+	};
+}
+
+interface NodeReference<NodeType> {
+	node: NodeType;
+	chunks: ChunkList;
+}
+
 declare enum MapKind {
 	EndMarker,
 	Campaign,
@@ -54,8 +78,37 @@ declare enum EditorMode {
 	Gamepad = 4,
 }
 
-declare type Chunk = {
-	r: import('./Handlers').DataStream;
-	fullChunkId?: number;
-	isHeaderChunk?: boolean;
-};
+interface Int2 {
+	x: number;
+	y: number;
+}
+
+interface Int3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
+interface Vector2 {
+	x: number;
+	y: number;
+}
+
+interface Vector3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
+interface Byte3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
+declare enum Direction {
+	North, // +X
+	East, // -X
+	South, // -Z
+	West, // +X
+}

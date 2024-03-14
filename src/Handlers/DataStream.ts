@@ -1,7 +1,6 @@
 import { collectionIDs } from '../Data/CollectionIDs';
 import { GBXReader } from '../GBXReader';
-import Hex from './Hex';
-import Logger from './Logger';
+import { Hex, Logger, Merger } from '../Handlers';
 
 /**
  * Handle data streams.
@@ -62,12 +61,21 @@ export default class DataStream {
 	}
 
 	/**
+	 * Reads a byte array as a number.
+	 * @param bytes Array of bytes.
+	 * @returns a number (signed if the array is >= 4 long, unsigned otherwise).
+	 */
+	private bytesToNumber(bytes: number[]): number {
+		return bytes.reduce((sum, byte, index) => sum | (byte << (index * 8)), 0);
+	}
+
+	/**
 	 * Reads multiple bytes at the current pointer position
 	 * without advancing the pointer and returns them as an unsigned number.
 	 * @returns a positive number.
 	 */
 	public peekNumbers(count: number): number {
-		return this.peekBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+		return this.bytesToNumber(this.peekBytes(count)) >>> 0;
 	}
 
 	/**
@@ -76,7 +84,23 @@ export default class DataStream {
 	 * @returns a positive number.
 	 */
 	public readNumbers(count: number): number {
-		return this.readBytes(count).reduce((sum, byte, index) => sum | (byte << (index * 8)), 0) >>> 0;
+		return this.bytesToNumber(this.readBytes(count)) >>> 0;
+	}
+
+	/**
+	 * Reads a 32-bit float, consisting of 4 bytes based on IEEE-754.
+	 * @returns a floating point number.
+	 */
+	public readFloat(): number {
+		let bits = this.bytesToNumber(this.readBytes(4));
+
+		if (bits == 0) return 0;
+
+		const sign = bits >>> 31 === 0 ? 1 : -1;
+		const exponent = ((bits >>> 23) & 0xff) - 127;
+		const significand = (bits & 0x7fffff) | 0x800000;
+
+		return sign * significand * Math.pow(2, exponent - 23);
 	}
 
 	/**
@@ -139,6 +163,46 @@ export default class DataStream {
 	}
 
 	/**
+	 * Reads two consecutive 32-bit integers.
+	 * @returns an array of two numbers.
+	 */
+	public readInt2(): Int2 {
+		return { x: this.readUInt32(), y: this.readUInt32() };
+	}
+
+	/**
+	 * Reads three consecutive 32-bit integers.
+	 * @returns an array of three numbers.
+	 */
+	public readInt3(): Int3 {
+		return { x: this.readUInt32(), y: this.readUInt32(), z: this.readUInt32() };
+	}
+
+	/**
+	 * Reads a vector of size 2 as floats.
+	 * @returns an array of two floats.
+	 */
+	public readVector2(): Vector2 {
+		return { x: this.readFloat(), y: this.readFloat() };
+	}
+
+	/**
+	 * Reads a vector of size 3 as floats.
+	 * @returns an array of three floats.
+	 */
+	public readVector3(): Vector3 {
+		return { x: this.readFloat(), y: this.readFloat(), z: this.readFloat() };
+	}
+
+	/**
+	 * Reads three consecutive bytes.
+	 * @returns an array of three bytes.
+	 */
+	public readByte3(): Byte3 {
+		return { x: this.readByte(), y: this.readByte(), z: this.readByte() };
+	}
+
+	/**
 	 * Reads three consecutive lookback strings.
 	 * @returns object of id, collection and author.
 	 */
@@ -171,7 +235,7 @@ export default class DataStream {
 	/**
 	 * Reads a node reference.
 	 */
-	public readNodeReference<NodeType>(): NodeType | undefined {
+	public readNodeReference<NodeType>(): NodeReference<NodeType> | undefined {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
@@ -182,11 +246,14 @@ export default class DataStream {
 		if (index >= 0 && !isNodeInstantiated) {
 			const classId = this.readUInt32();
 
-			const node = new GBXReader<NodeType>({ stream: this, classId }).readNode();
+			const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
+				stream: this,
+				classId,
+			}).readNode();
 
 			this.nodeList[index] = node;
 
-			return node as NodeType;
+			return { node, chunks: Merger.mergeChunks(chunks, unknowns, versions) };
 		}
 
 		if (isNodeInstantiated) return this.nodeList[index];
@@ -202,9 +269,9 @@ export default class DataStream {
 	 * @returns a string.
 	 */
 	public readLookbackString(): string {
-		if (this.lookbackVersion === undefined) this.lookbackVersion = this.readNumbers(4);
+		if (this.lookbackVersion === undefined) this.lookbackVersion = this.readUInt32();
 
-		const index = new Uint32Array([this.readNumbers(4)])[0];
+		const index = new Uint32Array([this.readUInt32()])[0];
 
 		if (index == 0xffffffff) return '';
 
@@ -236,7 +303,7 @@ export default class DataStream {
 	}
 
 	/**
-	 * Skips to the next chunk within the same class ID.
+	 * Skips to the next chunk within the same class ID. Very unsafe, as it does not take lookback strings into account, as it naively skips bytes.
 	 * @todo Add support for skipping nested chunks.
 	 */
 	public forceChunkSkip(fullChunkId: number): void {

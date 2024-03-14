@@ -3,17 +3,18 @@
  * @chunk 0x03059000
  */
 export default class CGameCtnBlockSkin {
-	public text?: string;
+	public foregroundPackDesc?: string;
 	public packDesc?: string;
 	public parentPackDesc?: string;
-	public foregroundPackDesc?: string;
+	public text?: string;
 
 	/**
 	 * Text
 	 */
-	protected 0x03059000 = ({ r }: Chunk) => {
+	protected 0x03059000 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.text = r.readString();
-		const u01 = r.readString();
+
+		f.readUnknown(r.readString());
 	};
 
 	/**
@@ -36,8 +37,9 @@ export default class CGameCtnBlockSkin {
 	/**
 	 * Secondary skin
 	 */
-	protected 0x03059003 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03059003 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+
 		this.foregroundPackDesc = r.readFileReference();
 	};
 }

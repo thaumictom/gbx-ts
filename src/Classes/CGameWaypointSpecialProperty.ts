@@ -2,12 +2,12 @@
  * Chunk 0x2e009000
  */
 export default class CGameWaypointSpecialProperty {
+	public order?: number;
 	public spawn?: number;
 	public tag?: string;
-	public order?: number;
 
-	protected 0x2e009000 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x2e009000 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
 
 		if (version == 1) {
 			this.spawn = r.readUInt32();

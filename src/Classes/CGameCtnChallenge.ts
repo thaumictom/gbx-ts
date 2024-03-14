@@ -9,88 +9,85 @@ import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
  * @chunk 0x03043000
  */
 export default class CGameCtnChallenge {
-	public mapInfo?: IMeta;
-	public mapName?: string;
-	public mapKind?: MapKind;
-	public bronzeTime?: number;
-	public silverTime?: number;
-	public goldTime?: number;
-	public authorTime?: number;
-	public cost?: number;
-	public isLapRace?: boolean;
-	public isMultilap?: boolean;
-	public playMode?: PlayMode;
-	public authorScore?: number;
-	public editorMode?: EditorMode;
-	public nbCheckpoints?: number;
-	public nbLaps?: number;
-
-	public password?: string;
-	public decoration?: IMeta;
-	public mapCoordOrigin?: number[];
-	public mapCoordTarget?: number[];
-	public packMask?: number;
-	public mapType?: string;
-	public mapStyle?: string;
-	public lightmapCacheUid?: number[];
-	public lightmapVersion?: number;
-	public titleId?: string;
-
-	public headerVersion?: number;
-	public xml?: string;
-	public thumbnailSize?: number;
-	public thumbnailData?: number[];
-	public comments?: string;
-	public authorVersion?: number;
+	public authorExtraInfo?: string;
 	public authorLogin?: string;
 	public authorNickname?: string;
+	public authorScore?: number;
+	public authorTime?: number;
+	public authorVersion?: number;
 	public authorZone?: string;
-	public authorExtraInfo?: string;
-	public playerModel?: IMeta;
-	public blockStock?: CGameCtnCollectorList;
-	public challengeParameters?: CGameCtnChallengeParameters;
-	public blocks?: CGameCtnBlock[];
-	public size?: number[];
-	public needUnlock?: boolean;
-	public customMusicPackDesc?: string;
-	public hasCustomCamThumbnail?: boolean;
-	public thumbnailPosition?: number[];
-	public thumbnailFov?: number;
-	public thumbnailNearClipPlane?: number;
-	public thumbnailFarClipPlane?: number;
-
-	public checkpoints?: number[];
-	public modPackDesc?: string;
-	public hashedPassword?: number[];
+	public blocks?: (NodeReference<CGameCtnBlock> | CGameCtnBlock)[];
+	public blockStock?: NodeReference<CGameCtnCollectorList>;
+	public bronzeTime?: number;
+	public buildVersion?: string;
+	public challengeParameters?: NodeReference<CGameCtnChallengeParameters>;
+	public checkpoints?: Int3[];
+	public comments?: string;
+	public cost?: number;
 	public crc32?: number;
 	public createdWithSimpleEditor?: boolean;
-	public thumbnailPitchYawRoll?: number[];
+	public customMusicPackDesc?: string;
+	public dayDuration?: number;
+	public dayTime?: number;
+	public decoBaseHeightOffset?: number;
+	public decoration?: IMeta;
+	public dynamicDaylight?: boolean;
+	public editorMode?: EditorMode;
+	public goldTime?: number;
+	public hasCustomCamThumbnail?: boolean;
+	public hashedPassword?: number[];
+	public headerVersion?: number;
+	public isLapRace?: boolean;
+	public isMultilap?: boolean;
+	public lightmapCacheUid?: number;
+	public lightmapVersion?: number;
+	public mapCoordOrigin?: Vector2 | number[];
+	public mapCoordTarget?: Vector2 | number[];
+	public mapInfo?: IMeta;
+	public mapKind?: MapKind;
+	public mapName?: string;
+	public mapStyle?: string;
+	public mapType?: string;
+	public modPackDesc?: string;
+	public nbCheckpoints?: number;
+	public nbLaps?: number;
+	public needUnlock?: boolean;
 	public objectiveTextAuthor?: string;
+	public objectiveTextBronze?: string;
 	public objectiveTextGold?: string;
 	public objectiveTextSilver?: string;
-	public objectiveTextBronze?: string;
+	public offzones?: { 1: Int3; 2: Int3 }[];
 	public offzoneTriggerSize?: number[];
-	public offzones?: { position1: number[]; position2: number[] }[];
-	public buildVersion?: string;
-	public decoBaseHeightOffset?: number;
-	public dayTime?: number;
-	public dynamicDaylight?: boolean;
-	public dayDuration?: number;
-	public worldDistortion?: number[];
+	public packMask?: number;
+	public password?: string;
+	public playerModel?: IMeta;
+	public playMode?: PlayMode;
+	public silverTime?: number;
+	public size?: Int3;
+	public thumbnailData?: number[];
+	public thumbnailFarClipPlane?: number;
+	public thumbnailFov?: number;
+	public thumbnailNearClipPlane?: number;
+	public thumbnailPitchYawRoll?: Vector3;
+	public thumbnailPosition?: Vector3;
+	public thumbnailSize?: number;
+	public titleId?: string;
+	public worldDistortion?: Vector3;
+	public xml?: string;
 
 	/**
 	 * (Header) Map information
 	 * @games All games
 	 */
-	protected 0x03043002 = ({ r }: Chunk) => {
-		const version = r.readByte();
+	protected 0x03043002 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readByte());
 
 		if (version <= 2) {
 			this.mapInfo = r.readMeta();
 			this.mapName = r.readString();
 		}
 
-		const u01 = r.readBoolean();
+		f.readUnknown(r.readBoolean());
 
 		if (version >= 1) {
 			this.bronzeTime = r.readUInt32();
@@ -100,7 +97,7 @@ export default class CGameCtnChallenge {
 		}
 
 		if (version == 2) {
-			const u01 = r.readByte();
+			f.readUnknown(r.readByte());
 		}
 
 		if (version >= 4) {
@@ -120,7 +117,7 @@ export default class CGameCtnChallenge {
 		}
 
 		if (version >= 9) {
-			const u01 = r.readUInt32();
+			f.readUnknown(r.readUInt32());
 		}
 
 		if (version >= 10) {
@@ -132,7 +129,7 @@ export default class CGameCtnChallenge {
 		}
 
 		if (version >= 12) {
-			const u01 = r.readUInt32();
+			f.readUnknown(r.readUInt32());
 		}
 
 		if (version >= 13) {
@@ -145,15 +142,15 @@ export default class CGameCtnChallenge {
 	 * (Header) Common map information
 	 * @games All games
 	 */
-	protected 0x03043003 = ({ r }: Chunk) => {
-		const version = r.readByte();
+	protected 0x03043003 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readByte());
 
 		this.mapInfo = r.readMeta();
 		this.mapName = r.readString();
 		this.mapKind = r.readByte() as MapKind;
 
 		if (version >= 1) {
-			const u01 = r.readUInt32();
+			f.readUnknown(r.readUInt32());
 
 			this.password = r.readString();
 		}
@@ -163,11 +160,11 @@ export default class CGameCtnChallenge {
 		}
 
 		if (version >= 3) {
-			this.mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
+			this.mapCoordOrigin = r.readVector2();
 		}
 
 		if (version >= 4) {
-			this.mapCoordTarget = [r.readUInt32(), r.readUInt32()];
+			this.mapCoordTarget = r.readVector2();
 		}
 
 		if (version >= 5) {
@@ -180,7 +177,7 @@ export default class CGameCtnChallenge {
 		}
 
 		if (version >= 8) {
-			this.lightmapCacheUid = r.readBytes(8);
+			this.lightmapCacheUid = r.readNumbers(8);
 		}
 
 		if (version >= 9) {
@@ -212,26 +209,29 @@ export default class CGameCtnChallenge {
 	 * (Header) Thumnbnail and comments
 	 * @games TMU and above
 	 */
-	protected 0x03043007 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043007 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.thumbnailSize = r.readUInt32();
 
-		const thumbnailStart = r.readString('<Thumbnail.jpg>'.length);
-		this.thumbnailData = r.readBytes(this.thumbnailSize);
-		const thumbnailEnd = r.readString('</Thumbnail.jpg>'.length);
+		r.readString('<Thumbnail.jpg>'.length);
 
-		const commentsStart = r.readString('<Comments>'.length);
+		this.thumbnailData = r.readBytes(this.thumbnailSize);
+
+		r.readString('</Thumbnail.jpg>'.length);
+		r.readString('<Comments>'.length);
+
 		this.comments = r.readString();
-		const commentsEnd = r.readString('</Comments>'.length);
+
+		r.readString('</Comments>'.length);
 	};
 
 	/**
 	 * (Header) Author information
 	 * @games MP3 and above
 	 */
-	protected 0x03043008 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043008 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.authorVersion = r.readUInt32();
 		this.authorLogin = r.readString();
@@ -254,11 +254,9 @@ export default class CGameCtnChallenge {
 	 */
 	protected 0x0304300f = ({ r }: Chunk) => {
 		this.mapInfo = r.readMeta();
-		this.size = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.size = r.readInt3();
 
-		const nbBlocks = r.readUInt32();
-
-		this.blocks = r.createArray(nbBlocks, () => r.readNodeReference() as CGameCtnBlock);
+		this.blocks = r.createArray(r.readUInt32(), () => r.readNodeReference<CGameCtnBlock>()!);
 		this.needUnlock = r.readBoolean();
 		this.decoration = r.readMeta();
 	};
@@ -268,8 +266,8 @@ export default class CGameCtnChallenge {
 	 * @games All games
 	 */
 	protected 0x03043011 = ({ r }: Chunk) => {
-		this.blockStock = r.readNodeReference() as CGameCtnCollectorList;
-		this.challengeParameters = r.readNodeReference() as CGameCtnChallengeParameters;
+		this.blockStock = r.readNodeReference<CGameCtnCollectorList>();
+		this.challengeParameters = r.readNodeReference<CGameCtnChallengeParameters>();
 		this.mapKind = r.readUInt32() as MapKind;
 	};
 
@@ -277,25 +275,18 @@ export default class CGameCtnChallenge {
 	 * Legacy block data
 	 * @games Unknown
 	 */
-	protected 0x03043013 = ({ r }: Chunk) => {
+	protected 0x03043013 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.mapInfo = r.readMeta();
 		this.mapName = r.readString();
 		this.decoration = r.readMeta();
-		this.size = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.size = r.readInt3();
 
-		const u01 = r.readBoolean();
-		const nbBlocks = r.readUInt32();
+		f.readUnknown(r.readBoolean());
 
-		this.blocks = r.createArray(nbBlocks, () => {
+		this.blocks = r.createArray(r.readUInt32(), () => {
 			const blockName = r.readLookbackString();
-			const direction = r.readByte();
-
-			const position = {
-				x: r.readByte(),
-				y: r.readByte(),
-				z: r.readByte(),
-			};
-
+			const direction = r.readByte() as Direction;
+			const position = r.readByte3();
 			const flags = r.readUInt16();
 
 			return {
@@ -311,8 +302,8 @@ export default class CGameCtnChallenge {
 	 * (Skippable) Legacy password
 	 * @games TMSX, TMNESWC, TMU
 	 */
-	protected 0x03043014 = ({ r }: Chunk) => {
-		const u01 = r.readBoolean();
+	protected 0x03043014 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readBoolean());
 
 		this.password = r.readString();
 	};
@@ -321,8 +312,8 @@ export default class CGameCtnChallenge {
 	 * (Skippable)
 	 * @games TMSX, TMNESWC
 	 */
-	protected 0x03043016 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x03043016 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -330,14 +321,12 @@ export default class CGameCtnChallenge {
 	 * @games TMSX, TMNESWC, TMU, TMF
 	 */
 	protected 0x03043017 = ({ r }: Chunk) => {
-		const nbCheckpoints = r.readUInt32();
-
-		this.checkpoints = r.createArray(nbCheckpoints, () => r.readUInt32());
+		this.checkpoints = r.createArray(r.readUInt32(), () => r.readInt3());
 	};
 
 	/**
 	 * (Skippable) Lap information
-	 * @games TMSX+
+	 * @games TMSX and above
 	 */
 	protected 0x03043018 = ({ r }: Chunk) => {
 		this.isLapRace = r.readBoolean();
@@ -346,7 +335,7 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Mod information
-	 * @games TMSX+
+	 * @games TMSX  and above
 	 */
 	protected 0x03043019 = ({ r }: Chunk) => {
 		this.modPackDesc = r.readFileReference();
@@ -355,16 +344,16 @@ export default class CGameCtnChallenge {
 	/**
 	 * @games Unknown
 	 */
-	protected 0x0304301a = ({ r }: Chunk) => {
-		const u01 = r.readNodeReference();
+	protected 0x0304301a = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readNodeReference());
 	};
 
 	/**
 	 * OldIgs
 	 * @games Unknown
 	 */
-	protected 0x0304301b = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x0304301b = ({ r }: Chunk, f: ChunkFunctions) => {
+		const u01 = f.readUnknown(r.readUInt32());
 
 		if (u01 != 0) throw new Error('Unexpected value SOldIgs > 0 in chunk 0x0304301b');
 	};
@@ -380,40 +369,36 @@ export default class CGameCtnChallenge {
 	/**
 	 * @games Unknown
 	 */
-	protected 0x0304301d = ({ r }: Chunk) => {
-		const u01 = r.readNodeReference();
+	protected 0x0304301d = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
 	 * Block data
 	 * @games TMSX and above
 	 */
-	protected 0x0304301f = ({ r }: Chunk) => {
+	protected 0x0304301f = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.blocks = [];
 
 		this.mapInfo = r.readMeta();
 		this.mapName = r.readString();
 		this.decoration = r.readMeta();
 
-		this.size = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.size = r.readInt3();
 
 		this.needUnlock = r.readBoolean();
 
-		const version = r.readUInt32();
+		const version = f.readVersion(r.readUInt32());
 		const nbBlocks = r.readUInt32();
 
 		const readBlock = (): boolean => {
 			const blockName = r.readLookbackString();
-			const direction = r.readByte();
+			const direction = r.readByte() as Direction;
 
 			// Unimplemented: There is some special cases for the coordinates in version >= 6
-			const position = {
-				x: r.readByte(),
-				y: r.readByte(),
-				z: r.readByte(),
-			};
+			const position = r.readByte3();
 
-			let flags: number = 0;
+			let flags = 0;
 
 			if (version == 0) flags = r.readUInt16();
 			else if (version > 0) flags = r.readUInt32();
@@ -430,16 +415,16 @@ export default class CGameCtnChallenge {
 			}
 
 			let author: string | undefined;
-			let skin: CGameCtnBlockSkin | undefined;
-			let waypointSpecialProperty: CGameWaypointSpecialProperty | undefined;
+			let skin: NodeReference<CGameCtnBlockSkin> | undefined;
+			let waypointSpecialProperty: NodeReference<CGameWaypointSpecialProperty> | undefined;
 
 			if ((flags & 0x8000) != 0) {
 				author = r.readLookbackString();
-				skin = r.readNodeReference() as CGameCtnBlockSkin;
+				skin = r.readNodeReference<CGameCtnBlockSkin>();
 			}
 
 			if (flags & 0x100000) {
-				waypointSpecialProperty = r.readNodeReference() as CGameWaypointSpecialProperty;
+				waypointSpecialProperty = r.readNodeReference<CGameWaypointSpecialProperty>();
 			}
 
 			this.blocks?.push({
@@ -485,10 +470,10 @@ export default class CGameCtnChallenge {
 	};
 
 	/**
-	 * @games TMSX+
+	 * @games TMSX and above
 	 */
-	protected 0x03043022 = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x03043022 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -496,13 +481,13 @@ export default class CGameCtnChallenge {
 	 * @games Unknown
 	 */
 	protected 0x03043023 = ({ r }: Chunk) => {
-		this.mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
+		this.mapCoordOrigin = r.readVector2();
 		this.mapCoordTarget = this.mapCoordOrigin;
 	};
 
 	/**
 	 * Custom music
-	 * @games TMSX+
+	 * @games TMSX and above
 	 */
 	protected 0x03043024 = ({ r }: Chunk) => {
 		this.customMusicPackDesc = r.readFileReference();
@@ -510,54 +495,55 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * Map origin/target
-	 * @games TMSX+
+	 * @games TMSX and above
 	 */
 	protected 0x03043025 = ({ r }: Chunk) => {
-		this.mapCoordOrigin = [r.readUInt32(), r.readUInt32()];
-		this.mapCoordTarget = [r.readUInt32(), r.readUInt32()];
+		this.mapCoordOrigin = r.readVector2();
+		this.mapCoordTarget = r.readVector2();
 	};
 
 	/**
 	 * Clip global
-	 * @games TMNESWC+
+	 * @games TMNESWC and above
 	 */
-	protected 0x03043026 = ({ r }: Chunk) => {
-		const u01 = r.readNodeReference();
+	protected 0x03043026 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readNodeReference());
 	};
 
 	/**
 	 * Old realtime thumbnail
 	 * @games Unknown
 	 */
-	protected 0x03043027 = ({ r }: Chunk) => {
+	protected 0x03043027 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.hasCustomCamThumbnail = r.readBoolean();
 
 		if (!this.hasCustomCamThumbnail) return;
 
-		const u01 = r.readByte();
-		const u02 = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
-		const u03 = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
-		const u04 = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		f.readUnknown(r.readByte());
+		f.readUnknown(r.readVector3());
+		f.readUnknown(r.readVector3());
+		f.readUnknown(r.readVector3());
 
-		this.thumbnailPosition = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
-		this.thumbnailFov = r.readUInt32();
-		this.thumbnailNearClipPlane = r.readUInt32();
-		this.thumbnailFarClipPlane = r.readUInt32();
+		this.thumbnailPosition = r.readVector3();
+		this.thumbnailFov = r.readFloat();
+		this.thumbnailNearClipPlane = r.readFloat();
+		this.thumbnailFarClipPlane = r.readFloat();
 	};
 
 	/**
 	 * Old realtime thumbnail and comments
-	 * @games TMU+
+	 * @games TMU and above
 	 */
-	protected 0x03043028 = ({ r }: Chunk) => {
-		this[0x03043027]({ r });
+	protected 0x03043028 = (chunk: Chunk, f: ChunkFunctions) => {
+		this[0x03043027](chunk, f);
+		const { r } = chunk;
 
 		this.comments = r.readString();
 	};
 
 	/**
 	 * (Skippable) Password
-	 * @games TMF+
+	 * @games TMF and above
 	 */
 	protected 0x03043029 = ({ r }: Chunk) => {
 		this.hashedPassword = r.readBytes(16);
@@ -566,7 +552,7 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * Simple editor
-	 * @games TMF+
+	 * @games TMF and above
 	 */
 	protected 0x0304302a = ({ r }: Chunk) => {
 		this.createdWithSimpleEditor = r.readBoolean();
@@ -574,56 +560,63 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Realtime thumbnail and comments
-	 * @games TMF+
+	 * @games TMF and above
 	 */
-	protected 0x0304302d = ({ r }: Chunk) => {
-		this.thumbnailPosition = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
-		this.thumbnailPitchYawRoll = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
-		this.thumbnailFov = r.readUInt32();
+	protected 0x0304302d = ({ r }: Chunk, f: ChunkFunctions) => {
+		this.thumbnailPosition = r.readVector3();
+		this.thumbnailPitchYawRoll = r.readVector3();
+		this.thumbnailFov = r.readFloat();
 
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
+		f.readUnknown(r.readFloat());
+		f.readUnknown(r.readFloat());
 
-		this.thumbnailNearClipPlane = r.readUInt32();
-		this.thumbnailFarClipPlane = r.readUInt32();
+		this.thumbnailNearClipPlane = r.readFloat();
+		this.thumbnailFarClipPlane = r.readFloat();
 		this.comments = r.readString();
 	};
 
 	/**
 	 * (Skippable)
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	protected 0x03043034 = ({ r }: Chunk) => {
 		const length = r.readUInt32();
-		const data = r.readBytes(length);
+
+		r.readBytes(length);
 	};
 
 	/**
 	 * (Skippable) Realtime thumbnail and comments
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
-	protected 0x03043036 = ({ r }: Chunk) => {
-		this[0x0304302d]({ r });
+	protected 0x03043036 = (chunk: Chunk, f: ChunkFunctions) => {
+		this[0x0304302d](chunk, f);
 	};
 
 	/**
 	 * (Skippable) CarMarksBuffer
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x0304303e = ({ r }: Chunk) => {};
 
 	/**
-	 * (Skippable) Items
-	 * @games MP3+
+	 * (Skippable/Encapsulated) Items
+	 * @games MP3 and above
 	 */
-	// protected 0x03043040 = ({ r }: Chunk) => {};
+	public anchoredObjects?: any;
+
+	protected 0x03043040 = ({ r, length }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+
+		r.readBytes(length! - 4);
+	};
 
 	/**
 	 * (Skippable) Author information
-	 * @games MP3
+	 * @games MP3 and above
 	 */
-	protected 0x03043042 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043042 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.authorVersion = r.readUInt32();
 		this.authorLogin = r.readString();
@@ -634,13 +627,13 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Genealogies
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x03043043 = ({ r }: Chunk) => {};
 
 	/**
 	 * (Skippable) Metadata
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x03043044 = ({ r }: Chunk) => {};
 
@@ -648,22 +641,23 @@ export default class CGameCtnChallenge {
 	 * (Skippable)
 	 * @games MP3, TMT
 	 */
-	protected 0x03043047 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readString();
+	protected 0x03043047 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
+
+		f.readUnknown(r.readString());
 
 		if (version >= 1) throw new Error('Unexpected version >= 1 in chunk 0x03043047');
 	};
 
 	/**
 	 * (Skippable) Baked blocks
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x03043048 = ({ r }: Chunk) => {};
 
 	/**
 	 * MediaTracker data
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	protected 0x03043049 = ({ r, fullChunkId }: Chunk) => {
 		r.forceChunkSkip(fullChunkId!);
@@ -671,7 +665,7 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Objectives
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	protected 0x0304304b = ({ r }: Chunk) => {
 		this.objectiveTextAuthor = r.readString();
@@ -682,29 +676,27 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Offzones
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
-	protected 0x03043050 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043050 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.offzoneTriggerSize = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
 
-		const nbOffzones = r.readUInt32();
-
-		this.offzones = r.createArray(nbOffzones, () => {
+		this.offzones = r.createArray(r.readUInt32(), () => {
 			return {
-				position1: [r.readUInt32(), r.readUInt32(), r.readUInt32()],
-				position2: [r.readUInt32(), r.readUInt32(), r.readUInt32()],
+				1: r.readInt3(),
+				2: r.readInt3(),
 			};
 		});
 	};
 
 	/**
 	 * (Skippable) Title information
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
-	protected 0x03043051 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043051 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.titleId = r.readLookbackString();
 		this.buildVersion = r.readString();
@@ -712,37 +704,37 @@ export default class CGameCtnChallenge {
 
 	/**
 	 * (Skippable) Decoration height
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
-	protected 0x03043052 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043052 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
 
 		this.decoBaseHeightOffset = r.readUInt32();
 	};
 
 	/**
 	 * (Skippable) Bot paths
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x03043053 = ({ r }: Chunk) => {};
 
 	/**
 	 * (Skippable) Embedded objects
-	 * @games MP3+
+	 * @games MP3 and above
 	 */
 	// protected 0x03043054 = ({ r }: Chunk) => {};
 
 	/**
 	 * (Skippable) Light settings
-	 * @games MP4+
+	 * @games MP4 and above
 	 */
-	protected 0x03043056 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readUInt32();
+	protected 0x03043056 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 
 		this.dayTime = r.readUInt32();
 
-		const u02 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.dynamicDaylight = r.readBoolean();
 		this.dayDuration = r.readUInt32();
@@ -752,34 +744,35 @@ export default class CGameCtnChallenge {
 	 * (Skippable) SubMapsInfos
 	 * @games MP4 only
 	 */
-	protected 0x03043058 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
-		const u01 = r.readUInt32();
+	protected 0x03043058 = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readVersion(r.readUInt32());
+
+		const u01 = f.readUnknown(r.readUInt32());
 
 		if (u01 > 0) throw new Error('Unexpected value > 0 in chunk 0x03043058');
 	};
 
 	/**
 	 * (Skippable) World distortion
-	 * @games MP4+
+	 * @games MP4 and above
 	 */
-	protected 0x03043059 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x03043059 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
 
-		this.worldDistortion = [r.readUInt32(), r.readUInt32(), r.readUInt32()];
+		this.worldDistortion = r.readVector3();
 
 		if (version == 0) {
 			throw new Error('Unexpected version 0 in chunk 0x03043059');
 		}
 
 		if (version >= 1) {
-			const u01 = r.readBoolean();
+			const u01 = f.readUnknown(r.readBoolean());
 			if (u01) throw new Error('Unexpected value true in chunk 0x03043059');
 		}
 
 		if (version >= 3) {
-			const u01 = r.readUInt32();
-			const u02 = r.readUInt32();
+			f.readUnknown(r.readUInt32());
+			f.readUnknown(r.readUInt32());
 		}
 	};
 
@@ -787,9 +780,9 @@ export default class CGameCtnChallenge {
 	 * (Skippable)
 	 * @games TM2020 only
 	 */
-	protected 0x0304305a = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
-		const u02 = r.readUInt32();
+	protected 0x0304305a = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
+		f.readUnknown(r.readUInt32());
 	};
 
 	/**
@@ -837,12 +830,12 @@ export default class CGameCtnChallenge {
 	 * (Skippable) Light settings (2)
 	 * @games TM2020 only
 	 */
-	protected 0x0304306b = ({ r }: Chunk) => {
-		const u01 = r.readUInt32();
+	protected 0x0304306b = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readUInt32());
 
 		this.dayTime = r.readUInt32();
 
-		const u02 = r.readUInt32();
+		f.readUnknown(r.readUInt32());
 
 		this.dynamicDaylight = r.readBoolean();
 		this.dayDuration = r.readUInt32();

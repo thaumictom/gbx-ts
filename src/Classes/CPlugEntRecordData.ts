@@ -3,15 +3,15 @@
  * @chunk 0x0911f000
  */
 export default class CPlugEntRecordData {
-	public uncompressedSize?: number;
-	public compressedSize?: number;
 	public compressedData?: number[];
+	public compressedSize?: number;
+	public uncompressedSize?: number;
 
 	/**
 	 * Data of the entity
 	 */
-	protected 0x0911f000 = ({ r }: Chunk) => {
-		const version = r.readUInt32();
+	protected 0x0911f000 = ({ r }: Chunk, f: ChunkFunctions) => {
+		const version = f.readVersion(r.readUInt32());
 
 		if (version >= 5) {
 			this.uncompressedSize = r.readUInt32();

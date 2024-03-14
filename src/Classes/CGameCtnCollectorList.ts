@@ -9,9 +9,7 @@ export default class CGameCtnCollectorList {
 	 * Puzzle pieces
 	 */
 	protected 0x0301b000 = ({ r }: Chunk) => {
-		const nbBlocks = r.readUInt32();
-
-		this.blockSet = r.createArray(nbBlocks, () => {
+		this.blockSet = r.createArray(r.readUInt32(), () => {
 			const blockModel = r.readMeta();
 			const count = r.readUInt32();
 

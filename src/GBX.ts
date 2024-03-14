@@ -1,11 +1,11 @@
-import { DataStream, FileHandlers, Hex, Logger, LZOHandler } from './Handlers';
+import { DataStream, FileHandlers, Logger, LZOHandler, Merger } from './Handlers';
 import { GBXReader } from './GBXReader';
-import CGameCtnChallenge from './Classes/CGameCtnChallenge';
 
 export default class GBX<NodeType> {
 	private stream!: DataStream;
 	public classId?: number;
 	public chunks?: number[] = [];
+	public node?: NodeType;
 
 	constructor(options: IOptions) {
 		if (options.path) {
@@ -20,7 +20,7 @@ export default class GBX<NodeType> {
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders(): Promise<NodeType> {
+	public async parseHeaders() {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -72,7 +72,7 @@ export default class GBX<NodeType> {
 
 		Logger.debug(`Reading header data`);
 
-		const headerNode = new GBXReader<NodeType>({
+		const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
 			headerChunks,
 			classId: this.classId,
 		}).readHeaderChunk(this.classId);
@@ -86,25 +86,20 @@ export default class GBX<NodeType> {
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 
-		return Promise.resolve(headerNode);
-	}
+		this.chunks = chunks;
 
-	private mergeInstances(target: NodeType, source: NodeType): NodeType {
-		// Merge instance2 into instance1
-		for (const key in source) {
-			if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
-				target[key] = source[key];
-			}
-		}
-		return target;
+		return Promise.resolve({
+			node,
+			chunks: Merger.mergeChunks(chunks, unknowns, versions),
+		});
 	}
 
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse(): Promise<NodeType> {
+	public async parse() {
 		// Read headers
-		const headerNode = await this.parseHeaders();
+		const header = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.stream.readUInt32();
@@ -115,13 +110,16 @@ export default class GBX<NodeType> {
 
 		Logger.debug(`Reading body data`);
 
-		const { node, chunks } = new GBXReader<NodeType>({
+		const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
 			stream: bodyNode,
 			classId: this.classId!,
 		}).readNode();
 
-		this.chunks = chunks;
+		this.chunks = { ...chunks, ...header.chunks };
 
-		return Promise.resolve(this.mergeInstances(node, headerNode));
+		return Promise.resolve({
+			node: Merger.mergeInstances<NodeType>(node, header.node),
+			chunks: { ...Merger.mergeChunks(chunks, unknowns, versions), ...header.chunks },
+		});
 	}
 }

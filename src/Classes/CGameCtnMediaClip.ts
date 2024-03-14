@@ -4,7 +4,7 @@ import CGameCtnMediaTrack from './CGameCtnMediaTrack';
  * @chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
-	public tracks?: CGameCtnMediaTrack[];
+	public tracks?: NodeReference<CGameCtnMediaTrack>[];
 	public name?: string;
 	public stopWhenLeave?: boolean;
 	public stopWhenRespawn?: boolean;
@@ -17,7 +17,7 @@ export default class CGameCtnMediaClip {
 		const nbTracks = r.readUInt32();
 
 		for (let i = 0; i < nbTracks; i++) {
-			const track = r.readNodeReference() as CGameCtnMediaTrack;
+			const track = r.readNodeReference<CGameCtnMediaTrack>()!;
 
 			this.tracks.push(track);
 		}
