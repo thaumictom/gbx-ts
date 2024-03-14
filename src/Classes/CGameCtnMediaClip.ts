@@ -1,11 +1,10 @@
-import { NodeReference } from '../Defintions';
 import CGameCtnMediaTrack from './CGameCtnMediaTrack';
 
 /**
  * @chunk 0x03079000
  */
 export default class CGameCtnMediaClip {
-	public tracks?: NodeReference<CGameCtnMediaTrack>[];
+	public tracks?: CGameCtnMediaTrack[];
 	public name?: string;
 	public stopWhenLeave?: boolean;
 	public stopWhenRespawn?: boolean;

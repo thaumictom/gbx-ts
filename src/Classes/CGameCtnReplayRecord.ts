@@ -1,4 +1,3 @@
-import { NodeReference } from '../Defintions';
 import GBX from '../GBX';
 import CGameCtnChallenge from './CGameCtnChallenge';
 import CGameCtnGhost from './CGameCtnGhost';
@@ -20,12 +19,12 @@ export default class CGameCtnReplayRecord {
 	public eventsDuration?: number;
 	public extras?: { extra1: number; extra2: number }[];
 	public game?: string;
-	public ghosts?: NodeReference<CGameCtnGhost>[];
+	public ghosts?: CGameCtnGhost[];
 	public mapInfo?: IMeta;
 	public playerLogin?: string;
 	public playerNickname?: string;
 	public playgroundScript?: string;
-	public recordData?: NodeReference<CPlugEntRecordData>;
+	public recordData?: CPlugEntRecordData;
 	public time?: number;
 	public titleId?: string;
 	public xml?: string;

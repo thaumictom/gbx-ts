@@ -1,4 +1,3 @@
-import { NodeReference } from '../Defintions';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
 
@@ -12,6 +11,6 @@ export default class CGameCtnBlock {
 	public direction?: Direction;
 	public flags?: number;
 	public position?: Byte3;
-	public skin?: NodeReference<CGameCtnBlockSkin>;
-	public waypointSpecialProperty?: NodeReference<CGameWaypointSpecialProperty>;
+	public skin?: CGameCtnBlockSkin;
+	public waypointSpecialProperty?: CGameWaypointSpecialProperty;
 }

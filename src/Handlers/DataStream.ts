@@ -1,5 +1,4 @@
 import { GBXReader } from '../GBXReader';
-import { NodeReference } from '../Defintions';
 import { collectionIDs } from '../Data/CollectionIDs';
 import { Hex, Logger, Merger } from '../Handlers';
 
@@ -236,7 +235,7 @@ export default class DataStream {
 	/**
 	 * Reads a node reference.
 	 */
-	public readNodeReference<NodeType>(): NodeReference<NodeType> | undefined {
+	public readNodeReference<NodeType>(): NodeType | undefined {
 		// Convert to signed 32-bit integer
 		const index = (this.readNumbers(4) << 1) >> 1;
 
@@ -254,7 +253,9 @@ export default class DataStream {
 
 			this.nodeList[index] = node;
 
-			return { node, chunks: Merger.mergeChunks(chunks, unknowns, versions) };
+			//node.chunks = Merger.mergeChunks(chunks, unknowns, versions);
+
+			return node;
 		}
 
 		if (isNodeInstantiated) return this.nodeList[index];

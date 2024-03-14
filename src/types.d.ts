@@ -33,12 +33,8 @@ interface ChunkFunctions {
 	readUnknown<T>(unknown: T): T;
 }
 
-interface ChunkList {
-	[key: number]: {
-		unknowns: any[];
-		version: any;
-	};
-}
+type Unknowns = { [x: number]: any[] };
+type Versions = { [x: number]: number };
 
 declare enum MapKind {
 	EndMarker,

@@ -8,6 +8,8 @@ interface GBXReaderOptions {
 	headerChunks?: IHeaderChunks[];
 }
 
+type Chunks = { [x: number]: boolean };
+
 export class GBXReader<NodeType> {
 	private current?: any;
 
@@ -38,13 +40,13 @@ export class GBXReader<NodeType> {
 	 */
 	public readNode(): {
 		node: NodeType;
-		chunks: any[];
-		versions: { [key: number]: any };
-		unknowns: { [key: number]: any[] };
+		chunks: Chunks;
+		versions: Versions;
+		unknowns: Unknowns;
 	} {
 		const stream = this.options.stream as DataStream;
 
-		let chunks: number[] = [];
+		let chunks: Chunks = {};
 
 		while (true) {
 			const fullChunkId = stream.readUInt32();
@@ -53,7 +55,7 @@ export class GBXReader<NodeType> {
 			if (fullChunkId == 0xfacade01) break;
 
 			// Add chunk to list
-			chunks.push(fullChunkId);
+			chunks[fullChunkId] = true;
 
 			// Check if chunk is skippable
 			if (stream.peekUInt32() == 0x534b4950) {
@@ -66,6 +68,9 @@ export class GBXReader<NodeType> {
 					// Chunk is not supported
 					Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
 					const data = stream.readBytes(chunkDataSize);
+
+					// Overwrite to false, since the chunk is not supported
+					chunks[fullChunkId] = false;
 				}
 
 				continue;
@@ -141,17 +146,20 @@ export class GBXReader<NodeType> {
 	/**
 	 * Reads a header chunk.
 	 */
-	public readHeaderChunk(classId: number) {
+	public readHeaderChunk(classId: number): {
+		node: NodeType;
+		chunks: Chunks;
+		versions: Versions;
+		unknowns: Unknowns;
+	} {
 		const headerChunks = this.options.headerChunks;
 
-		let chunks: number[] = [];
+		let chunks: Chunks = {};
 
 		for (let i = 0; i < headerChunks!.length; i++) {
 			const currentChunk = headerChunks![i];
 
 			const fullChunkId = classId + currentChunk.chunkId;
-
-			chunks.push(fullChunkId);
 
 			this.options.stream = new DataStream(currentChunk.chunkData!);
 
@@ -160,7 +168,11 @@ export class GBXReader<NodeType> {
 			if (!isChunkSupported) {
 				// Chunk is not supported
 				Logger.warn(`Skipped chunk: 0x${Hex.fromDecimal(fullChunkId)}`);
+				chunks[fullChunkId] = false;
 			}
+
+			// Chunk is supported
+			chunks[fullChunkId] = true;
 		}
 
 		return {

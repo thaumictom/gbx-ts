@@ -1,4 +1,3 @@
-import { NodeReference } from '../Defintions';
 import CGameGhost from './CGameGhost';
 import CPlugEntRecordData from './CPlugEntRecordData';
 
@@ -30,7 +29,7 @@ export default class CGameCtnGhost extends CGameGhost {
 	public lightTrailColor?: number[] | Vector3;
 	public playerModel?: IMeta;
 	public raceTime?: number;
-	public recordData?: NodeReference<CPlugEntRecordData>;
+	public recordData?: CPlugEntRecordData;
 	public recordingContext?: string;
 	public respawns?: number;
 	public skinFile?: string;

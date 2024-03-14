@@ -1,5 +1,9 @@
-type Unknowns = { [x: number]: any[] };
-type Versions = { [x: number]: number };
+interface ChunkList {
+	[key: number]: {
+		unknowns: any[];
+		version: any;
+	} | null;
+}
 
 export default class Merger {
 	/**
@@ -9,10 +13,21 @@ export default class Merger {
 	 * @param versions An object of versions.
 	 * @returns combined chunks.
 	 */
-	static mergeChunks(chunks: number[], unknowns: Unknowns, versions: Versions): ChunkList {
+	static mergeChunks(
+		chunks: { [x: number]: boolean },
+		unknowns: Unknowns,
+		versions: Versions
+	): ChunkList {
 		let merged: ChunkList = {};
 
-		for (const chunk of chunks) {
+		for (const chunk in chunks) {
+			const isSupported = chunks[chunk];
+
+			if (isSupported === false) {
+				merged[chunk] = null;
+				continue;
+			}
+
 			merged[chunk] = {
 				unknowns: unknowns[chunk],
 				version: versions[chunk],

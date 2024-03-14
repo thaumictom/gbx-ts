@@ -1,5 +1,4 @@
 import { DataStream, FileHandlers, Logger, LZOHandler, Merger } from './Handlers';
-import { NodeReference } from './Defintions';
 import { GBXReader } from './GBXReader';
 
 export default class GBX<NodeType> {
@@ -21,7 +20,7 @@ export default class GBX<NodeType> {
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders<NodeType>(): Promise<NodeReference<NodeType>> {
+	public async parseHeaders<NodeType>(): Promise<NodeType> {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -87,20 +86,20 @@ export default class GBX<NodeType> {
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
 
+		// Set list of chunks
 		this.chunks = chunks;
 
-		return Promise.resolve({
-			node,
-			chunks: Merger.mergeChunks(chunks, unknowns, versions),
-		});
+		node.chunks = Merger.mergeChunks(chunks, unknowns, versions);
+
+		return Promise.resolve(node);
 	}
 
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse(): Promise<NodeReference<NodeType>> {
+	public async parse(): Promise<NodeType> {
 		// Read headers
-		const header = await this.parseHeaders<NodeType>();
+		const headerNode = await this.parseHeaders<NodeType>();
 
 		// Decompression
 		const uncompressedSize = this.stream.readUInt32();
@@ -116,11 +115,13 @@ export default class GBX<NodeType> {
 			classId: this.classId!,
 		}).readNode();
 
-		this.chunks = { ...chunks, ...header.chunks };
+		const mergedNode = Merger.mergeInstances(headerNode, node);
 
-		return Promise.resolve({
-			node: Merger.mergeInstances(node, header.node),
-			chunks: { ...Merger.mergeChunks(chunks, unknowns, versions), ...header.chunks },
-		});
+		// Set list of chunks
+		this.chunks = { ...chunks, ...headerNode.chunks };
+
+		mergedNode.chunks = { ...Merger.mergeChunks(chunks, unknowns, versions), ...headerNode.chunks };
+
+		return Promise.resolve(mergedNode);
 	}
 }

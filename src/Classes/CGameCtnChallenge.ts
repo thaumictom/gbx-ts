@@ -1,4 +1,3 @@
-import { NodeReference } from '../Defintions';
 import CGameCtnBlock from './CGameCtnBlock';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';
@@ -17,11 +16,11 @@ export default class CGameCtnChallenge {
 	public authorTime?: number;
 	public authorVersion?: number;
 	public authorZone?: string;
-	public blocks?: (NodeReference<CGameCtnBlock> | CGameCtnBlock)[];
-	public blockStock?: NodeReference<CGameCtnCollectorList>;
+	public blocks?: CGameCtnBlock[];
+	public blockStock?: CGameCtnCollectorList;
 	public bronzeTime?: number;
 	public buildVersion?: string;
-	public challengeParameters?: NodeReference<CGameCtnChallengeParameters>;
+	public challengeParameters?: CGameCtnChallengeParameters;
 	public checkpoints?: Int3[];
 	public comments?: string;
 	public cost?: number;
@@ -416,8 +415,8 @@ export default class CGameCtnChallenge {
 			}
 
 			let author: string | undefined;
-			let skin: NodeReference<CGameCtnBlockSkin> | undefined;
-			let waypointSpecialProperty: NodeReference<CGameWaypointSpecialProperty> | undefined;
+			let skin: CGameCtnBlockSkin | undefined;
+			let waypointSpecialProperty: CGameWaypointSpecialProperty | undefined;
 
 			if ((flags & 0x8000) != 0) {
 				author = r.readLookbackString();
@@ -604,8 +603,6 @@ export default class CGameCtnChallenge {
 	 * (Skippable/Encapsulated) Items
 	 * @games MP3 and above
 	 */
-	public anchoredObjects?: any;
-
 	protected 0x03043040 = ({ r, length }: Chunk, f: ChunkFunctions) => {
 		f.readVersion(r.readUInt32());
 

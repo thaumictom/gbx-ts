@@ -1,4 +1,3 @@
-import { NodeReference } from '../Defintions';
 import CGameCtnGhost from './CGameCtnGhost';
 
 /**
@@ -13,7 +12,7 @@ export default class CGameCtnChallengeParameters {
 	public isValidatedForScriptModes?: boolean;
 	public mapStyle?: string;
 	public mapType?: string;
-	public raceValidationGhost?: NodeReference<CGameCtnGhost>;
+	public raceValidationGhost?: CGameCtnGhost;
 	public silverTime?: number;
 	public timeLimit?: number;
 	public tip?: string;
