@@ -15,7 +15,7 @@ export default class CGameCtnGhost extends CGameGhost {
 		layers?: string[];
 	};
 	public checkpoints?: { time: number; speed: number }[];
-	public controlEntries?: { name: string; time: number; onoff: number; analog: boolean }[];
+	public controlEntries?: { name: string; time: number; value: number; analog: boolean }[];
 	public controlNames?: string[];
 	public eventsDuration?: number;
 	public ghostAvatarName?: string;
@@ -248,12 +248,12 @@ export default class CGameCtnGhost extends CGameGhost {
 		this.controlEntries = r.createArray(nbControlEntries, () => {
 			const time = r.readUInt32() + 100000;
 			const controlNameIndex = r.readByte();
-			const onoff = r.readUInt32();
+			const value = r.readUInt32();
 
 			const name = this.controlNames![controlNameIndex];
 			const analog = ['Steer', 'Gas', 'AccelerateReal', 'BrakeReal'].includes(name);
 
-			return { name, time, onoff, analog };
+			return { name, time, value, analog };
 		});
 
 		this.validationExeVersion = r.readString();

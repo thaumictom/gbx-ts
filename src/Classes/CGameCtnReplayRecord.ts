@@ -14,7 +14,7 @@ export default class CGameCtnReplayRecord {
 	public authorVersion?: number;
 	public authorZone?: string;
 	public challengeData?: GBX<CGameCtnChallenge>;
-	public controlEntries?: { name: any; time: number; onoff: number; analog: boolean }[];
+	public controlEntries?: { name: any; time: number; value: number; analog: boolean }[];
 	public controlNames?: string[];
 	public eventsDuration?: number;
 	public extras?: { extra1: number; extra2: number }[];
@@ -150,12 +150,12 @@ export default class CGameCtnReplayRecord {
 		this.controlEntries = r.createArray(nbControlEntries, () => {
 			const time = r.readUInt32() + 100000;
 			const controlNameIndex = r.readByte();
-			const onoff = r.readUInt32();
+			const value = r.readUInt32();
 
 			const name = this.controlNames![controlNameIndex];
 			const analog = ['Steer', 'Gas', 'AccelerateReal', 'BrakeReal'].includes(name);
 
-			return { name, time, onoff, analog };
+			return { name, time, value, analog };
 		});
 	};
 
