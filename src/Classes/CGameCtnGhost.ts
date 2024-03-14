@@ -1,3 +1,4 @@
+import { NodeReference } from '../Defintions';
 import CGameGhost from './CGameGhost';
 import CPlugEntRecordData from './CPlugEntRecordData';
 

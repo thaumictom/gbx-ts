@@ -1,5 +1,6 @@
-import { collectionIDs } from '../Data/CollectionIDs';
 import { GBXReader } from '../GBXReader';
+import { NodeReference } from '../Defintions';
+import { collectionIDs } from '../Data/CollectionIDs';
 import { Hex, Logger, Merger } from '../Handlers';
 
 /**

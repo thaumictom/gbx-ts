@@ -1,3 +1,4 @@
+import { NodeReference } from '../Defintions';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
 

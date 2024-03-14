@@ -1,3 +1,4 @@
+import { NodeReference } from '../Defintions';
 import CGameCtnMediaTrack from './CGameCtnMediaTrack';
 
 /**

@@ -1,4 +1,5 @@
 import { DataStream, FileHandlers, Logger, LZOHandler, Merger } from './Handlers';
+import { NodeReference } from './Defintions';
 import { GBXReader } from './GBXReader';
 
 export default class GBX<NodeType> {
@@ -20,7 +21,7 @@ export default class GBX<NodeType> {
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders() {
+	public async parseHeaders<NodeType>(): Promise<NodeReference<NodeType>> {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -97,9 +98,9 @@ export default class GBX<NodeType> {
 	/**
 	 * Parses the GBX file entirely.
 	 */
-	public async parse() {
+	public async parse(): Promise<NodeReference<NodeType>> {
 		// Read headers
-		const header = await this.parseHeaders();
+		const header = await this.parseHeaders<NodeType>();
 
 		// Decompression
 		const uncompressedSize = this.stream.readUInt32();
@@ -118,7 +119,7 @@ export default class GBX<NodeType> {
 		this.chunks = { ...chunks, ...header.chunks };
 
 		return Promise.resolve({
-			node: Merger.mergeInstances<NodeType>(node, header.node),
+			node: Merger.mergeInstances(node, header.node),
 			chunks: { ...Merger.mergeChunks(chunks, unknowns, versions), ...header.chunks },
 		});
 	}

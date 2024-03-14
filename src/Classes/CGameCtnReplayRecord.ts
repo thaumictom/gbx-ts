@@ -1,3 +1,4 @@
+import { NodeReference } from '../Defintions';
 import GBX from '../GBX';
 import CGameCtnChallenge from './CGameCtnChallenge';
 import CGameCtnGhost from './CGameCtnGhost';

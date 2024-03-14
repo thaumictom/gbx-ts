@@ -1,3 +1,4 @@
+import { NodeReference } from '../Defintions';
 import CGameCtnBlock from './CGameCtnBlock';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';

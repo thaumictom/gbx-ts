@@ -40,11 +40,6 @@ interface ChunkList {
 	};
 }
 
-interface NodeReference<NodeType> {
-	node: NodeType;
-	chunks: ChunkList;
-}
-
 declare enum MapKind {
 	EndMarker,
 	Campaign,
