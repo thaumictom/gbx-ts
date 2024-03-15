@@ -3,6 +3,6 @@ export default class Node {
 		[key: number]: {
 			unknowns: any[];
 			version: any;
-		};
-	} | null = null;
+		} | null;
+	} = {};
 }

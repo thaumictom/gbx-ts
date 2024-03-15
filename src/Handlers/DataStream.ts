@@ -305,7 +305,7 @@ export default class DataStream {
 	}
 
 	/**
-	 * Skips to the next chunk within the same class ID. Very unsafe, as it does not take lookback strings into account, as it naively skips bytes.
+	 * Skips to the next chunk within the same class ID. Very unsafe, as it does not take lookback strings into account, because of its naive skip method.
 	 * @todo Add support for skipping nested chunks.
 	 */
 	public forceChunkSkip(fullChunkId: number): void {
