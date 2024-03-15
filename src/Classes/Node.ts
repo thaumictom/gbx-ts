@@ -1,3 +1,8 @@
 export default class Node {
-	public chunks?: Chunks;
+	public chunks: {
+		[key: number]: {
+			unknowns: any[];
+			version: any;
+		};
+	} | null = null;
 }
