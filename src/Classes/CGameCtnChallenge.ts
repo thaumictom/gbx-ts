@@ -1,3 +1,4 @@
+import Node from './Node';
 import CGameCtnBlock from './CGameCtnBlock';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';
@@ -8,7 +9,7 @@ import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
  * A map.
  * @chunk 0x03043000
  */
-export default class CGameCtnChallenge {
+export default class CGameCtnChallenge extends Node {
 	public authorExtraInfo?: string;
 	public authorLogin?: string;
 	public authorNickname?: string;

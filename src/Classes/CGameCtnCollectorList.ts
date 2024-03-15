@@ -1,8 +1,10 @@
+import Node from './Node';
+
 /**
  * A list of blocks defining the puzzle inventory.
  * @chunk 0x0301b000
  */
-export default class CGameCtnCollectorList {
+export default class CGameCtnCollectorList extends Node {
 	public blockSet?: { blockModel: IMeta; count: number }[];
 
 	/**

@@ -1,8 +1,10 @@
+import Node from './Node';
+
 /**
  * Data of an entity in a timeline.
  * @chunk 0x0911f000
  */
-export default class CPlugEntRecordData {
+export default class CPlugEntRecordData extends Node {
 	public compressedData?: number[];
 	public compressedSize?: number;
 	public uncompressedSize?: number;

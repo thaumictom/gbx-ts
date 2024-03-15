@@ -1,3 +1,4 @@
+import Node from './Node';
 import GBX from '../GBX';
 import CGameCtnChallenge from './CGameCtnChallenge';
 import CGameCtnGhost from './CGameCtnGhost';
@@ -7,7 +8,7 @@ import CPlugEntRecordData from './CPlugEntRecordData';
  * A replay.
  * @chunk 0x03093000 / 0x2407e000
  */
-export default class CGameCtnReplayRecord {
+export default class CGameCtnReplayRecord extends Node {
 	public authorExtraInfo?: string;
 	public authorLogin?: string;
 	public authorNickname?: string;

@@ -1,10 +1,11 @@
+import Node from './Node';
 import CGameCtnGhost from './CGameCtnGhost';
 
 /**
  * Parameters of a map.
  * @chunk 0x0305b000
  */
-export default class CGameCtnChallengeParameters {
+export default class CGameCtnChallengeParameters extends Node {
 	public authorScore?: number;
 	public authorTime?: number;
 	public bronzeTime?: number;

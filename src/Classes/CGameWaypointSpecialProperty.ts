@@ -1,7 +1,9 @@
+import Node from './Node';
+
 /**
  * Chunk 0x2e009000
  */
-export default class CGameWaypointSpecialProperty {
+export default class CGameWaypointSpecialProperty extends Node {
 	public order?: number;
 	public spawn?: number;
 	public tag?: string;

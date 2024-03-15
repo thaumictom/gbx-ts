@@ -38,7 +38,7 @@ export default class Merger {
 	}
 
 	/**
-	 * Merge two instances of the same class.
+	 * Destructively merge two instances of the same class.
 	 * @param target Instance to merge into.
 	 * @param source Instance to merge from.
 	 * @returns Merged instance.
@@ -50,6 +50,7 @@ export default class Merger {
 				target[key] = source[key];
 			}
 		}
+
 		return target;
 	}
 }

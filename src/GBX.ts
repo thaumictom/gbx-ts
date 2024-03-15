@@ -89,6 +89,7 @@ export default class GBX<NodeType> {
 		// Set list of chunks
 		this.chunks = chunks;
 
+		// @ts-ignore (Chunks does exist on node)
 		node.chunks = Merger.mergeChunks(chunks, unknowns, versions);
 
 		return Promise.resolve(node);
@@ -108,7 +109,7 @@ export default class GBX<NodeType> {
 
 		const bodyNode = new DataStream(await LZOHandler.decompress(compressedData));
 
-		Logger.debug(`Reading body data`);
+		Logger.debug('Reading body data');
 
 		const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
 			stream: bodyNode,
@@ -118,9 +119,10 @@ export default class GBX<NodeType> {
 		const mergedNode = Merger.mergeInstances(headerNode, node);
 
 		// Set list of chunks
-		this.chunks = { ...chunks, ...headerNode.chunks };
+		this.chunks = { ...this.chunks, ...chunks };
 
-		mergedNode.chunks = { ...Merger.mergeChunks(chunks, unknowns, versions), ...headerNode.chunks };
+		// @ts-ignore (Chunks does exist on node)
+		mergedNode.chunks = { ...mergedNode.chunks, ...Merger.mergeChunks(chunks, unknowns, versions) };
 
 		return Promise.resolve(mergedNode);
 	}

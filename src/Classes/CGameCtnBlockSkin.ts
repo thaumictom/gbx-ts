@@ -1,8 +1,10 @@
+import Node from './Node';
+
 /**
  * Skin of a block.
  * @chunk 0x03059000
  */
-export default class CGameCtnBlockSkin {
+export default class CGameCtnBlockSkin extends Node {
 	public foregroundPackDesc?: string;
 	public packDesc?: string;
 	public parentPackDesc?: string;

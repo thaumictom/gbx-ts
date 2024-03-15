@@ -1,8 +1,10 @@
+import Node from './Node';
+
 /**
  * Ghost data.
  * @chunk 0x0303F000
  */
-export default class CGameGhost {
+export default class CGameGhost extends Node {
 	public isReplaying?: boolean;
 	public sampleData?: number[];
 
