@@ -1,4 +1,4 @@
-import { DataStream, Logger, Hex } from './Handlers';
+import { DataStream, Logger, Hex, Merger } from './Handlers';
 import { classWrap } from './Data/ClassWrap';
 import getNodeType from './Data/NodeTypes';
 
@@ -36,12 +36,7 @@ export class GBXReader<NodeType> {
 	/**
 	 * Reads a node.
 	 */
-	public readNode(): {
-		node: NodeType;
-		chunks: Chunks;
-		versions: Versions;
-		unknowns: Unknowns;
-	} {
+	public readNode(): NodeType {
 		const stream = this.options.stream as DataStream;
 
 		let chunks: Chunks = {};
@@ -81,12 +76,9 @@ export class GBXReader<NodeType> {
 			}
 		}
 
-		return {
-			node: this.current as NodeType,
-			chunks,
-			versions: this.versions,
-			unknowns: this.unknowns,
-		};
+		this.current.chunks = Merger.mergeChunks(chunks, this.unknowns, this.versions);
+
+		return this.current as NodeType;
 	}
 
 	/**
@@ -144,12 +136,7 @@ export class GBXReader<NodeType> {
 	/**
 	 * Reads a header chunk.
 	 */
-	public readHeaderChunk(classId: number): {
-		node: NodeType;
-		chunks: Chunks;
-		versions: Versions;
-		unknowns: Unknowns;
-	} {
+	public readHeaderChunk(classId: number): NodeType {
 		const headerChunks = this.options.headerChunks;
 
 		let chunks: Chunks = {};
@@ -173,11 +160,8 @@ export class GBXReader<NodeType> {
 			chunks[fullChunkId] = true;
 		}
 
-		return {
-			node: this.current as NodeType,
-			chunks,
-			versions: this.versions,
-			unknowns: this.unknowns,
-		};
+		this.current.chunks = Merger.mergeChunks(chunks, this.unknowns, this.versions);
+
+		return this.current as NodeType;
 	}
 }

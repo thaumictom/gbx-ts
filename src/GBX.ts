@@ -72,7 +72,7 @@ export default class GBX<NodeType> {
 
 		Logger.debug(`Reading header data`);
 
-		const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
+		const node = new GBXReader<NodeType>({
 			headerChunks,
 			classId: this.classId,
 		}).readHeaderChunk(this.classId);
@@ -85,12 +85,6 @@ export default class GBX<NodeType> {
 			return Promise.reject(new Error('[Unimplemented] External nodes are not supported'));
 
 		if (bodyCompression != 'C') return Promise.reject(new Error('Body is already decompressed'));
-
-		// Set list of chunks
-		this.chunks = chunks;
-
-		// @ts-ignore (Chunks does exist on node)
-		node.chunks = Merger.mergeChunks(chunks, unknowns, versions);
 
 		return Promise.resolve(node);
 	}
@@ -111,19 +105,11 @@ export default class GBX<NodeType> {
 
 		Logger.debug('Reading body data');
 
-		const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
+		const node = new GBXReader<NodeType>({
 			stream: bodyNode,
 			classId: this.classId!,
 		}).readNode();
 
-		const mergedNode = Merger.mergeInstances(headerNode, node);
-
-		// Set list of chunks
-		this.chunks = { ...this.chunks, ...chunks };
-
-		// @ts-ignore (Chunks does exist on node)
-		mergedNode.chunks = { ...mergedNode.chunks, ...Merger.mergeChunks(chunks, unknowns, versions) };
-
-		return Promise.resolve(mergedNode);
+		return Promise.resolve(Merger.mergeInstances(headerNode, node));
 	}
 }
