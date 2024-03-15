@@ -246,14 +246,12 @@ export default class DataStream {
 		if (index >= 0 && !isNodeInstantiated) {
 			const classId = this.readUInt32();
 
-			const { node, chunks, unknowns, versions } = new GBXReader<NodeType>({
+			const node = new GBXReader<NodeType>({
 				stream: this,
 				classId,
 			}).readNode();
 
 			this.nodeList[index] = node;
-
-			//node.chunks = Merger.mergeChunks(chunks, unknowns, versions);
 
 			return node;
 		}
