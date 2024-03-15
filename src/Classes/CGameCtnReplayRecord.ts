@@ -79,9 +79,8 @@ export default class CGameCtnReplayRecord extends Node {
 
 		const length = r.readUInt32();
 
-		this.challengeData = new GBX({
+		this.challengeData = new GBX<CGameCtnChallenge>({
 			stream: r.readBytes(length),
-			type: CGameCtnChallenge,
 		});
 	};
 

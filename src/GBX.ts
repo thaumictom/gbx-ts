@@ -3,9 +3,9 @@ import { GBXReader } from './GBXReader';
 
 export default class GBX<NodeType> {
 	private stream!: DataStream;
-	public classId?: number;
-	public chunks?: Chunks;
-	public node?: NodeType;
+	private classId?: number;
+	private chunks?: Chunks;
+	private node?: NodeType;
 
 	constructor(options: IOptions) {
 		if (options.path) {
