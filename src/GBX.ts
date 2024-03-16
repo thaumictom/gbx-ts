@@ -20,7 +20,7 @@ export default class GBX<NodeType> {
 	/**
 	 * Parses the headers of the GBX file.
 	 */
-	public async parseHeaders<NodeType>(): Promise<NodeType> {
+	public async parseHeaders(): Promise<NodeType> {
 		// Return if file does not contain the file magic.
 		if (this.stream.readString(3) != 'GBX') return Promise.reject(new Error('Not a GBX file'));
 
@@ -94,7 +94,7 @@ export default class GBX<NodeType> {
 	 */
 	public async parse(): Promise<NodeType> {
 		// Read headers
-		const headerNode = await this.parseHeaders<NodeType>();
+		const headerNode = await this.parseHeaders();
 
 		// Decompression
 		const uncompressedSize = this.stream.readUInt32();

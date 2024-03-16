@@ -1,15 +1,15 @@
-import Node from './Node';
 import CGameCtnBlock from './CGameCtnBlock';
 import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';
 import CGameCtnCollectorList from './CGameCtnCollectorList';
 import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
+import GameVersion from './Utilities/GameVersion';
 
 /**
  * A map.
  * @chunk 0x03043000
  */
-export default class CGameCtnChallenge extends Node {
+export default class CGameCtnChallenge extends GameVersion {
 	public authorExtraInfo?: string;
 	public authorLogin?: string;
 	public authorNickname?: string;

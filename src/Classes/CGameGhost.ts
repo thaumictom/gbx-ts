@@ -1,10 +1,10 @@
-import Node from './Node';
+import GameVersion from './Utilities/GameVersion';
 
 /**
  * Ghost data.
  * @chunk 0x0303F000
  */
-export default class CGameGhost extends Node {
+export default class CGameGhost extends GameVersion {
 	public isReplaying?: boolean;
 	public sampleData?: number[];
 
