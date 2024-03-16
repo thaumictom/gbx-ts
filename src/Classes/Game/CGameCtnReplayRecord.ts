@@ -1,9 +1,8 @@
-import Node from '../Node';
+import GameVersion from '../Utilities/GameVersion';
 import GBX from '../../GBX';
 import CGameCtnChallenge from './CGameCtnChallenge';
 import CGameCtnGhost from './CGameCtnGhost';
 import CPlugEntRecordData from '../Plug/CPlugEntRecordData';
-import GameVersion from '../Utilities/GameVersion';
 
 /**
  * A replay.
