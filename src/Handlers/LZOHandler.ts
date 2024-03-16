@@ -6,7 +6,6 @@ export default class LZOHandler {
 	 */
 	static async compress(data: Array<number>): Promise<Buffer> {
 		try {
-			// @ts-ignore
 			const { LZO } = await import('lzo-ts');
 			return LZO.compress(data) as Buffer;
 		} catch (error) {
@@ -22,7 +21,6 @@ export default class LZOHandler {
 	 */
 	static async decompress(data: Array<number>): Promise<Buffer> {
 		try {
-			// @ts-ignore
 			const { LZO } = await import('lzo-ts');
 			return LZO.decompress(data) as Buffer;
 		} catch (error) {
