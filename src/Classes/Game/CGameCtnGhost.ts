@@ -14,7 +14,7 @@ export default class CGameCtnGhost extends CGameGhost {
 		stickers?: { item1: string; item2: string }[];
 		layers?: string[];
 	};
-	public checkpoints?: { time: number; speed: number }[];
+	public checkpoints?: { time: number; speed?: number; stuntScore?: number }[];
 	public controlEntries?: { name: string; time: number; value: number; analog: boolean }[];
 	public controlNames?: string[];
 	public eventsDuration?: number;
@@ -133,7 +133,7 @@ export default class CGameCtnGhost extends CGameGhost {
 
 		this.checkpoints = r.createArray(nbCheckpoints, () => {
 			const time = r.readUInt32();
-			const speed = r.readUInt32();
+			const speed = r.readFloat();
 
 			return { time, speed };
 		});
@@ -184,6 +184,20 @@ export default class CGameCtnGhost extends CGameGhost {
 	 */
 	protected 0x0309200a = ({ r }: Chunk) => {
 		this.stuntScore = r.readUInt32();
+	};
+
+	/**
+	 * (Skippable) Checkpoints
+	 */
+	protected 0x0309200b = ({ r }: Chunk) => {
+		const nbCheckpoints = r.readUInt32();
+
+		this.checkpoints = r.createArray(nbCheckpoints, () => {
+			const time = r.readUInt32();
+			const stuntScore = r.readUInt32();
+
+			return { time, stuntScore };
+		});
 	};
 
 	/**
