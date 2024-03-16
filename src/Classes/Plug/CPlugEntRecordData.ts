@@ -1,4 +1,4 @@
-import Node from './Node';
+import Node from '../Node';
 
 /**
  * Data of an entity in a timeline.

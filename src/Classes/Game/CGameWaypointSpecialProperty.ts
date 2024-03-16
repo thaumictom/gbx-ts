@@ -1,4 +1,4 @@
-import Node from './Node';
+import Node from '../Node';
 
 /**
  * Chunk 0x2e009000

@@ -3,7 +3,7 @@ import CGameCtnBlockSkin from './CGameCtnBlockSkin';
 import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';
 import CGameCtnCollectorList from './CGameCtnCollectorList';
 import CGameWaypointSpecialProperty from './CGameWaypointSpecialProperty';
-import GameVersion from './Utilities/GameVersion';
+import GameVersion from '../Utilities/GameVersion';
 
 /**
  * A map.

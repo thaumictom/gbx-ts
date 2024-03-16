@@ -1,4 +1,4 @@
-import GameVersion from './Utilities/GameVersion';
+import GameVersion from '../Utilities/GameVersion';
 
 /**
  * Ghost data.

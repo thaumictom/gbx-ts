@@ -1,5 +1,5 @@
 import CGameGhost from './CGameGhost';
-import CPlugEntRecordData from './CPlugEntRecordData';
+import CPlugEntRecordData from '../Plug/CPlugEntRecordData';
 
 /**
  * A ghost.

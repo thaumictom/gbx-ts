@@ -1,4 +1,4 @@
-import Node from './Node';
+import Node from '../Node';
 
 /**
  * A list of blocks defining the puzzle inventory.
