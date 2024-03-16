@@ -246,7 +246,7 @@ export default class CGameCtnGhost extends CGameGhost {
 		f.readUnknown(r.readUInt32());
 
 		this.controlEntries = r.createArray(nbControlEntries, () => {
-			const time = r.readUInt32() + 100000;
+			const time = r.readUInt32() - 100000;
 			const controlNameIndex = r.readByte();
 			const value = r.readUInt32();
 
