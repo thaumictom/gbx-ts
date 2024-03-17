@@ -43,6 +43,15 @@ You can then use code completion (IntelliSense) to explore the properties of the
 - `parse()` Asynchronously parses the GBX file and returns the parsed class.
   - This method requires the optional dependency [lzo-ts](https://github.com/thaumictom/lzo-ts).
 
+### Logging
+
+If you want to override the default console logging behavior, you can pass a number as second argument to the GBX object to determine the loglevel.
+
+- `0` Errors only
+- `1` Warnings and errors (default)
+- `2` Info, warnings and errors
+- `3` Debug info, info, warnings and errors
+
 ### Game versions
 
 gbx-ts provides a few methods to check the game version of the _parsed_ GBX file taken from [gbx-tool-api](https://github.com/bigbang1112-cz/gbx-tool-api/blob/main/Src/GbxToolAPI/GameVersion.cs).
