@@ -1,7 +1,6 @@
 interface IOptions {
 	path?: string;
 	stream?: number[] | Buffer;
-	type?: any;
 }
 
 interface IHeaderChunks {
