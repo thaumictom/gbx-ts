@@ -5,7 +5,11 @@ export default class GBX<NodeType> {
 	private stream!: DataStream;
 	private classId?: number;
 
-	constructor(stream: Buffer | number[]) {
+	constructor(stream: Buffer | number[], loglevel: number = 2) {
+		if (loglevel >= 1) Logger.showWarns = true;
+		if (loglevel >= 2) Logger.showLogs = true;
+		if (loglevel >= 3) Logger.showDebug = true;
+
 		this.stream = new DataStream(stream);
 	}
 

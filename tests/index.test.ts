@@ -7,7 +7,7 @@ import { promises } from 'fs';
 
 import { test } from 'uvu';
 
-process.env.DEVEL = 'true';
+Logger.showDebug = true;
 
 test('TM2020 Map', async () => {
 	const file1 = await promises.readFile('./tests/files/Alive.Map.Gbx');

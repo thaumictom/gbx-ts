@@ -2,6 +2,10 @@
  * Handles logging.
  */
 export default class Logger {
+	static showLogs: boolean = false;
+	static showDebug: boolean = false;
+	static showWarns: boolean = false;
+
 	static reset = '\x1b[0m'; // Reset color
 
 	/**
@@ -20,16 +24,16 @@ export default class Logger {
 	 * @param args The arguments to log.
 	 */
 	public static log(...args: any[]): void {
+		if (!this.showLogs) return;
 		console.log(this.highlight('[INFO]', 34), ...args);
 	}
 
 	/**
-	 * Logs the given arguments to the console with the debug prefix,
-	 * if the environment variable DEVEL is true.
+	 * Logs the given arguments to the console with the debug prefix.
 	 * @param args The arguments to log.
 	 */
 	public static debug(...args: any[]): void {
-		if (process.env.DEVEL !== 'true') return;
+		if (!this.showDebug) return;
 		console.log(this.highlight('[DEBUG]', 35), ...args);
 	}
 
@@ -38,7 +42,7 @@ export default class Logger {
 	 * @param args The arguments to log.
 	 */
 	public static warn(...args: any[]): void {
-		if (process.env.WARN !== 'true') return;
+		if (!this.showWarns) return;
 		console.warn(this.highlight('[WARN]', 33), ...args);
 	}
 
@@ -51,12 +55,10 @@ export default class Logger {
 	}
 
 	/**
-	 * Logs the given arguments to the console in visible approach,
-	 * if the environment variable DEVEL is true.
+	 * Logs the given arguments to the console in a visible way.
 	 * @param args The arguments to log.
 	 */
 	public static outline(...args: any[]): void {
-		if (process.env.DEVEL !== 'true') return;
 		console.log(this.highlight('[DEVEL]', 41), this.highlight(args[0], 35), ...args.slice(1));
 	}
 }
