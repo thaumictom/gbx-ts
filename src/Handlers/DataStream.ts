@@ -1,6 +1,6 @@
 import { GBXReader } from '../GBXReader';
 import { collectionIDs } from '../Data/CollectionIDs';
-import { Hex, Logger, Merger } from '../Handlers';
+import { Hex, Logger } from '../Handlers';
 
 /**
  * Handle data streams.
