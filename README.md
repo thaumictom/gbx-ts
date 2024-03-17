@@ -2,7 +2,9 @@
 
 a slim, fast and easy to set up read-only Gamebox (GBX) parser written in TypeScript
 
-## Installation
+## Installation & Usage
+
+### Node.js
 
 Install the package using your desired package manager.
 
@@ -18,9 +20,7 @@ Additionally, if you plan to process the body of GBX files, you will need to ins
 npm install lzo-ts
 ```
 
-## Usage
-
-Instantiate a new GBX object with a data stream and a [supported class](#supported-gbx-file-types) to parse.
+Instantiate a new GBX object with a data stream. If you are using TypeScript, use a [supported class](#supported-gbx-file-types) as generic for full code completion.
 
 ```ts
 import { GBX, CGameCtnChallenge } from 'gbx';
@@ -32,25 +32,45 @@ const gbx = new GBX<CGameCtnChallenge>(stream);
 
 const result = await gbx.parse();
 
-console.log(result);
+console.log(result.mapName);
 ```
 
-You can then use code completion (IntelliSense) to explore the properties of the parsed GBX file.
+### Web environment
+
+If you are using the library in a web environment, you can include it directly from a CDN.
+
+```html
+<script src="https://www.unpkg.com/gbx"></script>
+<script lang="ts">
+	const { GBX } = gbx;
+
+	new GBX(stream);
+	// ...
+</script>
+```
+
+If you plan to process the body of GBX files, also add [lzo-ts](https://github.com/thaumictom/lzo-ts). Please note that it is licensed under the GPL-3.0 License.
+
+```html
+<script src="https://www.unpkg.com/lzo-ts"></script>
+```
+
+## Reference
+
+### Parameters
+
+- `stream` A Uint8Array or number array with the GBX file data.
+- `loglevel` (optional) A number to determine the loglevel.
+  - `0` Errors only
+  - `1` Warnings and errors (default)
+  - `2` Info, warnings and errors
+  - `3` Debug info, info, warnings and errors
 
 ### Methods
 
 - `parseHeaders()` asynchronously parses the headers of the GBX file and returns the parsed class.
 - `parse()` Asynchronously parses the GBX file and returns the parsed class.
   - This method requires the optional dependency [lzo-ts](https://github.com/thaumictom/lzo-ts).
-
-### Logging
-
-If you want to override the default console logging behavior, you can pass a number as second argument to the GBX object to determine the loglevel.
-
-- `0` Errors only
-- `1` Warnings and errors (default)
-- `2` Info, warnings and errors
-- `3` Debug info, info, warnings and errors
 
 ### Game versions
 
