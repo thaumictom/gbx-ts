@@ -1,41 +1,41 @@
 {
-  "name": "gbx",
-  "version": "1.0.0-alpha.1",
-  "description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
-  "keywords": [
-    "typescript",
-    "gbx",
-    "gbx-parser",
-    "maniaplanet",
-    "trackmania"
-  ],
-  "homepage": "https://github.com/ThaumicTom/gbx.js#readme",
-  "bugs": {
-    "web": "https://github.com/ThaumicTom/gbx.js/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ThaumicTom/gbx.js.git"
-  },
-  "license": "MIT",
-  "author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
-  "type": "module",
-  "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle watch",
-    "test": "uvu -r tsm tests"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.20",
-    "microbundle": "^0.15.1",
-    "tsm": "^2.3.0",
-    "typescript": "^5.3.3",
-    "uvu": "^0.5.6"
-  },
-  "optionalDependencies": {
-    "lzo-ts": "^0.1.0"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  }
+	"name": "gbx",
+	"version": "1.0.0-rc",
+	"description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
+	"keywords": [
+		"typescript",
+		"gbx",
+		"gbx-parser",
+		"maniaplanet",
+		"trackmania"
+	],
+	"homepage": "https://github.com/ThaumicTom/gbx.js#readme",
+	"bugs": {
+		"web": "https://github.com/ThaumicTom/gbx.js/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ThaumicTom/gbx.js.git"
+	},
+	"license": "MIT",
+	"author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
+	"type": "module",
+	"scripts": {
+		"build": "microbundle",
+		"dev": "microbundle watch",
+		"test": "uvu -r tsm tests"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.20",
+		"microbundle": "^0.15.1",
+		"tsm": "^2.3.0",
+		"typescript": "^5.3.3",
+		"uvu": "^0.5.6"
+	},
+	"optionalDependencies": {
+		"lzo-ts": "^0.1.1"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	}
 }
