@@ -30,6 +30,42 @@ console.log(gbx);
 
 You can then use code completion (IntelliSense) to explore the properties of the parsed GBX file.
 
+In the [list of supported types](#supported-gbx-file-types) you can use different classes to parse different GBX file types.
+
+### Options
+
+Supported options for the GBX class:
+
+- `path` Path to the GBX file.
+- `stream` A readable stream of the GBX file.
+
+Each option is mutually exclusive. If both are provided, `stream` will be used.
+
+### Methods
+
+- `parseHeaders()` asynchronously parses the headers of the GBX file and returns them.
+- `parse()` Asynchronously parses the GBX file and returns them.
+  - This method requires the optional dependency [lzo-ts](https://github.com/thaumictom/lzo-ts).
+
+### Game versions
+
+gbx-ts provides a few methods to check the game version of the _parsed_ GBX file taken from [gbx-tool-api](https://github.com/bigbang1112-cz/gbx-tool-api/blob/main/Src/GbxToolAPI/GameVersion.cs).
+
+- `isTM2020()` Returns true if the game is Trackmania 2020.
+- `isManiaPlanet()` Returns true if the game is based on ManiaPlanet (includes Turbo and 2020)
+- `isTurbo()` Returns true if the game is Trackmania Turbo. This method is not highly accurate.
+- `isTMF()` Returns true if the game is Trackmania Forever. This method is not highly accurate.
+
+### Utilities
+
+gbx-ts comes with a few utility functions that you can import with `import { Utils } from 'gbx';`
+
+- `Utils.getCheckpointCount(gbx: CGameCtnChallenge | CGameCtnGhost)` Returns a number with the amount of checkpoints in a map or ghost.
+- `Utils.getRespawnsCount(ghost: CGameCtnGhost)` Returns a number with the amount of respawns in a ghost.
+- `Utils.getCheckpointTimes(ghost: CGameCtnGhost)` Returns an array with the checkpoint times in a ghost.
+- `Utils.getSectorTimes(ghost: CGameCtnGhost)` Returns an array with the sector times (delta of each checkpoint time) of a ghost.
+- `Utils.getRespawnsByCheckpoint(ghost: CGameCtnGhost)` Returns an array of the amount of respawns per checkpoint in a ghost.
+
 ## Limitations
 
 gbx-ts
