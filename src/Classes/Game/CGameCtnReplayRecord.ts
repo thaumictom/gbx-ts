@@ -79,9 +79,7 @@ export default class CGameCtnReplayRecord extends GameVersion {
 
 		const length = r.readUInt32();
 
-		this.challengeData = new GBX<CGameCtnChallenge>({
-			stream: r.readBytes(length),
-		});
+		this.challengeData = new GBX<CGameCtnChallenge>(r.readBytes(length));
 	};
 
 	/**

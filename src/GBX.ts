@@ -1,18 +1,12 @@
-import { DataStream, FileHandlers, Logger, LZOHandler, Merger } from './Handlers';
+import { DataStream, Logger, LZOHandler, Merger } from './Handlers';
 import { GBXReader } from './GBXReader';
 
 export default class GBX<NodeType> {
 	private stream!: DataStream;
 	private classId?: number;
 
-	constructor(options: IOptions) {
-		if (options.path) {
-			this.stream = new DataStream(FileHandlers.getBufferFromPathSync(options.path));
-		}
-
-		if (options.stream) {
-			this.stream = new DataStream(options.stream);
-		}
+	constructor(stream: Buffer | number[]) {
+		this.stream = new DataStream(stream);
 	}
 
 	/**

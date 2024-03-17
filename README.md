@@ -20,31 +20,27 @@ npm install lzo-ts
 
 ## Usage
 
+Instantiate a new GBX object with a data stream and a [supported class](#supported-gbx-file-types) to parse.
+
 ```ts
 import { GBX, CGameCtnChallenge } from 'gbx';
+import { promises } from 'fs';
 
-const gbx = await new GBX<CGameCtnChallenge>({ path: 'path/to/file.Map.Gbx' }).parse();
+const stream = await promises.readFile('path/to/file.Map.Gbx');
 
-console.log(gbx);
+const gbx = new GBX<CGameCtnChallenge>(stream);
+
+const result = await gbx.parse();
+
+console.log(result);
 ```
 
 You can then use code completion (IntelliSense) to explore the properties of the parsed GBX file.
 
-In the [list of supported types](#supported-gbx-file-types) you can use different classes to parse different GBX file types.
-
-### Options
-
-Supported options for the GBX class:
-
-- `path` Path to the GBX file.
-- `stream` A readable stream of the GBX file.
-
-Each option is mutually exclusive. If both are provided, `stream` will be used.
-
 ### Methods
 
-- `parseHeaders()` asynchronously parses the headers of the GBX file and returns them.
-- `parse()` Asynchronously parses the GBX file and returns them.
+- `parseHeaders()` asynchronously parses the headers of the GBX file and returns the parsed class.
+- `parse()` Asynchronously parses the GBX file and returns the parsed class.
   - This method requires the optional dependency [lzo-ts](https://github.com/thaumictom/lzo-ts).
 
 ### Game versions

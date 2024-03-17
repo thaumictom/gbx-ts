@@ -1,8 +1,3 @@
-interface IOptions {
-	path?: string;
-	stream?: number[] | Buffer;
-}
-
 interface IHeaderChunks {
 	chunkId: number;
 	chunkSize: number;
