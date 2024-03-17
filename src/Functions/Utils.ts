@@ -6,8 +6,8 @@ export namespace Utils {
 	 * @param gbx GBX of a CGameCtnChallenge.
 	 * @returns
 	 */
-	export function getAmountOfCheckpoints(gbx: CGameCtnChallenge | CGameCtnGhost) {
-		if (gbx instanceof CGameCtnGhost) return gbx.checkpoints?.length || 0;
+	export function getCheckpointCount(gbx: CGameCtnChallenge | CGameCtnGhost): number | undefined {
+		if (gbx instanceof CGameCtnGhost) return gbx.checkpoints?.length || undefined;
 
 		const blocksVersion = gbx.chunks?.[0x0304301f]?.version;
 
@@ -31,12 +31,16 @@ export namespace Utils {
 					linkedCheckpoints.add(waypoint.order);
 				}
 			});
-		} else nbCheckpoints = gbx.checkpoints?.length || 0;
+		} else return gbx.checkpoints?.length || undefined;
+
+		if (gbx.blocks === undefined) return undefined;
 
 		return nbCheckpoints;
 	}
 
-	function getRespawns(ghost: CGameCtnGhost) {
+	function getRespawns(
+		ghost: CGameCtnGhost
+	): { name: string; time: number; value: number; analog: boolean }[] | undefined {
 		return ghost.controlEntries?.filter((input) => input?.name == 'Respawn' && input?.value == 1);
 	}
 
@@ -45,7 +49,7 @@ export namespace Utils {
 	 * @param ghost GBX of a CGameCtnGhost.
 	 * @returns the amount of respawns.
 	 */
-	export function getAmountOfRespawns(ghost: CGameCtnGhost): number | undefined {
+	export function getRespawnsCount(ghost: CGameCtnGhost): number | undefined {
 		return getRespawns(ghost)?.length;
 	}
 
@@ -54,7 +58,7 @@ export namespace Utils {
 	 * @param ghost GBX of a CGameCtnGhost.
 	 * @returns the splits of each checkpoint.
 	 */
-	export function getCPTimes(ghost: CGameCtnGhost): number[] | undefined {
+	export function getCheckpointTimes(ghost: CGameCtnGhost): number[] | undefined {
 		return ghost.checkpoints?.map((checkpoint) => checkpoint.time);
 	}
 
@@ -63,9 +67,11 @@ export namespace Utils {
 	 * @param ghost GBX of a CGameCtnGhost.
 	 * @returns the amount of respawns per checkpoint.
 	 */
-	export function getAmountOfRespawnsPerCP(ghost: CGameCtnGhost) {
-		const checkpoints = getCPTimes(ghost) ?? [];
-		const respawns = getRespawns(ghost) ?? [];
+	export function getRespawnsByCheckpoint(ghost: CGameCtnGhost): number[] | undefined {
+		const checkpoints = getCheckpointTimes(ghost);
+		const respawns = getRespawns(ghost);
+
+		if (checkpoints === undefined || respawns === undefined) return undefined;
 
 		const respawnsPerCP = checkpoints.map(() => 0);
 
@@ -89,8 +95,10 @@ export namespace Utils {
 	 * @param ghost GBX of a CGameCtnGhost.
 	 * @returns the sector times.
 	 */
-	export function getSectorTimes(ghost: CGameCtnGhost) {
-		const checkpoints = getCPTimes(ghost) ?? [];
+	export function getSectorTimes(ghost: CGameCtnGhost): number[] | undefined {
+		const checkpoints = getCheckpointTimes(ghost);
+
+		if (checkpoints === undefined) return undefined;
 
 		return checkpoints.map((checkpoint, index, array) => {
 			const lastCheckpoint = array[index - 1] || 0;
