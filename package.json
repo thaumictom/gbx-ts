@@ -1,25 +1,16 @@
 {
 	"name": "gbx",
-	"version": "1.0.0-rc",
 	"description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
-	"keywords": [
-		"typescript",
-		"gbx",
-		"gbx-parser",
-		"maniaplanet",
-		"trackmania"
-	],
-	"homepage": "https://github.com/ThaumicTom/gbx.js#readme",
-	"bugs": {
-		"web": "https://github.com/ThaumicTom/gbx.js/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/ThaumicTom/gbx.js.git"
-	},
-	"license": "MIT",
 	"author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
-	"type": "module",
+	"version": "1.0.0-rc",
+	"license": "MIT",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"umd:main": "dist/umd/index.js",
+	"types": "dist/types/index.d.js",
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "microbundle",
 		"dev": "microbundle watch",
@@ -35,7 +26,22 @@
 	"optionalDependencies": {
 		"lzo-ts": "^0.1.1"
 	},
+	"homepage": "https://github.com/ThaumicTom/gbx.js#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ThaumicTom/gbx.js.git"
+	},
+	"bugs": {
+		"web": "https://github.com/ThaumicTom/gbx.js/issues"
+	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
-	}
+	},
+	"keywords": [
+		"typescript",
+		"gbx",
+		"gbx-parser",
+		"maniaplanet",
+		"trackmania"
+	]
 }
