@@ -31,6 +31,34 @@ type Chunks = { [x: number]: boolean };
 type Unknowns = { [x: number]: any[] };
 type Versions = { [x: number]: number };
 
+interface Int2 {
+	x: number;
+	y: number;
+}
+
+interface Int3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
+interface Vector2 {
+	x: number;
+	y: number;
+}
+
+interface Vector3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
+interface Byte3 {
+	x: number;
+	y: number;
+	z: number;
+}
+
 declare enum MapKind {
 	EndMarker,
 	Campaign,
@@ -62,34 +90,6 @@ declare enum EditorMode {
 	Simple,
 	HasGhostBlocks,
 	Gamepad = 4,
-}
-
-interface Int2 {
-	x: number;
-	y: number;
-}
-
-interface Int3 {
-	x: number;
-	y: number;
-	z: number;
-}
-
-interface Vector2 {
-	x: number;
-	y: number;
-}
-
-interface Vector3 {
-	x: number;
-	y: number;
-	z: number;
-}
-
-interface Byte3 {
-	x: number;
-	y: number;
-	z: number;
 }
 
 declare enum Direction {
