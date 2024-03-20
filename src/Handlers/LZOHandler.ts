@@ -6,10 +6,8 @@ export default class LZOHandler {
 	 */
 	static async compress(data: Array<number>): Promise<number[]> {
 		try {
-			const module =
-				typeof window === 'undefined' ? await import('lzo-ts') : (window as any)['lzoTs'];
-
-			return module.LZO.compress(data);
+			// @ts-expect-error
+			return LZO.compress(data);
 		} catch (error) {
 			console.error(error);
 			throw new Error('Failed to compress data, is the lzo-ts package installed?');
@@ -23,10 +21,8 @@ export default class LZOHandler {
 	 */
 	static async decompress(data: Array<number>): Promise<number[]> {
 		try {
-			const module =
-				typeof window === 'undefined' ? await import('lzo-ts') : (window as any)['lzoTs'];
-
-			return module.LZO.decompress(data);
+			// @ts-expect-error
+			return LZO.decompress(data);
 		} catch (error) {
 			console.error(error);
 			throw new Error('Failed to decompress data, is the lzo-ts package installed?');

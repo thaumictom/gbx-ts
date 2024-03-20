@@ -2,34 +2,38 @@
 	"name": "gbx",
 	"description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
 	"author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/ThaumicTom)",
-	"version": "1.0.0-rc2",
+	"version": "1.0.0-rc3",
 	"license": "MIT",
-	"type": "module",
 	"source": "src/index.ts",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"unpkg": "dist/index.cjs",
+	"types": "dist/index.d.ts",
 	"exports": {
-		"require": "./dist/gbx.cjs",
-		"default": "./dist/gbx.modern.js"
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
 	},
-	"main": "./dist/gbx.cjs",
-	"module": "./dist/gbx.module.js",
-	"unpkg": "./dist/gbx.umd.js",
 	"files": [
-		"dist"
+		"/dist"
 	],
 	"scripts": {
-		"build": "microbundle",
-		"dev": "microbundle watch",
+		"build:types": "tsc --emitDeclarationOnly",
+		"build:bundle": "tsm build/bundle.ts",
+		"build": "npm run build:bundle && npm run build:types",
 		"test": "uvu -r tsm tests"
 	},
 	"devDependencies": {
-		"@types/node": "^20.11.20",
-		"microbundle": "^0.15.1",
+		"@types/node": "^20.11.29",
+		"esbuild": "0.20.2",
 		"tsm": "^2.3.0",
-		"typescript": "^5.3.3",
+		"typescript": "^5.4.2",
 		"uvu": "^0.5.6"
 	},
 	"optionalDependencies": {
-		"lzo-ts": "^0.1.1"
+		"lzo-ts": "^0.2.0"
 	},
 	"homepage": "https://github.com/ThaumicTom/gbx.js#readme",
 	"repository": {
@@ -48,5 +52,6 @@
 		"gbx-parser",
 		"maniaplanet",
 		"trackmania"
-	]
+	],
+	"type": "module"
 }
