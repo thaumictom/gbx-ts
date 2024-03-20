@@ -12,7 +12,6 @@ const options: Parameters<typeof build>[0] = {
 // Platform neutral
 await build({
 	...options,
-	format: 'esm',
 	platform: 'neutral',
 	inject: ['build/platform_node.ts'],
 	outfile: 'dist/index.mjs',
@@ -21,7 +20,6 @@ await build({
 // Platform node
 await build({
 	...options,
-	format: 'iife',
 	platform: 'node',
 	inject: ['build/platform_node.ts'],
 	outfile: 'dist/index.js',
@@ -30,7 +28,6 @@ await build({
 // Platform browser
 await build({
 	...options,
-	format: 'cjs',
 	platform: 'browser',
 	inject: ['build/platform_browser.ts'],
 	outfile: 'dist/index.cjs',
