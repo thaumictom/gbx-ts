@@ -42,6 +42,7 @@ export default class CGameCtnGhost extends CGameGhost {
 	public validationExeVersion?: string;
 	public validationOsKind?: number;
 	public validationRaceSettings?: string;
+	public validationTitleId?: string;
 
 	/**
 	 * (Skippable) Basic information
@@ -246,10 +247,10 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * Validation (TMU)
 	 */
-	protected 0x03092011 = ({ r }: Chunk, f: ChunkFunctions, version?: number) => {
+	protected 0x03092011 = ({ r }: Chunk, f: ChunkFunctions) => {
 		this.eventsDuration = r.readUInt32();
 
-		if (this.eventsDuration == 0 && (version ?? 0) >= 1) return;
+		if (this.eventsDuration == 0) return;
 
 		f.readUnknown(r.readUInt32());
 
@@ -326,11 +327,11 @@ export default class CGameCtnGhost extends CGameGhost {
 	/**
 	 * Validation (TMUF)
 	 */
-	protected 0x03092019 = (chunk: Chunk, f: ChunkFunctions, version?: number) => {
-		this[0x03092011](chunk, f, version);
+	protected 0x03092019 = (chunk: Chunk, f: ChunkFunctions) => {
+		this[0x03092011](chunk, f);
 		const { r } = chunk;
 
-		if (this.eventsDuration == 0 && (version ?? 0) >= 1) return;
+		if (this.eventsDuration == 0) return;
 
 		f.readUnknown(r.readUInt32());
 	};
@@ -376,7 +377,7 @@ export default class CGameCtnGhost extends CGameGhost {
 
 		const version = f.readVersion(r.readUInt32());
 
-		this[0x03092019](chunk, f, version);
+		this[0x03092019](chunk, f);
 
 		this.steeringWheelSensitivity = r.readBoolean();
 	};
@@ -386,5 +387,15 @@ export default class CGameCtnGhost extends CGameGhost {
 	 */
 	protected 0x03092026 = ({ r }: Chunk, f: ChunkFunctions) => {
 		f.readUnknown(r.readNumbers(16));
+	};
+
+	/**
+	 * (Skippable) Title Id
+	 */
+	protected 0x03092028 = ({ r }: Chunk, f: ChunkFunctions) => {
+		if (this.eventsDuration == 0) return;
+
+		this.validationTitleId = r.readString();
+		f.readUnknown(r.readNumbers(32));
 	};
 }
