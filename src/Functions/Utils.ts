@@ -1,8 +1,10 @@
 import { CGameCtnChallenge, CGameCtnGhost } from '../Classes/Game';
+import { Logger } from '../Handlers';
 
 export namespace Utils {
 	/**
 	 * Gets amount of checkpoints of a map.
+	 * @todo Add support for checkpoints as items.
 	 * @param gbx GBX of a CGameCtnChallenge.
 	 * @returns
 	 */
@@ -34,6 +36,14 @@ export namespace Utils {
 		} else return gbx.checkpoints?.length || undefined;
 
 		if (gbx.blocks === undefined) return undefined;
+
+		// TODO Add support for checkpoints as items.
+		if (gbx.nbCheckpoints && nbCheckpoints < gbx.nbCheckpoints) {
+			Logger.warn(
+				"The amount of checkpoints doesn't match the amount of checkpoints in the header. Returning amount of header."
+			);
+			return gbx.nbCheckpoints;
+		}
 
 		return nbCheckpoints;
 	}
