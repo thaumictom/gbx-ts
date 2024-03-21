@@ -28,7 +28,8 @@ await build({
 // Platform browser
 await build({
 	...options,
+	globalName: 'gbx',
 	platform: 'browser',
 	inject: ['build/platform_browser.ts'],
-	outfile: 'dist/index.cjs',
+	outfile: 'dist/gbx.js',
 });

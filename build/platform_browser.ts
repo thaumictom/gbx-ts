@@ -1,11 +1,9 @@
-const { LZO } = window['lzoTs'];
-
 let LZOBrowser = {
 	compress: (buffer: Uint8Array | number[]): number[] => {
-		return LZO.compress(buffer);
+		return window['lzoTs'].LZO.compress(buffer);
 	},
 	decompress: (buffer: Uint8Array | number[]): number[] => {
-		return LZO.decompress(buffer);
+		return window['lzoTs'].LZO.decompress(buffer);
 	},
 };
 
