@@ -23,7 +23,7 @@
 		"build:types": "tsc --emitDeclarationOnly",
 		"build:bundle": "tsm build/bundle.ts",
 		"build": "npm run build:bundle && npm run build:types",
-		"dev": "esbuild src/index.ts --outfile=dist/index.mjs --platform=node --format=esm --external:lzo-ts --inject:./build/platform_node.ts --bundle --watch",
+		"dev": "esbuild src/index.ts --outfile=dist/index.js --platform=neutral --external:lzo-ts --inject:./build/platform_node.ts --bundle --watch",
 		"test": "uvu -r tsm tests"
 	},
 	"devDependencies": {
