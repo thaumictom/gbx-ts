@@ -73,7 +73,8 @@ export default class CGameCtnChallenge extends GameVersion {
 	public thumbnailPosition?: Vector3;
 	public thumbnailSize?: number;
 	public titleId?: string;
-	public worldDistortion?: Vector3;
+	public unlimiter?: number;
+    public worldDistortion?: Vector3;
 	public xml?: string;
 
 	/**
@@ -418,6 +419,20 @@ export default class CGameCtnChallenge extends GameVersion {
 			let author: string | undefined;
 			let skin: CGameCtnBlockSkin | undefined;
 			let waypointSpecialProperty: CGameWaypointSpecialProperty | undefined;
+
+            if (flags == 0x03043021) {
+                author = r.readLookbackString();
+                let ignoreMe = r.readLookbackString();
+
+                this.blocks?.push({
+					blockName,
+					direction,
+					position,
+					flags,
+				});
+                return false;
+            }
+
 
 			if ((flags & 0x8000) != 0) {
 				author = r.readLookbackString();
@@ -839,4 +854,46 @@ export default class CGameCtnChallenge extends GameVersion {
 		this.dynamicDaylight = r.readBoolean();
 		this.dayDuration = r.readUInt32();
 	};
+
+    protected 0x03043055 =  ({ r }: Chunk, f: ChunkFunctions) => {
+        const chunkVersion = f.readUnknown(r.readByte());
+        this.unlimiter = -1;
+        switch(chunkVersion) {
+            case 1:
+                this.unlimiter = 1.1;
+                break;
+            case 2:
+                this.unlimiter = 1.2;
+                break;
+        }
+        r.forceChunkSkip(0x03043055);
+    };
+    protected 0x3f001000 = ({ r }: Chunk, f: ChunkFunctions) => {
+        this.unlimiter = 1.3;
+        r.forceChunkSkip(0x3f001000);
+    };
+
+    protected 0x3f001001 = ({ r }: Chunk, f: ChunkFunctions) => {
+        const trackVersion = f.readUnknown(r.readByte());
+        this.unlimiter = -1;
+        switch (trackVersion) {
+            case 0: this.unlimiter = -1; break;
+            case 1: this.unlimiter = 0.4; break;
+            case 2: this.unlimiter = 0.6; break;
+            case 3: this.unlimiter = 0.7; break;
+            case 4: this.unlimiter = 1.1; break;
+            case 5: this.unlimiter = 1.2; break;
+            case 6: this.unlimiter = 1.3; break;
+            case 7: this.unlimiter = 2.0; break;
+        }
+        r.forceChunkSkip(0x3f001001);
+    };
+    protected 0x3f001002 = ({ r }: Chunk, f: ChunkFunctions) => {
+        this.unlimiter = 2.0;
+        r.forceChunkSkip(0x3f001002);
+    }
+    protected 0x3f001003 = ({ r }: Chunk, f: ChunkFunctions) => {
+        this.unlimiter = 2.0;
+        r.forceChunkSkip(0x3f001003);
+    }
 }
