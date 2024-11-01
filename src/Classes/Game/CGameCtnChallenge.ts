@@ -1,10 +1,8 @@
-import { error } from "console";
 import GameVersion from "../Utilities/GameVersion";
 import CGameCtnBlock from "./CGameCtnBlock";
 import CGameCtnBlockSkin from "./CGameCtnBlockSkin";
 import CGameCtnChallengeParameters from "./CGameCtnChallengeParameters";
 import CGameCtnCollectorList from "./CGameCtnCollectorList";
-import CGameCtnMediaBlock from "./CGameCtnMediaBlock";
 import CGameWaypointSpecialProperty from "./CGameWaypointSpecialProperty";
 
 /**
