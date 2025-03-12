@@ -2,6 +2,8 @@ import { GBXReader } from '../GBXReader';
 import { collectionIDs } from '../Data/CollectionIDs';
 import { Hex, Logger } from '../Handlers';
 
+const decoder = new TextDecoder();
+
 /**
  * Handle data streams.
  */
@@ -151,7 +153,7 @@ export default class DataStream {
 	public readString(count = 0): string {
 		// If no length is given, read the length first.
 		if (count == 0) count = this.readNumbers(4);
-		return String.fromCharCode(...this.readBytes(count));
+		return decoder.decode(new Uint8Array(this.readBytes(count)));
 	}
 
 	/**
