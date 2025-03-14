@@ -1,9 +1,11 @@
 import { DataStream, Logger, LZOHandler, Merger } from './Handlers';
 import { GBXReader } from './GBXReader';
+import { classWrap } from './Data/ClassWrap';
 
 export default class GBX<NodeType> {
 	private stream!: DataStream;
-	private classId?: number;
+	public classId?: number;
+	public wrappedClassId?: number;
 
 	constructor(stream: Buffer | number[], loglevel: number = 2) {
 		if (loglevel >= 1) Logger.showWarns = true;
@@ -38,6 +40,8 @@ export default class GBX<NodeType> {
 
 		// Class ID
 		this.classId = this.stream.readUInt32();
+
+		this.wrappedClassId = classWrap[this.classId];
 
 		// User data size
 		if (version >= 6) this.stream.readUInt32();
