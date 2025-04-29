@@ -344,6 +344,13 @@ export default class CGameCtnGhost extends CGameGhost {
 	};
 
 	/**
+	 *
+	 */
+	protected 0x0309201c = ({ r }: Chunk, f: ChunkFunctions) => {
+		f.readUnknown(r.readNumbers(32));
+	};
+
+	/**
 	 * (Skippable) Unknown
 	 */
 	protected 0x03092023 = ({ r }: Chunk, f: ChunkFunctions) => {
@@ -370,19 +377,6 @@ export default class CGameCtnGhost extends CGameGhost {
 	};
 
 	/**
-	 * (Skippable) Validation TM2
-	 */
-	protected 0x03092025 = (chunk: Chunk, f: ChunkFunctions) => {
-		const { r } = chunk;
-
-		const version = f.readVersion(r.readUInt32());
-
-		this[0x03092019](chunk, f);
-
-		this.steeringWheelSensitivity = r.readBoolean();
-	};
-
-	/**
 	 * (Skippable) Unknown
 	 */
 	protected 0x03092026 = ({ r }: Chunk, f: ChunkFunctions) => {
@@ -393,7 +387,7 @@ export default class CGameCtnGhost extends CGameGhost {
 	 * (Skippable) Title Id
 	 */
 	protected 0x03092028 = ({ r }: Chunk, f: ChunkFunctions) => {
-		if (this.eventsDuration == 0) return;
+		if (this.eventsDuration ?? 0 == 0) return;
 
 		this.validationTitleId = r.readString();
 		f.readUnknown(r.readNumbers(32));
