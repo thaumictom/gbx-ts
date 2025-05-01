@@ -5,6 +5,8 @@ import CGameCtnChallengeParameters from './CGameCtnChallengeParameters';
 import CGameCtnCollectorList from './CGameCtnCollectorList';
 import CGameCtnGhost from './CGameCtnGhost';
 import CGameCtnMediaClip from './CGameCtnMediaClip';
+import CGameCtnMediaBlock from './CGameCtnMediaBlock';
+import CGameCtnMediaBlockTriangles from './CGameCtnMediaBlockTriangles';
 import CGameCtnMediaTrack from './CGameCtnMediaTrack';
 import CGameCtnReplayRecord from './CGameCtnReplayRecord';
 import CGameGhost from './CGameGhost';
@@ -19,6 +21,8 @@ export {
 	CGameCtnGhost,
 	CGameCtnMediaClip,
 	CGameCtnMediaTrack,
+    CGameCtnMediaBlock,
+    CGameCtnMediaBlockTriangles,
 	CGameCtnReplayRecord,
 	CGameGhost,
 	CGameWaypointSpecialProperty,

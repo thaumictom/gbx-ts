@@ -11,6 +11,7 @@ export {
 	CGameCtnGhost,
 	CGameCtnMediaClip,
 	CGameCtnMediaTrack,
+    CGameCtnMediaBlock,
 	CGameCtnReplayRecord,
 	CGameGhost,
 	CGameWaypointSpecialProperty,

@@ -12,4 +12,5 @@ export const classWrap: { [DeprecatedClass: number]: number } = {
 	0x024062000: 0x03078000, // CGameCtnMediaTrack
 	0x024076000: 0x03079000, // CGameCtnMediaClip
 	0x02407e000: 0x03093000, // CGameCtnReplayRecord
+    0x00304B000: 0x03029000, // CGameMediaBlockTriangles
 };
