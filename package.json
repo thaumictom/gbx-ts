@@ -2,7 +2,7 @@
 	"name": "gbx",
 	"description": "a slim, fast and easy to set up Gamebox (GBX) parser written in TypeScript",
 	"author": "Petr Pivoňka (https://github.com/BigBang1112), Tom (https://github.com/thaumictom)",
-	"version": "1.0.0-rc8",
+	"version": "1.0.0-rc12",
 	"license": "MIT",
 	"source": "src/index.ts",
 	"main": "dist/index.js",
@@ -28,7 +28,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^20.11.29",
-		"esbuild": "0.20.2",
+		"esbuild": "0.25.0",
 		"tsm": "^2.3.0",
 		"typescript": "^5.4.2",
 		"uvu": "^0.5.6"

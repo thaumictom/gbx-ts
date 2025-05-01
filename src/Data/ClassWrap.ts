@@ -1,6 +1,7 @@
 export const classWrap: { [DeprecatedClass: number]: number } = {
 	0x021080000: 0x03043000, // CGameCtnChallenge (VSkipper)
 	0x02108d000: 0x03093000, // CGameCtnReplayRecord (VSkipper)
+
 	0x024003000: 0x03043000, // CGameCtnChallenge
 	0x02400c000: 0x0305b000, // CGameCtnChallengeParameters
 	0x02401b000: 0x03092000, // CGameCtnGhost
