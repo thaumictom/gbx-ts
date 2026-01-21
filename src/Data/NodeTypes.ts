@@ -17,6 +17,7 @@ export default function getNodeType(classId: number): ChunkType {
 		0x03093000: Game.CGameCtnReplayRecord,
 		0x0911f000: Plug.CPlugEntRecordData,
 		0x2e009000: Game.CGameWaypointSpecialProperty,
+        0x3f001000: Game.CGameCtnChallenge
 	};
 
 	return chunkMap[classId];

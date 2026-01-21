@@ -5,6 +5,14 @@ import CGameCtnChallengeParameters from "./CGameCtnChallengeParameters";
 import CGameCtnCollectorList from "./CGameCtnCollectorList";
 import CGameWaypointSpecialProperty from "./CGameWaypointSpecialProperty";
 
+function getUnlimiterVersion(trackVersion: number): number | undefined {
+    let unlimiter = [undefined, 0.4, 0.6, 0.7, 1.1, 1.2, 1.3, 2.0];
+    if (trackVersion < 0 || trackVersion > 7) {
+        throw new Error("Invalid track version");
+    }
+    return unlimiter[trackVersion];
+}
+
 /**
  * A map.
  * @chunk 0x03043000
@@ -882,7 +890,7 @@ export default class CGameCtnChallenge extends GameVersion {
 
     protected 0x03043055 = ({ r }: Chunk, f: ChunkFunctions) => {
         const chunkVersion = f.readUnknown(r.readByte());
-        this.unlimiter = -1;
+        this.unlimiter = undefined;
         switch (chunkVersion) {
             case 1:
                 this.unlimiter = 1.1;
@@ -893,6 +901,7 @@ export default class CGameCtnChallenge extends GameVersion {
         }
         r.forceChunkSkip(0x03043055);
     };
+
     protected 0x3f001000 = ({ r }: Chunk, f: ChunkFunctions) => {
         this.unlimiter = 1.3;
         r.forceChunkSkip(0x3f001000);
@@ -900,41 +909,22 @@ export default class CGameCtnChallenge extends GameVersion {
 
     protected 0x3f001001 = ({ r }: Chunk, f: ChunkFunctions) => {
         const trackVersion = f.readUnknown(r.readByte());
-        this.unlimiter = -1;
-        switch (trackVersion) {
-            case 0:
-                this.unlimiter = -1;
-                break;
-            case 1:
-                this.unlimiter = 0.4;
-                break;
-            case 2:
-                this.unlimiter = 0.6;
-                break;
-            case 3:
-                this.unlimiter = 0.7;
-                break;
-            case 4:
-                this.unlimiter = 1.1;
-                break;
-            case 5:
-                this.unlimiter = 1.2;
-                break;
-            case 6:
-                this.unlimiter = 1.3;
-                break;
-            case 7:
-                this.unlimiter = 2.0;
-                break;
-        }
+        if (this.unlimiter == undefined)
+            this.unlimiter = getUnlimiterVersion(trackVersion);
         r.forceChunkSkip(0x3f001001);
     };
+
     protected 0x3f001002 = ({ r }: Chunk, f: ChunkFunctions) => {
-        this.unlimiter = 2.0;
+        const trackVersion = f.readUnknown(r.readByte());
+        if (this.unlimiter == undefined)
+            this.unlimiter = getUnlimiterVersion(trackVersion);
         r.forceChunkSkip(0x3f001002);
     };
+
     protected 0x3f001003 = ({ r }: Chunk, f: ChunkFunctions) => {
-        this.unlimiter = 2.0;
+        const trackVersion = f.readUnknown(r.readByte());
+        if (this.unlimiter == undefined)
+            this.unlimiter = getUnlimiterVersion(trackVersion);
         r.forceChunkSkip(0x3f001003);
     };
 }
